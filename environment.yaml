@@ -15,4 +15,3 @@ dependencies:
   - pytest=8.0.2
   - pip=24.0
   - pip:
-    - gcma==1.0.3
