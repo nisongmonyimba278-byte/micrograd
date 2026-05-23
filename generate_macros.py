@@ -16,7 +16,7 @@ opt.run(max_iter=40, beta_continuation=[1,2,4,8,16])
 fd = opt.msh.topology.dim - 1
 Vc = opt.c_h.function_space
 dofs = fem.locate_dofs_topological(Vc, fd, opt.boundary_data["outlet"])
-y_out = opt.msh.geometry.x[dofs, 1
+y_out = opt.msh.geometry.x[dofs, 1]
     f"\newcommand{{\rmseTree}}{{{rmse_tree:.4f}}}",
     f"\newcommand{{\Rtree}}{{{R_tree:.3e}}}",
     f"\newcommand{{\reductionPercent}}{{{reduction:.1f}}}",

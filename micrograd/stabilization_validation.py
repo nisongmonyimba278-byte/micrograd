@@ -63,7 +63,7 @@ def solve_convection_diffusion(msh, boundary_data, rho_phys, u_h,
                             fem.locate_dofs_topological(V_conc, fdim, inlet2_facets),
                             V_conc)
     problem = LinearProblem(a, L, bcs=[bc_c1, bc_c2],
-                            petsc_options={"ksp_type": "preonly", "pc_type": "lu"})
+                            petsc_options={"ksp_type": "preonly", "pc_type": "lu"}, petsc_options_prefix="lp1_")
     return problem.solve()
 
 

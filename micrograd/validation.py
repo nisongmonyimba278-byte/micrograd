@@ -258,7 +258,7 @@ def solve_navier_stokes_and_convection(msh, boundary_data, mu=1e-3,
     bc_c1 = fem.dirichletbc(PETSc.ScalarType(1.0), fem.locate_dofs_topological(V_conc, fdim, inlet1), V_conc)
     bc_c2 = fem.dirichletbc(PETSc.ScalarType(0.0), fem.locate_dofs_topological(V_conc, fdim, inlet2), V_conc)
     problem_conc = LinearProblem(a_conc, L_conc, bcs=[bc_c1, bc_c2],
-                                 petsc_options={"ksp_type": "preonly", "pc_type": "lu"})
+                                 petsc_options={"ksp_type": "preonly", "pc_type": "lu"}, petsc_options_prefix="lp1_")
     c_h = problem_conc.solve()
 
     return u_h, p_h, c_h
