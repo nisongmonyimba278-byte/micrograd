@@ -16,7 +16,11 @@ opt.run(max_iter=40, beta_continuation=[1,2,4,8,16])
 fd = opt.msh.topology.dim - 1
 Vc = opt.c_h.function_space
 dofs = fem.locate_dofs_topological(Vc, fd, opt.boundary_data["outlet"])
-y_out = opt.msh.geometry.x[dofs, 1]
+y_out = opt.msh.geometry.x[dofs, 1
+    f"\newcommand{{\rmseTree}}{{{rmse_tree:.4f}}}",
+    f"\newcommand{{\Rtree}}{{{R_tree:.3e}}}",
+    f"\newcommand{{\reductionPercent}}{{{reduction:.1f}}}",
+]
 c_out = opt.c_h.x.array[dofs]
 rmse = float(np.sqrt(np.mean((np.clip(c_out, 0, 1) - y_out/Ly)**2)))
 
@@ -36,6 +40,19 @@ final_J   = float(opt.history[-1, 2])
 n_iter    = int(opt.history[-1, 0]) + 1
 vol_frac  = float(opt.V_star_final)
 
+# --- Christmas tree metrics ---
+from micrograd.christmas_tree import create_christmas_tree_density, simulate_christmas_tree
+rho_tree = create_christmas_tree_density(opt.msh, Lx=opt.Lx, Ly=opt.Ly)
+tree_res = simulate_christmas_tree(opt.msh, opt.boundary_data, rho_tree, opt.target_expr)
+c_tree = tree_res["concentration"]
+dofs_tree = fem.locate_dofs_topological(c_tree.function_space, fd, out)
+y_tree = opt.msh.geometry.x[dofs_tree, 1]
+c_tree_vals = c_tree.x.array[dofs_tree]
+rmse_tree = float(np.sqrt(np.mean((np.clip(c_tree_vals, 0, 1) - y_tree/Ly)**2)))
+Q_tree = float(abs(fem.assemble_scalar(fem.form(ufl.dot(tree_res["velocity"], n) * ds_out))))
+R_tree = 1000.0 / Q_tree if Q_tree > 1e-30 else float("inf")
+reduction = (1 - R/R_tree) * 100 if R_tree != float("inf") else 0.0
+
 print(f"RMSE         = {rmse:.4e}")
 print(f"Hydraulic R  = {R:.4e} Pa.s/m^3")
 print(f"Flow rate Q  = {Q:.4e} m^3/s")
@@ -43,6 +60,9 @@ print(f"Max velocity = {U_max:.4e} m/s")
 print(f"Final J      = {final_J:.4e}")
 print(f"Iterations   = {n_iter}")
 print(f"Vol fraction = {vol_frac:.4f}")
+    print(f"Tree RMSE    = {rmse_tree:.4e}")
+    print(f"Tree Hyd R   = {R_tree:.4e} Pa.s/m^3")
+    print(f"Reduction    = {reduction:.1f}%")
 
 # Write macros.tex
 lines = [

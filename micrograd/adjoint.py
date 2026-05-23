@@ -3,6 +3,7 @@ import numpy as np, basix.ufl
 from dolfinx import fem
 from dolfinx.fem.petsc import LinearProblem
 import ufl
+import basix.ufl
 from petsc4py import PETSc
 from .utilities import alpha, D_eff, alpha_max, alpha_min, D_min, p_simp
 
@@ -22,7 +23,7 @@ def adjoint_and_sensitivity(msh, boundary_data, rho_phys, u_h, c_h, target_expr,
     ds_out = ufl.Measure("ds", domain=msh, subdomain_data=ft, subdomain_id=3)
 
     gamma = fem.Constant(msh, PETSc.ScalarType(1e12))
-    ds_walls = ufl.Measure("ds", domain=msh, subdomain_data=ft, subdomain_id=0)
+    ds_walls = ufl.Measure("ds", domain=msh, subdomain_data=ft, subdomain_id=4)
 
     # ---- Concentration adjoint ----
     lam, phi = ufl.TrialFunction(Vc), ufl.TestFunction(Vc)
@@ -53,7 +54,7 @@ def adjoint_and_sensitivity(msh, boundary_data, rho_phys, u_h, c_h, target_expr,
 
     rhs_expr = lam_h * ufl.grad(c_h)
     rhs_func = fem.Function(Vv)
-    rhs_func.interpolate(fem.Expression(rhs_expr, Vv.element.interpolation_points()))
+    rhs_func.interpolate(fem.Expression(rhs_expr, Vv.element.interpolation_points()
     L_adj = - ufl.inner(rhs_func, w_s) * ufl.dx
 
     w_adj = LinearProblem(a_adj, L_adj, bcs=[],
