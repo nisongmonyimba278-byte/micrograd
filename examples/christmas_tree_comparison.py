@@ -1,33 +1,36 @@
-import numpy as np, matplotlib.pyplot as plt, os
-from micrograd.christmas_tree import create_christmas_tree_density, simulate_christmas_tree
 from micrograd import GradientGeneratorOptimizer
+from micrograd.christmas_tree import create_christmas_tree_density, simulate_christmas_tree
+import matplotlib; matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import numpy as np, os
+from dolfinx import fem
+import ufl
 
 def main():
     os.makedirs('figures', exist_ok=True)
-    # Topology-optimised
-    opt = GradientGeneratorOptimizer(Lx=2000e-6, Ly=500e-6, nx=20, ny=5,
-                                     target_expr=lambda x: x[1]/500e-6, V_star=0.5)
-    rho_opt = opt.run(max_iter=150, beta_continuation=[1,2,4,8,16])
-    c_opt = opt.c_h; x = opt.msh.geometry.x
-    nodes_opt = np.where(np.isclose(x[:,0], opt.Lx))[0]
-    y_opt = x[nodes_opt,1]; c_opt_vals = c_opt.x.array[nodes_opt]
-    idx = np.argsort(y_opt); y_opt, c_opt_vals = y_opt[idx], c_opt_vals[idx]
+    Ly = 500e-6
+    opt = GradientGeneratorOptimizer(
+        Lx=2000e-6, Ly=Ly, nx=20, ny=5,
+        target_expr=lambda x: x[1]/Ly, w_f=1e-7, w_c=5e4, V_star=0.5)
+    rho_opt = opt.run(max_iter=400, beta_continuation=[1,2,4,8,16], move=0.02)
 
-    # Christmas tree
+    c_h = opt.c_h
+    ft  = opt.boundary_data["facet_tag"]
+    dofs = fem.locate_dofs_topological(c_h.function_space, 1, opt.boundary_data["outlet"])
+    y_out = opt.msh.geometry.x[dofs, 1]
+    idx   = np.argsort(y_out); y_s = y_out[idx]
+    c_opt = c_h.x.array[dofs][idx]
+
     rho_tree = create_christmas_tree_density(opt.msh, Lx=opt.Lx, Ly=opt.Ly)
-    tree_res = simulate_christmas_tree(opt.msh, opt.boundary_data, rho_tree, lambda x: x[1]/500e-6)
-    c_tree = tree_res["concentration"]
-    nodes_tree = np.where(np.isclose(x[:,0], opt.Lx))[0]
-    y_tree = x[nodes_tree,1]; c_tree_vals = c_tree.x.array[nodes_tree]
-    idx = np.argsort(y_tree); y_tree, c_tree_vals = y_tree[idx], c_tree_vals[idx]
+    tree_res = simulate_christmas_tree(opt.msh, opt.boundary_data, rho_tree, opt.target_expr)
+    c_tree   = tree_res["concentration"].x.array[dofs][idx]
 
-    plt.figure()
-    plt.plot(y_opt*1e6, c_opt_vals, 'b-', label='TopOpt')
-    plt.plot(y_tree*1e6, c_tree_vals, 'r-', label='Christmas tree')
-    plt.plot([0,500], [0,1], 'k--', label='Target')
-    plt.xlabel('y (µm)'); plt.ylabel('Concentration'); plt.legend()
-    plt.title('Comparison: TopOpt vs. Christmas tree')
-    plt.savefig('figures/comparison.pdf'); plt.close()
+    fig, ax = plt.subplots()
+    ax.plot(y_s*1e6, c_opt,  'b-',  label='TopOpt')
+    ax.plot(y_s*1e6, c_tree, 'g--', label='Christmas tree')
+    ax.plot(y_s*1e6, y_s/Ly, 'r:',  label='Target')
+    ax.set_xlabel('y (µm)'); ax.set_ylabel('c'); ax.legend()
+    fig.savefig('figures/comparison.pdf', bbox_inches='tight'); plt.close()
     print("Comparison saved to figures/comparison.pdf")
-if __name__ == "__main__":
-    main()
+
+if __name__ == '__main__': main()

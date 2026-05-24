@@ -8,7 +8,7 @@ def main():
     for nx, ny in sizes:
         opt = GradientGeneratorOptimizer(Lx=2000e-6, Ly=500e-6, nx=nx, ny=ny,
                                          target_expr=lambda x: x[1]/500e-6, V_star=0.5)
-        rho_phys = opt.run(max_iter=30, beta_continuation=[1,2,4,8,16])
+        rho_phys = opt.run(max_iter=400, beta_continuation=[1,2,4,8,16,32,64], move=0.05)
         c_h = opt.c_h; x = opt.msh.geometry.x
         outlet_nodes = np.where(np.isclose(x[:,0], opt.Lx))[0]
         y_out = x[outlet_nodes,1]; c_out = c_h.x.array[outlet_nodes]
