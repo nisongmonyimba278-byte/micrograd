@@ -1,71 +1,52 @@
-#!/bin/bash
-export PYVISTA_OFF_SCREEN=true
-export MPLBACKEND=Agg
-source /home/nison/miniconda3/etc/profile.d/conda.sh
-conda activate fenicsx
-source /home/nison/miniconda3/etc/profile.d/conda.sh
-conda activate fenicsx
-cd ~/micrograd
+#!/usr/bin/env bash
+# run_all.sh — works both inside Docker (dolfinx container) and local conda env
+set -euo pipefail
+
+# Use container python3 if the conda env isn't present
+if command -v conda &>/dev/null && conda env list | grep -q fenicsx; then
+    source "$(conda info --base)/etc/profile.d/conda.sh"
+    conda activate fenicsx
+    PY="python3"
+else
+    PY="python3"
+fi
+
+# Install micrograd in the current environment if not already installed
+$PY -m pip install -e . --no-deps -q 2>/dev/null || true
 
 echo "============================================================"
-echo " micrograd — running scripts one by one"
+echo " micrograd — full pipeline"
+echo " Python: $($PY --version)"
 echo "============================================================"
 
-# ── 1. linear_target ─────────────────────────────────────────
-echo ""
-echo ">>> [1/7] linear_target.py"
-/home/nison/miniconda3/envs/fenicsx/bin/python examples/linear_target.py
-echo ""
-echo "--- Done. Press ENTER for next script ---"
-read
+mkdir -p figures docs/si
 
-# ── 2. double_peak_target ────────────────────────────────────
-echo ""
-echo ">>> [2/7] double_peak_target.py"
-/home/nison/miniconda3/envs/fenicsx/bin/python examples/double_peak_target.py
-echo ""
-echo "--- Done. Press ENTER for next script ---"
-read
+run_script() {
+    local label="$1"; local script="$2"
+    echo ""
+    echo ">>> $label"
+    if $PY "$script"; then
+        echo "    [ OK ] $label"
+    else
+        echo "    [WARN] $label exited non-zero — continuing"
+    fi
+}
 
-# ── 3. gallery_targets ───────────────────────────────────────
+run_script "[1/6] linear_target"          examples/linear_target.py
+run_script "[2/6] double_peak_target"     examples/double_peak_target.py
+run_script "[3/6] gallery_targets"        examples/gallery_targets.py
+run_script "[4/6] christmas_tree"         examples/christmas_tree_comparison.py
+run_script "[5/6] generate_macros"        generate_macros.py
 echo ""
-echo ">>> [3/7] gallery_targets.py"
-/home/nison/miniconda3/envs/fenicsx/bin/python examples/gallery_targets.py
-echo ""
-echo "--- Done. Press ENTER for next script ---"
-read
+echo ">>> [6/6] convergence_study"
+if python3 -m micrograd.convergence_study 2>&1; then
+    echo "    [ OK ] [6/6] convergence_study"
+else
+    echo "    [WARN] [6/6] convergence_study exited non-zero — continuing"
+fi
 
-# ── 4. christmas_tree_comparison ─────────────────────────────
 echo ""
-echo ">>> [4/7] christmas_tree_comparison.py"
-/home/nison/miniconda3/envs/fenicsx/bin/python examples/christmas_tree_comparison.py
-echo ""
-echo "--- Done. Press ENTER for next script ---"
-read
-
-# ── 5. generate_macros ───────────────────────────────────────
-echo ""
-echo ">>> [5/7] generate_macros.py"
-/home/nison/miniconda3/envs/fenicsx/bin/python generate_macros.py
-echo ""
-echo "--- Done. Press ENTER for next script ---"
-read
-
-# ── 6. convergence_study ─────────────────────────────────────
-echo ""
-echo ">>> [6/7] micrograd/convergence_study.py"
-/home/nison/miniconda3/envs/fenicsx/bin/python -m micrograd.convergence_study
-echo ""
-echo "--- Done. Press ENTER for next script ---"
-read
-
-# ── 7. scalability ───────────────────────────────────────────
-echo ""
-echo ">>> [7/7] micrograd/scalability.py"
-/home/nison/miniconda3/envs/fenicsx/bin/python -m micrograd.scalability
-echo ""
-echo "--- All scripts finished ---"
+echo "============================================================"
+echo " All scripts finished."
 echo " Figures saved in: figures/"
 echo "============================================================"
-echo "Press ENTER to exit."
-read

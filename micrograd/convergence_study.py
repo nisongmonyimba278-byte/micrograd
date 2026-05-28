@@ -140,3 +140,8 @@ def run_convergence_study(target_expr, Lx=2000e-6, Ly=500e-6,
     plt.close()
 
     return results
+
+if __name__ == "__main__":
+    run_convergence_study(lambda x: x[1]/500e-6,
+        mesh_sizes=[(40,10),(80,20),(160,40)],
+        output_dir="figures", max_iter=60)

@@ -1,36 +1,25 @@
 from micrograd import GradientGeneratorOptimizer
-from micrograd.christmas_tree import create_christmas_tree_density, simulate_christmas_tree
 import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import numpy as np, os
+import numpy as np
+import os, csv
 from dolfinx import fem
-import ufl
 
 def main():
     os.makedirs('figures', exist_ok=True)
-    Ly = 500e-6
-    opt = GradientGeneratorOptimizer(
-        Lx=2000e-6, Ly=Ly, nx=20, ny=5,
-        target_expr=lambda x: x[1]/Ly, w_f=1e-7, w_c=5e4, V_star=0.5)
-    rho_opt = opt.run(max_iter=400, beta_continuation=[1,2,4,8,16], move=0.02)
-
-    c_h = opt.c_h
-    ft  = opt.boundary_data["facet_tag"]
-    dofs = fem.locate_dofs_topological(c_h.function_space, 1, opt.boundary_data["outlet"])
-    y_out = opt.msh.geometry.x[dofs, 1]
-    idx   = np.argsort(y_out); y_s = y_out[idx]
-    c_opt = c_h.x.array[dofs][idx]
-
-    rho_tree = create_christmas_tree_density(opt.msh, Lx=opt.Lx, Ly=opt.Ly)
-    tree_res = simulate_christmas_tree(opt.msh, opt.boundary_data, rho_tree, opt.target_expr)
-    c_tree   = tree_res["concentration"].x.array[dofs][idx]
-
-    fig, ax = plt.subplots()
-    ax.plot(y_s*1e6, c_opt,  'b-',  label='TopOpt')
-    ax.plot(y_s*1e6, c_tree, 'g--', label='Christmas tree')
-    ax.plot(y_s*1e6, y_s/Ly, 'r:',  label='Target')
+    opt = GradientGeneratorOptimizer(Lx=2000e-6, Ly=500e-6, nx=80, ny=20,
+                                     target_expr=lambda x: x[1]/500e-6,
+                                     w_f=1e-7, w_c=5e4, V_star=0.5)
+    # rho initialised internally by optimizer
+    rho_phys = opt.run(max_iter=400, beta_continuation=[1,2,4,8,16], move=0.2)
+    c_h = opt.c_h; x = opt.msh.geometry.x
+    outlet_facets = opt.boundary_data["outlet"]
+    dofs = fem.locate_dofs_topological(c_h.function_space, 1, outlet_facets)
+    y_out = x[dofs,1]; c_out = c_h.x.array[dofs]
+    idx = np.argsort(y_out); y_s, c_s = y_out[idx], c_out[idx]
+    fig,ax=plt.subplots(); ax.plot(y_s*1e6,c_s,'b-',label='TopOpt')
+    ax.plot(y_s*1e6, y_s/500e-6, 'r--', label='target')
     ax.set_xlabel('y (µm)'); ax.set_ylabel('c'); ax.legend()
-    fig.savefig('figures/comparison.pdf', bbox_inches='tight'); plt.close()
+    fig.savefig('figures/comparison.pdf')
     print("Comparison saved to figures/comparison.pdf")
-
-if __name__ == '__main__': main()
+if __name__=='__main__': main()
