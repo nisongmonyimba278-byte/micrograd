@@ -17,5 +17,5 @@ def helmholtz_filter(rin, rout, V, rf):
 
 def heaviside_projection(r, rout, b, e=0.5):
     expr = (ufl.tanh(b*e)+ufl.tanh(b*(r-e)))/(ufl.tanh(b*e)+ufl.tanh(b*(1.0-e)))
-    rout.interpolate(fem.Expression(expr, rout.function_space.element.interpolation_points))
+    rout.interpolate(fem.Expression(expr, rout.function_space.element.interpolation_points()))
     rout.x.scatter_forward()
