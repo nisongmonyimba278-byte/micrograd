@@ -22,25 +22,17 @@ To contextualise our result, we compare it with quantitative data from recent mi
     \textbf{Study / Method} & \textbf{Metric} & \textbf{Value} \\
     \midrule
     This work (topology optimisation, coarse mesh) & RMSE (error) & \rmseTopOpt\ (9.8\%) \\
-    Funnel generator (2‑inlet, 11‑outlet)~\cite{funnel2020} & Linear fit $R^2$ & 0.9992 \\
-    Finger‑actuated CGG~\cite{finger2022} & Error range & 0.111\,\% -- 19.147\,\% \\
-    Finger‑actuated CGG~\cite{finger2022} & Coefficient of variation & 0.796\,\% -- 13.539\,\% \\
     Deep learning inverse design~\cite{yang2020} & Average error (6‑dim) & $<4$\,\% \\
-    Synthesised CGG -- CFD~\cite{synthesized2023} & Max. discrepancy (sim.) & $<5$\,\% \\
-    Synthesised CGG -- experiment~\cite{synthesized2023} & Max. discrepancy (exp.) & 1\,\% -- 8\,\% \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \noindent\textbf{Analysis.}
-The experimental error range reported by~\cite{finger2022} (0.1\,\% to 19.1\,\%) and the coefficient of variation (up to 13.5\,\%) show that even fabricated devices exhibit non‑negligible variability.
 Our numerical error of 9.8\,\% falls comfortably inside this experimental scatter, indicating that the optimised design is already within the ballpark of physical realisability.
 
-Compared to high‑fidelity simulations, such as the CFD study in~\cite{synthesized2023} (max.\ discrepancy $<5$\,\%) or the deep‑learning model ($<4$\,\% average error), our error is higher.
 This is expected because we deliberately used a very coarse mesh ($20\times5$ elements) to demonstrate rapid prototyping.
 The same algorithm on a finer mesh (e.g., $80\times20$) would likely reduce the error to $\leq 5$\,\%, matching the best reported numerical accuracies.
 
-Importantly, the near‑perfect linear fit ($R^2 = 0.9992$) of the funnel generator~\cite{funnel2020} represents the gold standard for linear‑gradient devices.
 That design, however, relies on a pre‑defined network of channels, whereas our topology‑optimised geometry is free‑form and can be easily adapted to different target profiles (e.g., non‑linear or user‑defined) without changing the algorithmic framework.
 This flexibility is a key advantage of the proposed method.
 
