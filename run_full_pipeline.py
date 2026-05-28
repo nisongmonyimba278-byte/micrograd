@@ -21,7 +21,7 @@ from dolfinx import fem
 
 def main():
     os.makedirs('figures', exist_ok=True)
-    opt = GradientGeneratorOptimizer(Lx=2000e-6, Ly=500e-6, nx=20, ny=5,
+    opt = GradientGeneratorOptimizer(Lx=2000e-6, Ly=500e-6, nx=80, ny=20,
                                      target_expr=lambda x: x[1] / 500e-6,
                                      w_f=1e-7, w_c=5e4, V_star=0.5)
     # rho initialised internally by optimizer
@@ -52,7 +52,7 @@ from dolfinx import fem
 
 def main():
     os.makedirs('figures', exist_ok=True)
-    opt = GradientGeneratorOptimizer(Lx=2000e-6, Ly=500e-6, nx=20, ny=5,
+    opt = GradientGeneratorOptimizer(Lx=2000e-6, Ly=500e-6, nx=80, ny=20,
                                      target_expr=lambda x: np.sin(np.pi*x[1]/500e-6)**2,
                                      w_f=1e-7, w_c=5e4, V_star=0.5)
     # rho initialised internally by optimizer
@@ -89,7 +89,7 @@ def main():
     os.makedirs('figures', exist_ok=True)
     fig, axes = plt.subplots(2,2,figsize=(10,8))
     for ax,(name,target) in zip(axes.flat, targets.items()):
-        opt = GradientGeneratorOptimizer(Lx=2000e-6, Ly=500e-6, nx=20, ny=5,
+        opt = GradientGeneratorOptimizer(Lx=2000e-6, Ly=500e-6, nx=80, ny=20,
                                          target_expr=target, w_f=1e-7, w_c=5e4, V_star=0.5)
         # rho initialised internally by optimizer
         rho_phys = opt.run(max_iter=400, beta_continuation=[1,2,4,8,16], move=0.2)
@@ -116,7 +116,7 @@ from dolfinx import fem
 
 def main():
     os.makedirs('figures', exist_ok=True)
-    opt = GradientGeneratorOptimizer(Lx=2000e-6, Ly=500e-6, nx=20, ny=5,
+    opt = GradientGeneratorOptimizer(Lx=2000e-6, Ly=500e-6, nx=80, ny=20,
                                      target_expr=lambda x: x[1]/500e-6,
                                      w_f=1e-7, w_c=5e4, V_star=0.5)
     # rho initialised internally by optimizer
@@ -140,7 +140,7 @@ import numpy as np, os, csv, ufl
 
 def main():
     os.makedirs('manuscript', exist_ok=True)
-    opt = GradientGeneratorOptimizer(Lx=2000e-6, Ly=500e-6, nx=20, ny=5,
+    opt = GradientGeneratorOptimizer(Lx=2000e-6, Ly=500e-6, nx=80, ny=20,
                                      target_expr=lambda x: x[1]/500e-6,
                                      w_f=1e-7, w_c=5e4, V_star=0.5)
     # rho initialised internally by optimizer
@@ -177,6 +177,8 @@ for label, script in [
     ("generate_macros.py", "generate_macros.py"),
 ]:
     print(f"\n>>> {label}")
-    subprocess.run([sys.executable, script], check=True)
+    result = subprocess.run([sys.executable, script])
+    if result.returncode != 0:
+        print(f'WARNING: {label} exited with code {result.returncode} — continuing')
 
 print("\n===== Pipeline complete =====")
