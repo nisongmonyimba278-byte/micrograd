@@ -33,7 +33,7 @@ done
 REPO_DIR="$HOME/micrograd"
 CONDA_BASE="$HOME/miniconda3"
 CONDA_ENV="fenicsx"
-CONDA_RUN="$CONDA_BASE/bin/conda run -n $CONDA_ENV --no-capture-output"
+CONDA_RUN=("$CONDA_BASE/bin/conda" run -n "$CONDA_ENV" --no-capture-output)
 MANUSCRIPT_DIR="$REPO_DIR/manuscript"
 WINDOWS_SRC="/mnt/c/Users/nison/OneDrive/Desktop/micrograd"
 START=$(date +%s)
@@ -77,8 +77,8 @@ if ! "$CONDA_BASE/bin/conda" env list | grep -q "^$CONDA_ENV "; then
 fi
 ok "Env ready"
 
-$CONDA_RUN pip install 'setuptools==59.5.0' nlopt 2>/dev/null || true
-$CONDA_RUN pip install -e . --no-deps
+"${CONDA_RUN[@]}" pip install 'setuptools==59.5.0' nlopt 2>/dev/null || true
+"${CONDA_RUN[@]}" pip install -e . --no-deps
 mkdir -p figures docs/si uq pareto
 ok "Package installed, output dirs ready"
 
@@ -87,12 +87,12 @@ run_step() {
   local label="$1"; shift
   step "$label"
   export PYTHONPATH="$REPO_DIR:${PYTHONPATH:-}"
-  $CONDA_RUN "$@"
+  "${CONDA_RUN[@]}" "$@"
   ok "$label"
 }
 run_optional() {
   local label="$1" check="$2"; shift 2
-  if $CONDA_RUN python3 -c "$check" &>/dev/null 2>&1; then
+  if "${CONDA_RUN[@]}" python3 -c "$check" &>/dev/null 2>&1; then
     run_step "$label" "$@"
   else
     warn "$label — dependency missing, skipping"
