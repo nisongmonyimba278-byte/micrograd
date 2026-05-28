@@ -8,7 +8,7 @@ A multi-objective cost functional simultaneously minimises viscous dissipation (
 Three contributions distinguish this work from prior literature.
 First, this is the first application of density-based topology optimisation to \emph{shape} a concentration profile at the outlet, rather than merely maximising mixing efficiency or minimising flow resistance.
 Second, the complete pipeline is released as the open-source Python package \texttt{micrograd}, which runs inside a standard Docker container, requires no proprietary software, and can be executed on a typical laptop.
-Third, the optimised designs outperform the classic Christmas-tree network by \reduction\% in hydraulic resistance (from \treeHydRes to \hydResTopOpt~Pa\(\cdot\)s/m\(^3\)) while maintaining a comparable outlet linearity (RMSE~=~\rmseTopOpt, or 9.8\%).
+Third, the optimised designs outperform the classic Christmas-tree network by \reduction\% in hydraulic resistance (from \treeHydRes to \hydResTopOpt~Pa\(\cdot\)s/m\(^3\)) while maintaining a comparable outlet linearity (RMSE~=~\rmseTopOpt, or $9.8$~pp of the full-scale range).
 
 The framework also demonstrates a unique generality, automatically generating channel networks for arbitrary target profiles --- linear, sigmoid, stair-step, and double-peak --- that are physically impossible to produce with a fixed tree-shaped generator.
 This flexibility opens the door to rapid, application-specific design of gradient generators for cell biology, drug screening, and chemical synthesis.

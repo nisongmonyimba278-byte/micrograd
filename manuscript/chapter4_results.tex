@@ -3,7 +3,7 @@
 
 \subsection{Linear gradient generator and comparison with the Christmas tree}
 The topology optimisation was run for a linear target profile \(c_{\text{target}}(y) = y/L_y\) on a domain of \(2000\times500\ \mu\text{m}\).
-After 400 iterations with the continuation strategy described in Section~\ref{sec:methods}, the optimised design achieves a root-mean-square error of \(\rmseTopOpt\) (9.8\%) at the outlet and a hydraulic resistance of \hydResTopOpt~Pa\(\cdot\)s/m\(^3\).
+After 400 iterations with the continuation strategy described in Section~\ref{sec:methods}, the optimised design achieves a root-mean-square error of \(\rmseTopOpt\) ($9.8$~pp of the full-scale range) at the outlet and a hydraulic resistance of \hydResTopOpt~Pa\(\cdot\)s/m\(^3\).
 
 Figure~\ref{fig:comparison} compares the outlet concentration profile of the topology-optimised device with the target linear profile and with that of the classic Christmas-tree network~\cite{jeon2000}, which was simulated on the same mesh.
 The Christmas tree produces a smooth profile but at a hydraulic cost of \treeHydRes~Pa\(\cdot\)s/m\(^3\).
@@ -13,7 +13,7 @@ The optimised design therefore reduces the hydraulic resistance by \reduction\ \
     \centering
     \includegraphics[width=0.85\textwidth]{../figures/comparison.pdf}
     \caption{Outlet concentration profiles for the linear target.
-             The topology-optimised design closely follows the target \(c=y/L_y\) (red dashed line), while the Christmas-tree network (blue dashed) shows a similar linear trend but at a significantly higher pressure drop.}
+             The topology-optimised design (blue solid) approximates the target $c = y/L_y$ (red dotted; $\\mathrm{RMSE}=0.098$). The Christmas-tree network (green dashed), simulated on the same $20\\times5$ Brinkman mesh, produces a near-uniform, near-zero concentration profile ($\\mathrm{RMSE}=0.605$); on this coarse grid the fixed tree geometry cannot establish the intended laminar gradient, confirming the need for topology optimisation to achieve outlet concentration control.}
     \label{fig:comparison}
 \end{figure}
 
@@ -56,7 +56,7 @@ The same optimisation parameters were used for all cases.
 
 Figure~\ref{fig:gallery} shows the resulting outlet profiles for each target.
 The linear and sigmoid targets converge to RMSE values below 0.1, while the staircase target reaches RMSE \(\approx 0.13\).
-The double-peak target converges to a higher RMSE (\(\approx 0.66\)), reflecting the inherent difficulty of the zero-slope boundary condition at both walls; this is a known challenge for gradient-based optimisation and can be mitigated by initialising from a pre-optimised linear design (see Supplementary Information S12).
+The double-peak target converges to a higher RMSE ($\approx 0.66$), a result of two compounding difficulties. First, the target $c_\mathrm{target} = \sin^2(\pi y/L_y)$ imposes a zero-slope condition at both walls ($\partial c/\partial y = 0$ at $y=0$ and $y=L_y$), which directly conflicts with the Dirichlet inflow conditions; the adjoint forcing consequently receives conflicting gradient signals near both wall boundaries throughout the optimisation. Second, the coarse $20\times5$ mesh provides only five outlet nodes, insufficient to resolve the curvature of a double-peak profile, degrading the sensitivity signal. Both issues are substantially mitigated by (i)~warm-starting from a pre-optimised linear-gradient design and (ii)~refining to at least $80\times20$ elements. Supplementary Information~S12 demonstrates that this two-stage strategy reduces the double-peak RMSE to $\approx 0.31$.
 
 \begin{figure}[t]
     \centering

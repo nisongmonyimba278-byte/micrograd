@@ -3,7 +3,7 @@ The method couples a Brinkman-penalised Stokes flow model with convection-diffus
 A multi-objective cost function simultaneously minimises viscous dissipation and the deviation of the outlet concentration profile from a user-defined target.
 Implemented entirely in the open-source finite-element library FEniCSx, the pipeline automatically discovers non-intuitive channel networks without any \emph{a~priori} topology.
 
-For a linear gradient target, the optimised design achieves a root-mean-square error of~0.098 (9.8\%) and a hydraulic resistance of \(4.48\times10^{8}\)\,Pa\(\cdot\)s/m\(^3\), representing a~99.7\% reduction compared to the classic Christmas-tree network (\(1.77\times10^{11}\)\,Pa\(\cdot\)s/m\(^3\)) while maintaining equivalent outlet linearity.
+For a linear gradient target, the optimised design achieves a root-mean-square error of~RMSE~$= 0.098$ and a hydraulic resistance of \(4.48\times10^{8}\)\,Pa\(\cdot\)s/m\(^3\), representing a~99.7\% reduction compared to the classic Christmas-tree network (\(1.77\times10^{11}\)\,Pa\(\cdot\)s/m\(^3\)) while maintaining equivalent outlet linearity.
 The framework also generates exotic, previously unrealisable profiles---sigmoid, stair-step, and double-peak---demonstrating its generality.
 All results are obtained on a coarse \(20\times5\) mesh, enabling rapid design cycles on standard hardware.
 The complete code, validation pipeline, and reproducibility instructions are provided as an open-source Python package.
