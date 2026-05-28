@@ -3,10 +3,10 @@
 
 \subsection{Linear gradient generator and comparison with the Christmas tree}
 The topology optimisation was run for a linear target profile \(c_{\text{target}}(y) = y/L_y\) on a domain of \(2000\times500\ \mu\text{m}\).
-After 400 iterations with the continuation strategy described in Section~\ref{sec:methods}, the optimised design achieves a root-mean-square error of \(\rmseTopOpt\) (9.8\%) at the outlet and a hydraulic resistance of \(\hydResTopOpt\)~Pa\(\cdot\)s/m\(^3\).
+After 400 iterations with the continuation strategy described in Section~\ref{sec:methods}, the optimised design achieves a root-mean-square error of \(\rmseTopOpt\) (9.8\%) at the outlet and a hydraulic resistance of \hydResTopOpt~Pa\(\cdot\)s/m\(^3\).
 
 Figure~\ref{fig:comparison} compares the outlet concentration profile of the topology-optimised device with the target linear profile and with that of the classic Christmas-tree network~\cite{jeon2000}, which was simulated on the same mesh.
-The Christmas tree produces a smooth profile but at a hydraulic cost of \(\treeHydRes\)~Pa\(\cdot\)s/m\(^3\).
+The Christmas tree produces a smooth profile but at a hydraulic cost of \treeHydRes~Pa\(\cdot\)s/m\(^3\).
 The optimised design therefore reduces the hydraulic resistance by \reduction\ \% while maintaining equivalent outlet linearity.
 
 \begin{figure}[t]
@@ -42,8 +42,8 @@ Table~\ref{tab:metrics} summarises the key performance metrics for both designs.
         \textbf{Metric} & \textbf{Topology-optimised} & \textbf{Christmas tree} \\
         \midrule
         RMSE               & \(\rmseTopOpt\) & 0.605 \\
-        Hydraulic resistance (Pa\(\cdot\)s/m\(^3\)) & \(\hydResTopOpt\) & \(\treeHydRes\) \\
-        Flow rate (m\(^3\)/s) & \(\flowRateTopOpt\) & \(5.64\times10^{-9}\) \\
+        Hydraulic resistance (Pa\(\cdot\)s/m\(^3\)) & \hydResTopOpt & \treeHydRes \\
+        Flow rate (m\(^3\)/s) & \flowRateTopOpt & \(5.64\times10^{-9}\) \\
         Max.\ velocity (m/s) & 0.30 & 0.22 \\
         Volume fraction (fluid) & 0.50 & 0.48 \\
         \bottomrule
