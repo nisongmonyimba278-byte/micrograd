@@ -23,7 +23,7 @@ def compute_rmse_outlet(c_h, target_expr, boundary_data):
     dofs = fem.locate_dofs_topological(V_conc, fdim, outlet_facets)
     x = V_conc.tabulate_dof_coordinates()[dofs]
     y = x[:, 1]
-    c_vals = c_h.vector.array[dofs]
+    c_vals = c_h.x.array[dofs]
     idx = np.argsort(y)
     y = y[idx]; c_vals = c_vals[idx]
     target_vals = target_expr(np.array([np.zeros_like(y), y]))
@@ -106,7 +106,7 @@ def run_filter_sensitivity(target_expr, Lx=2000e-6, Ly=500e-6,
         dofs = fem.locate_dofs_topological(V_conc, fdim, outlet_facets)
         x = V_conc.tabulate_dof_coordinates()[dofs]
         y = x[:, 1]
-        c_vals = c_h.vector.array[dofs]
+        c_vals = c_h.x.array[dofs]
         idx = np.argsort(y)
         plt.plot(y[idx]*1e6, c_vals[idx], '-', label=f"$r_f = {r['r_filter']*1e6:.1f}$ µm")
     plt.xlabel('y (µm)')
@@ -125,7 +125,7 @@ def run_filter_sensitivity(target_expr, Lx=2000e-6, Ly=500e-6,
         for ax, r in zip(axes, results):
             topology, cells, geometry = dolfinx.plot.vtk_mesh(r['V_rho'])
             grid = pv.UnstructuredGrid(cells, geometry, topology)
-            grid["density"] = r['rho_phys'].vector.array.real
+            grid["density"] = r['rho_phys'].x.array.real
             plotter = pv.Plotter(off_screen=True)
             plotter.add_mesh(grid, cmap="coolwarm", show_edges=False, clim=[0,1])
             plotter.view_xy()

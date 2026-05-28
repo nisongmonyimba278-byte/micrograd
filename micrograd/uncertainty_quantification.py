@@ -33,7 +33,7 @@ def evaluate_outlet_profile(msh, boundary_data, rho_phys, target_expr):
     dofs = fem.locate_dofs_topological(V_conc, fdim, outlet_facets)
     x = V_conc.tabulate_dof_coordinates()[dofs]
     y_out = x[:, 1]
-    c_out = c_h.vector.array[dofs]
+    c_out = c_h.x.array[dofs]
     idx = np.argsort(y_out)
     return y_out[idx], c_out[idx], c_h
 
@@ -57,7 +57,7 @@ def perturb_density_morph(msh, rho_base, width_variation, threshold=0.5):
     """
     delta_rho = width_variation * 0.1   # heuristic scaling
     rho_pert = fem.Function(rho_base.function_space)
-    rho_pert.vector.array[:] = np.clip(rho_base.vector.array + delta_rho, 0.0, 1.0)
+    rho_pert.x.array[:] = np.clip(rho_base.x.array + delta_rho, 0.0, 1.0)
     return rho_pert
 
 
