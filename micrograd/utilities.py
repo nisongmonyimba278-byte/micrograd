@@ -12,7 +12,7 @@ def helmholtz_filter(rin, rout, V, rf):
     u, v = ufl.TrialFunction(V), ufl.TestFunction(V)
     a = rf**2*ufl.inner(ufl.grad(u),ufl.grad(v))*ufl.dx + u*v*ufl.dx
     L = rin * v * ufl.dx
-    res = LinearProblem(a, L, bcs=[], petsc_options={"ksp_type":"cg","pc_type":"jacobi"}, petsc_options_prefix="helm_").solve()
+    res = LinearProblem(a, L, bcs=[], petsc_options={"ksp_type":"cg","pc_type":"jacobi"}).solve()
     rout.x.array[:] = res.x.array[:]; rout.x.scatter_forward()
 
 def heaviside_projection(r, rout, b, e=0.5):
