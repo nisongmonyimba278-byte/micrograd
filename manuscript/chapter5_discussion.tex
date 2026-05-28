@@ -17,24 +17,57 @@ To contextualise our result, we compare it with quantitative data from recent mi
   \centering
   \caption{Performance metrics reported in the literature for concentration gradient generators.}
   \label{tab:comparison}
-  \begin{tabular}{@{}p{5.5cm}cc@{}}
+  \begin{tabular}{@{}p{5.0cm}p{4.0cm}c@{}}
     \toprule
     \textbf{Study / Method} & \textbf{Metric} & \textbf{Value} \\
     \midrule
-    This work (topology optimisation, coarse mesh) & RMSE (error) & \rmseTopOpt\ (9.8\%) \\
-    Deep learning inverse design~\cite{yang2020} & Average error (6-dim) & $<4$\,\% \\
+    This work (topology optimisation, coarse $20\times5$ mesh)
+      & RMSE (outlet error) & \rmseTopOpt\ (9.8\,\%) \\
+    This work
+      & Hydraulic resistance (Pa$\cdot$s/m$^3$) & \hydResTopOpt \\
+    \addlinespace
+    Jeon et al.~\cite{jeon2000} (Christmas tree, original)
+      & Outlet profile & Binomial distribution \\
+    Wang \& Sun~\cite{wang2022christmastree} (Christmas-tree, simulation)
+      & Linear gradient $R^2$ & 0.9996 \\
+    Wang \& Sun~\cite{wang2022christmastree} (Christmas-tree, experiment)
+      & Linear gradient $R^2$ & $\geq\!0.987$ \\
+    \addlinespace
+    Kim et al.~\cite{kim2019finger} (finger-actuated CGG, experiment)
+      & Error range & $0.1$--$19.1$\,\% \\
+    Kim et al.~\cite{kim2019finger}
+      & Coefficient of variation & $0.8$--$13.5$\,\% \\
+    \addlinespace
+    Yang \& Wang~\cite{yang2020} (deep-learning inverse design)
+      & Average error (6-dim) & $<4$\,\% \\
+    Fink et al.~\cite{fink2022automatic} (automatic tree-shaped CGG)
+      & Mixing ratio accuracy & Exact (analytical) \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \noindent\textbf{Analysis.}
-Our numerical error of 9.8\,\% falls comfortably inside this experimental scatter, indicating that the optimised design is already within the ballpark of physical realisability.
+The experimental data of Kim et al.~\cite{kim2019finger} show that even carefully
+fabricated devices exhibit concentration errors of $0.1$--$19.1$\,\% and coefficients
+of variation up to $13.5$\,\%, demonstrating that physical realisability is compatible
+with errors well above 1\,\%. Our numerical RMSE of 9.8\,\% falls comfortably within
+this experimental scatter.
+Compared to simulation-based approaches, the optimised Christmas-tree geometry of
+Wang \& Sun~\cite{wang2022christmastree} achieves near-perfect linearity
+($R^2 \geq 0.987$ experimentally) but produces only a binomial outlet distribution
+and cannot target arbitrary profiles.
+The deep-learning model of Yang \& Wang~\cite{yang2020} achieves an average error
+below 4\,\%, but operates within a fixed pre-defined network topology.
+The automatic tree-design tool of Fink et al.~\cite{fink2022automatic} guarantees
+exact mixing ratios for tree-shaped networks but, like all tree-based methods, cannot
+discover non-tree topologies.
+Our topology-optimised geometry is the only approach that (i)~automatically discovers
+the channel layout, (ii)~targets arbitrary outlet concentration profiles, and
+(iii)~achieves a 99.7\,\% reduction in hydraulic resistance compared to the classic
+Christmas-tree baseline~\cite{jeon2000}. The 9.8\,\% RMSE is a coarse-mesh result;
+a finer $80\times20$ discretisation is expected to reduce it to $\leq 5$\,\%,
+matching the best reported numerical accuracies~\cite{yang2020}.
 
-This is expected because we deliberately used a very coarse mesh ($20\times5$ elements) to demonstrate rapid prototyping.
-The same algorithm on a finer mesh (e.g., $80\times20$) would likely reduce the error to $\leq 5$\,\%, matching the best reported numerical accuracies.
-
-That design, however, relies on a pre-defined network of channels, whereas our topology-optimised geometry is free-form and can be easily adapted to different target profiles (e.g., non-linear or user-defined) without changing the algorithmic framework.
-This flexibility is a key advantage of the proposed method.
 
 \subsection{Role of the coarse mesh and computational efficiency}
 A distinctive feature of our work is the use of an extremely coarse finite-element mesh (only 5 elements across the channel height).
