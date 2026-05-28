@@ -50,8 +50,9 @@ class GradientGeneratorOptimizer:
             current_V = V_seq[step]
             beta_idx = min(step // iters_per_beta, n_betas - 1)
             beta = beta_continuation[beta_idx]
-            # Alpha-max continuation: ramp from 1e3 to 1e9 over first 60%
-            _ut.alpha_max = 1e3 + (1e9 - 1e3) * min(1.0, step / (0.6 * max_iter))
+            # Alpha-max continuation: log ramp 1e3→1e9 over all iterations
+            # log ramp keeps alpha low (≤1e5) for first ~40% of iters
+            _ut.alpha_max = 10 ** (3 + 6 * min(1.0, step / max_iter))
 
             helmholtz_filter(self.rho, self.rho_filt, self.V_rho, self.r_filter)
             heaviside_projection(self.rho_filt, self.rho_phys, beta)
