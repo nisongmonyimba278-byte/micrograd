@@ -59,8 +59,8 @@ def run_filter_sensitivity(target_expr, Lx=2000e-6, Ly=500e-6,
 
         # Collect metrics
         J_total = opt.history[-1, 2]
-        J_flow = opt.history[-1, 3]
-        J_conc = opt.history[-1, 4]
+        J_flow = float('nan')
+        J_conc = float('nan')
         outlet_rmse = compute_rmse_outlet(opt.c_h, target_expr, opt.boundary_data)
 
         results.append({

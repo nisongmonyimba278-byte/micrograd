@@ -103,7 +103,7 @@ if [[ $SKIP_PIPELINE -eq 0 ]]; then
   header "STAGE 3 — Analysis pipeline"
 
   run_step "[3.1] Unit tests" \
-    bash -c 'python3 -m pytest tests/ -x -q; ec=$?; [ $ec -eq 5 ] && exit 0 || exit $ec' 2>&1 | tail -5 || true
+    python3 -m pytest tests/ -x -q 2>&1 | tail -5 || true
 
   run_step "[3.2] Mesh convergence" \
     python3 -c "
