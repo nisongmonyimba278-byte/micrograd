@@ -62,7 +62,7 @@ def adjoint_and_sensitivity(msh, boundary_data, rho_phys, u_h, c_h, target_expr,
 
     rhs_expr = lam_h * ufl.grad(c_h)
     rhs_func = fem.Function(Vv)
-    rhs_func.interpolate(fem.Expression(rhs_expr, Vv.element.interpolation_points()))
+    rhs_func.interpolate(fem.Expression(rhs_expr, Vv.element.interpolation_points))
     L_adj = - ufl.inner(rhs_func, w_s) * ufl.dx
 
     w_adj = LinearProblem(a_adj, L_adj, bcs=[bc_walls_adj, bc_p_adj],
