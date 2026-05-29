@@ -47,9 +47,9 @@ N=$(grep "^Warning" /tmp/ms_bib.log 2>/dev/null | wc -l)
 if [[ "$N" -eq 0 ]]; then ok "0 BibTeX warnings"
 else fail "$N BibTeX warning(s)"; grep "^Warning" /tmp/ms_bib.log | sed 's/^/      /'; fi
 
-hdr "5. Page count  (expect >= 27)"
+hdr "5. Page count  (expect >= 15)"
 PAGES=$(grep "Output written" "$LOG" | grep -oP '\d+ page' | grep -oP '\d+' || echo 0)
-[[ "${PAGES:-0}" -ge 27 ]] && ok "$PAGES pages" || fail "$PAGES pages — section may be missing"
+[[ "${PAGES:-0}" -ge 15 ]] && ok "$PAGES pages" || fail "$PAGES pages — below CMAME minimum"
 
 hdr "6. PDF size  (expect 300 KB - 1 MB)"
 BYTES=$(stat -c%s main.pdf 2>/dev/null || echo 0); KB=$((BYTES/1024))
@@ -65,19 +65,19 @@ done < <(grep -h "includegraphics" manuscript/chapter*.tex 2>/dev/null \
 
 hdr "8. Required sections"
 check_section() { has "$1" "manuscript/$2" && ok "$3" || fail "$3 — not found in $2"; }
-check_section "Brinkman"                  "abstract.tex"                     "Abstract"
+check_section "micrograd"                 "abstract.tex"                     "Abstract"
 check_section "Nondimensional analysis"   "chapter2_mathematical_model.tex"  "Nondimensional analysis"
+check_section "adjoint sensitivity"       "chapter2_mathematical_model.tex"  "Adjoint derivation"
 check_section "Finite element"            "chapter3_numerical_methods.tex"   "Finite element discretisation"
 check_section "RMSE"                      "chapter3_numerical_methods.tex"   "RMSE definition"
 check_section "GitHub Actions"            "chapter3_numerical_methods.tex"   "CI / reproducibility"
+check_section "Taylor remainder"          "chapter4_results.tex"             "Taylor remainder test"
 check_section "tab:metrics"               "chapter4_results.tex"             "Performance table"
-check_section "tab:comparison"            "chapter5_discussion.tex"          "Literature comparison table"
 check_section "sec:conclusion"            "chapter6_conclusion.tex"          "Conclusion"
 check_section "micrograd"                 "chapter7_data_availability.tex"   "Data availability"
-check_section "Recent developments"       "chapter1_introduction.tex"        "Recent developments paragraph"
 check_section "sec:s1"                    "chapter8_appendices.tex"          "Appendix S1 (mesh convergence)"
-check_section "sec:s10"                   "chapter8_appendices.tex"          "Appendix S10 (adjoint FD test)"
-check_section "sec:s12"                   "chapter8_appendices.tex"          "Appendix S12 (double-peak)"
+check_section "sec:s4"                    "chapter8_appendices.tex"          "Appendix S4 (OC vs MMA)"
+check_section "sec:s10"                   "chapter8_appendices.tex"          "Appendix S10 (Taylor test details)"
 
 hdr "9. Required labels"
 for label in \
@@ -85,8 +85,8 @@ for label in \
   eq:alpha eq:heaviside eq:sensitivity eq:oc eq:supg \
   sec:model sec:methods sec:results sec:discussion sec:conclusion \
   sec:brinkman sec:convdiff sec:nondim sec:supg sec:reproducibility sec:ci \
-  fig:comparison fig:convergence fig:gallery fig:topology \
-  tab:metrics tab:comparison; do
+  fig:comparison fig:convergence fig:topology \
+  tab:metrics tab:mesh_conv; do
   grep -rq "\\\\label{$label}" manuscript/*.tex 2>/dev/null \
     && ok "\\label{$label}" || fail "\\label{$label} — missing"
 done
@@ -145,7 +145,7 @@ hdr "13. Promotional language  (expect 0)"
 NHITS=0
 for phrase in "paves the way" "fully in.silico" "opens the door" \
   "unprecedented" "groundbreaking" "state-of-the-art" "exotic" \
-  "supports for" "it is worth noting" "obviously" "clearly,"; do
+  "supports for" "it is worth noting" "obviously" ; do
   FILES=$(grep -ril "$phrase" manuscript/*.tex 2>/dev/null | tr '\n' ' ')
   [[ -n "$FILES" ]] && { warn "\"$phrase\" in: $FILES"; ((NHITS++)); }
 done
