@@ -88,7 +88,47 @@ After optimisation, the final physical density field \(\bar\rho\) is thresholded
 The fluid region is extracted using \texttt{pyvista} and remeshed with a body-fitted grid using \texttt{Gmsh}~\cite{geuzaine2009} to eliminate the Brinkman penalty approximation.
 On this body-fitted mesh we solve the full incompressible Navier--Stokes equations (including the convective term) with a Picard iteration (five steps) to validate the design under real fluid physics.
 The concentration field is then re-computed with SUPG-stabilised convection--diffusion on the same body-fitted mesh.
-The outlet concentration profile is compared to the target via the root-mean-square error (RMSE).
+\paragraph{Outlet RMSE definition.}
+\label{def:rmse}
+The outlet concentration profile is compared to the prescribed target via the
+\emph{root-mean-square error} (RMSE), defined as
+%
+\begin{equation}
+  \mathrm{RMSE}
+  \;=\;
+  \sqrt{\frac{1}{N_{\mathrm{out}}}
+        \sum_{i=1}^{N_{\mathrm{out}}}
+        \bigl(c_h(y_i) - c_{\mathrm{target}}(y_i)\bigr)^{2}},
+  \label{eq:rmse}
+\end{equation}
+%
+where $N_{\mathrm{out}}$ is the number of P1 finite-element nodes on the outlet
+boundary $\Gamma_{\mathrm{out}}$ ($x = L_x$), $c_h(y_i)$ is the computed
+concentration at the $i$-th outlet node, and $c_{\mathrm{target}}(y_i)$ is the
+prescribed target profile evaluated at the same node.
+
+\emph{Normalisation.}
+Both $c_h$ and $c_{\mathrm{target}}$ are dimensionless concentrations
+normalised to the interval $[0,1]$, where $0$ corresponds to pure solvent
+(inlet~1) and $1$ to pure solute (inlet~2).
+RMSE is therefore dimensionless; a value of $0.098$ means that the
+root-mean-square deviation from the target is $9.8$~percentage points of
+the full $[0,1]$ concentration range.
+
+\emph{Node sampling.}
+For the $80\times20$ primary mesh the outlet boundary carries
+$N_{\mathrm{out}} = n_y + 1 = 21$ uniformly spaced P1 nodes at
+$y_i = (i-1)\,L_y/n_y$, $i=1,\ldots,21$, with spacing
+$\Delta y = 25\,\mu\text{m}$.
+For the $20\times5$ screening mesh, $N_{\mathrm{out}} = 6$
+(spacing $\Delta y = 100\,\mu\text{m}$).
+No additional interpolation is applied; RMSE is evaluated directly at the
+mesh nodes produced by the P1 concentration solve.
+
+\emph{Dimensional consistency.}
+The RMSE formula~\eqref{eq:rmse} uses no dimensional quantities.
+It is independent of the channel geometry and can be compared directly
+across mesh resolutions provided the same normalisation convention is used.
 
 Additional post-processing steps compute:
 \begin{itemize}
