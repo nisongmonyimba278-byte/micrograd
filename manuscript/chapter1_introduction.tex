@@ -35,7 +35,7 @@ While this approach demonstrates the potential of data-driven inverse design, it
 
 \subsection{Knowledge gap and contributions}
 Despite these advances, three important gaps remain.
-First, density-based topology optimisation has \emph{not} been applied to the inverse design of concentration gradient generators: the simultaneous optimisation of flow and convection-diffusion transport to achieve an \emph{arbitrary user-specified concentration profile at the outlet} is, to the best of our knowledge, unprecedented in the literature.
+First, density-based topology optimisation has \emph{not} been applied to the inverse design of concentration gradient generators: the simultaneous optimisation of flow and convection-diffusion transport to achieve an \emph{arbitrary user-specified concentration profile at the outlet} is, to the best of our knowledge, not previously reported in the literature.
 Second, the existing topology-optimised microfluidic components (micromixers, valves, pumps, heat sinks) have been designed for mixing efficiency or pressure-drop minimisation, not for producing a spatially controlled concentration field.
 Third, no open-source, fully reproducible Python pipeline exists that combines the forward model, adjoint sensitivity, and optimiser into a single tool accessible to experimental microfluidics researchers without a commercial software license.
 
@@ -46,7 +46,7 @@ In this paper, we address all three gaps by:
     \item Publishing the complete pipeline as an open-source Python package (\texttt{micrograd}), including mesh generation, forward and adjoint solvers, optimisation routines (OC and MMA), and post-processing tools.
     \item Demonstrating that the optimised designs outperform the classic Christmas tree generator by \textbf{99.7\%} in hydraulic resistance (from \(1.77\times10^{11}\) to \(4.48\times10^{8}\)~Pa\(\cdot\)s/m\(^3\)) while maintaining equivalent outlet concentration fidelity
     (RMSE~$=0.098$; dimensionless, concentration normalised to $[0,1]$).
-    \item Showing that the framework can generate novel, non-intuitive channel topologies for arbitrary target profiles -- linear, sigmoid, double-peak, and stair-step -- that are impossible to produce with fixed tree-shaped generators.
+    \item Showing that the framework can generate non-obvious channel topologies for arbitrary target profiles -- linear, sigmoid, double-peak, and stair-step -- that are impossible to produce with fixed tree-shaped generators.
 \end{enumerate}
 
 The remainder of this paper is organised as follows.
