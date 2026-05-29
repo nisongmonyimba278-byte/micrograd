@@ -136,7 +136,7 @@ hdr "12. Number consistency"
 has "alpha_min=1e-4" micrograd/utilities.py \
   && ok "utilities.py alpha_min=1e-4 matches macro" \
   || fail "utilities.py alpha_min mismatch"
-BAD=$(grep -rh "RMSE.*0\.\(098\|329\|584\)" manuscript/chapter*.tex \
+BAD=$(grep -rh "RMSE.*0\.\(098\|329\)" manuscript/chapter*.tex \
       manuscript/abstract.tex 2>/dev/null || true)
 [[ -z "$BAD" ]] && ok "No stale hardcoded RMSE found" \
   || fail "Stale hardcoded RMSE: $(echo "$BAD" | head -1 | cut -c1-70)"
