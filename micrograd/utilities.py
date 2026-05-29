@@ -19,3 +19,18 @@ def heaviside_projection(r, rout, b, e=0.5):
     expr = (ufl.tanh(b*e)+ufl.tanh(b*(r-e)))/(ufl.tanh(b*e)+ufl.tanh(b*(1.0-e)))
     rout.interpolate(fem.Expression(expr, rout.function_space.element.interpolation_points))
     rout.x.scatter_forward()
+def smooth_penalty(c_h, gamma=1e6, delta=1e-6):
+    """
+    Smooth differentiable penalty for c in [0,1].
+    Replaces hard clamping: phi_delta(c) is C-infty and vanishes for c in [0,1].
+    
+    phi_delta(c) = 0.5*(sqrt(c^2+delta^2)-c)^2 + 0.5*(sqrt((c-1)^2+delta^2)+(c-1))^2
+    
+    Returns scalar penalty value.
+    """
+    import numpy as np
+    c = c_h.x.array
+    phi = (0.5*(np.sqrt(c**2 + delta**2) - c)**2 +
+           0.5*(np.sqrt((c-1)**2 + delta**2) + (c-1))**2)
+    return float(gamma * phi.sum())
+
