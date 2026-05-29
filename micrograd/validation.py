@@ -225,7 +225,7 @@ def solve_navier_stokes_and_convection(msh, boundary_data, mu=1e-3,
                 - p * ufl.div(v) * ufl.dx
                 - q * ufl.div(u) * ufl.dx)
     problem = LinearProblem(ufl.lhs(F_stokes), ufl.rhs(F_stokes), bcs=bcs,
-                            petsc_options={"ksp_type": "preonly", "pc_type": "lu"})
+                            petsc_options_prefix="lp6_", petsc_options={"ksp_type": "preonly", "pc_type": "lu"})
     w = problem.solve()
     u_prev, p_prev = w.sub(0).collapse(), w.sub(1).collapse()
 
@@ -236,7 +236,7 @@ def solve_navier_stokes_and_convection(msh, boundary_data, mu=1e-3,
                 - p * ufl.div(v) * ufl.dx
                 - q * ufl.div(u) * ufl.dx)
         problem = LinearProblem(ufl.lhs(F_ns), ufl.rhs(F_ns), bcs=bcs,
-                                petsc_options={"ksp_type": "preonly", "pc_type": "lu"})
+                                petsc_options_prefix="lp7_", petsc_options={"ksp_type": "preonly", "pc_type": "lu"})
         w = problem.solve()
         u_prev, p_prev = w.sub(0).collapse(), w.sub(1).collapse()
     u_h, p_h = u_prev, p_prev
@@ -258,7 +258,7 @@ def solve_navier_stokes_and_convection(msh, boundary_data, mu=1e-3,
     bc_c1 = fem.dirichletbc(PETSc.ScalarType(1.0), fem.locate_dofs_topological(V_conc, fdim, inlet1), V_conc)
     bc_c2 = fem.dirichletbc(PETSc.ScalarType(0.0), fem.locate_dofs_topological(V_conc, fdim, inlet2), V_conc)
     problem_conc = LinearProblem(a_conc, L_conc, bcs=[bc_c1, bc_c2],
-                                 petsc_options={"ksp_type": "preonly", "pc_type": "lu"}, petsc_options_prefix="lp1_")
+                                 petsc_options_prefix="lp8_", petsc_options={"ksp_type": "preonly", "pc_type": "lu"}, petsc_options_prefix="lp1_")
     c_h = problem_conc.solve()
 
     return u_h, p_h, c_h

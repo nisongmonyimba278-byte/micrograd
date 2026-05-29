@@ -71,14 +71,14 @@ def solve_3d_navier_stokes_convection(msh, boundary_data, mu=1e-3, rho_fluid=100
     F_stokes = (mu * ufl.inner(ufl.grad(u), ufl.grad(v)) * ufl.dx - p * ufl.div(v) * ufl.dx - q * ufl.div(u) * ufl.dx)
     # Removed petsc_options_prefix from all LinearProblem calls
     problem = LinearProblem(ufl.lhs(F_stokes), ufl.rhs(F_stokes), bcs=bcs,
-                            petsc_options={"ksp_type": "preonly", "pc_type": "lu"})
+                            petsc_options_prefix="lp9_", petsc_options={"ksp_type": "preonly", "pc_type": "lu"})
     w = problem.solve(); u_prev, p_prev = w.sub(0).collapse(), w.sub(1).collapse()
     for _ in range(4):
         F_ns = (mu * ufl.inner(ufl.grad(u), ufl.grad(v)) * ufl.dx
                 + rho_fluid * ufl.inner(ufl.dot(u_prev, ufl.grad(u)), v) * ufl.dx
                 - p * ufl.div(v) * ufl.dx - q * ufl.div(u) * ufl.dx)
         problem = LinearProblem(ufl.lhs(F_ns), ufl.rhs(F_ns), bcs=bcs,
-                                petsc_options={"ksp_type": "preonly", "pc_type": "lu"})
+                                petsc_options_prefix="lp10_", petsc_options={"ksp_type": "preonly", "pc_type": "lu"})
         w = problem.solve(); u_prev, p_prev = w.sub(0).collapse(), w.sub(1).collapse()
     u_h, p_h = u_prev, p_prev
     c = ufl.TrialFunction(V_conc); d = ufl.TestFunction(V_conc); u_vel = u_h
@@ -90,7 +90,7 @@ def solve_3d_navier_stokes_convection(msh, boundary_data, mu=1e-3, rho_fluid=100
     bc_c1 = fem.dirichletbc(PETSc.ScalarType(1.0), fem.locate_dofs_topological(V_conc, fdim, inlet1), V_conc)
     bc_c2 = fem.dirichletbc(PETSc.ScalarType(0.0), fem.locate_dofs_topological(V_conc, fdim, inlet2), V_conc)
     problem_conc = LinearProblem(a_conc, L_conc, bcs=[bc_c1, bc_c2],
-                                 petsc_options={"ksp_type": "preonly", "pc_type": "lu"}, petsc_options_prefix="lp1_")
+                                 petsc_options_prefix="lp11_", petsc_options={"ksp_type": "preonly", "pc_type": "lu"}, petsc_options_prefix="lp1_")
     c_h = problem_conc.solve()
     return u_h, p_h, c_h
 

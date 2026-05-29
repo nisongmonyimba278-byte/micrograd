@@ -31,7 +31,7 @@ def forward_solve(msh, boundary_data, rho_phys, mu=1e-3, D_fluid=1e-9,
     bc_i2 = fem.dirichletbc(p_in,  fem.locate_dofs_topological((W1, Vp), fd, i2),  W1)
     bc_out = fem.dirichletbc(p_out, fem.locate_dofs_topological((W1, Vp), fd, out), W1)
     wh = LinearProblem(a, L, bcs=[bc_walls, bc_i1, bc_i2, bc_out],
-                       petsc_options={"ksp_type": "preonly", "pc_type": "lu"}).solve()
+                       petsc_options_prefix="lp3_", petsc_options={"ksp_type": "preonly", "pc_type": "lu"}).solve()
     uh = wh.sub(0).collapse(); ph = wh.sub(1).collapse()
     c, d = ufl.TrialFunction(Vc), ufl.TestFunction(Vc)
     D = D_eff(rho_phys, D_fluid); hc = ufl.CellDiameter(msh)
@@ -44,5 +44,5 @@ def forward_solve(msh, boundary_data, rho_phys, mu=1e-3, D_fluid=1e-9,
     bc_c1 = fem.dirichletbc(PETSc.ScalarType(1.0), fem.locate_dofs_topological(Vc, fd, i1), Vc)
     bc_c2 = fem.dirichletbc(PETSc.ScalarType(0.0), fem.locate_dofs_topological(Vc, fd, i2), Vc)
     ch = LinearProblem(a_c, Lc, bcs=[bc_c1, bc_c2],
-                       petsc_options={"ksp_type": "preonly", "pc_type": "lu"}).solve()
+                       petsc_options_prefix="lp4_", petsc_options={"ksp_type": "preonly", "pc_type": "lu"}).solve()
     return uh, ph, ch
