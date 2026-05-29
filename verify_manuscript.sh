@@ -169,7 +169,7 @@ grep -q "All results.*20.times.5\|All results.*coarse" manuscript/abstract.tex 2
 hdr "14. Recent literature coverage  (2021–2026)"
 RECENT_OK=0
 for year in 2021 2022 2023 2024 2025; do
-    N=$(grep -c "year.*=.*{'$year'}" manuscript/references.bib 2>/dev/null | awk -F: '{s+=$NF} END{print s+0}')
+    N=$(grep -c "year.*=.*{$year}" manuscript/references.bib 2>/dev/null || echo 0)
     [[ "$N" -gt 0 ]] && { ok "$year: $N reference(s)"; ((RECENT_OK++)); }  \
                      || warn "$year: 0 references"
 done
