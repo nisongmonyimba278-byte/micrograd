@@ -66,89 +66,113 @@ No-flux conditions are imposed on the remaining walls.
 \subsection{Nondimensional analysis and operating regime}
 \label{sec:nondim}
 
-To identify the physical regime governing the device and to justify the
-modelling choices of Sections~\ref{sec:brinkman}--\ref{sec:convdiff},
-we nondimensionalise the governing equations.
-Let the domain height $L_c = L_y = 500\,\mu\mathrm{m}$ be the
-characteristic length and $U_c = Q/L_y$ the mean inlet velocity
-(where $Q$ is the volumetric flow rate per unit depth obtained from
-the optimised design; Table~\ref{tab:metrics} gives
-$Q = 2.23\times10^{-6}\,\mathrm{m^2/s}$, hence
-$U_c \approx 4.46\,\mathrm{mm/s}$).
-Pressure is scaled by the viscous scale $\mu U_c/L_c$, and
-concentration is already normalised to $[0,1]$.
-Defining dimensionless variables
+Before writing the governing equations it is instructive to identify the
+characteristic scales of the problem and to establish which physical
+processes dominate at the length scales of soft-lithography microfluidic chips.
+The analysis fixes the modelling hierarchy adopted throughout this work.
+
+\paragraph{Characteristic scales.}
+The channel has length $L_x = 2000\,\mu\text{m}$ and width
+$L_y = 500\,\mu\text{m}$.
+An applied gauge pressure $\Delta p = 1000\,\text{Pa}$ drives the flow.
+The solute is a small molecule (e.g.\ a fluorescent dye or a signalling
+factor) with aqueous diffusivity
+$D = 10^{-9}\,\text{m}^{2}\,\text{s}^{-1}$; the carrier fluid is water
+($\mu = 10^{-3}\,\text{Pa\,s}$,
+$\rho_{f} = 10^{3}\,\text{kg\,m}^{-3}$).
+A characteristic velocity follows from the Darcy--Stokes momentum balance:
+%
 \begin{equation}
-  \mathbf{x}^{*} = \frac{\mathbf{x}}{L_c}, \quad
-  \mathbf{u}^{*} = \frac{\mathbf{u}}{U_c}, \quad
-  p^{*}          = \frac{p\,L_c}{\mu\,U_c}, \quad
-  \alpha^{*}(\rho) = \frac{\alpha(\rho)\,L_c^{2}}{\mu}, \quad
-  D^{*}(\rho)    = \frac{D(\rho)}{D_{\mathrm{fluid}}},
-  \label{eq:nd_vars}
+  U_{c}
+  = \frac{\Delta p \, L_{y}^{2}}{\mu \, L_{x}}
+  = \frac{10^{3} \times (500\times10^{-6})^{2}}
+         {10^{-3} \times 2\times10^{-3}}
+  \approx 1.25\times10^{-1}\,\text{m\,s}^{-1}.
+  \label{eq:Uc}
 \end{equation}
-the Brinkman equations~\eqref{eq:brinkman_momentum}--\eqref{eq:brinkman_continuity}
-and the convection--diffusion equation~\eqref{eq:convdiff} become
-\begin{align}
-  \nabla p^{*} - \nabla^2\mathbf{u}^{*}
-  + \alpha^{*}(\rho)\,\mathbf{u}^{*} &= \mathbf{0}, \label{eq:nd_brinkman}\\
-  \nabla\cdot\mathbf{u}^{*}           &= 0,          \label{eq:nd_cont}\\
-  \mathrm{Pe}\;\mathbf{u}^{*}\cdot\nabla c
-  - \nabla\cdot\bigl(D^{*}(\rho)\,\nabla c\bigr) &= 0. \label{eq:nd_cd}
-\end{align}
-The three governing dimensionless groups are
-\begin{equation}
-  \mathrm{Re} = \frac{\rho\,U_c\,L_c}{\mu}, \qquad
-  \mathrm{Pe} = \frac{U_c\,L_c}{D_{\mathrm{fluid}}}, \qquad
-  \mathrm{Da} = \frac{\mu}{\alpha_{\max}\,L_c^{2}},
-  \label{eq:dimless_groups}
-\end{equation}
-together with the aspect ratio $\mathrm{AR} = L_x/L_y = 4$.
 
 \paragraph{Reynolds number.}
-Inserting the numerical values,
-\[
-  \mathrm{Re}
-  = \frac{10^3 \times 4.46\times10^{-3}\times 500\times10^{-6}}{10^{-3}}
-  \approx 2.2\times10^{-3}.
-\]
-The condition $\mathrm{Re}\ll 1$ confirms that inertial acceleration is
-negligible compared with viscous and Brinkman drag, \emph{retrospectively}
-validating the omission of the convective term
-$\rho(\mathbf{u}\cdot\nabla)\mathbf{u}$ from~\eqref{eq:brinkman_momentum}.
-The Navier--Stokes validation step (Section~\ref{sec:ns_validation}) provides
-an independent confirmation: with a five-step Picard iteration on the body-fitted
-mesh, the velocity field changes by less than $0.1\%$ relative to the
-Brinkman solution.
+The channel Reynolds number, based on the hydraulic diameter
+$D_{h} \approx L_{y}$ (assuming a depth $L_{z} = 100\,\mu\text{m}$
+typical of PDMS chips), is
+%
+\begin{equation}
+  \Rey
+  \;=\; \frac{\rho_{f}\,U_{c}\,L_{y}}{\mu}
+  \;=\; \frac{10^{3}\times1.25\times10^{-1}\times500\times10^{-6}}
+             {10^{-3}}
+  \;\approx\; 6.25\times10^{-2} \;\ll\; 1.
+  \label{eq:Re}
+\end{equation}
+%
+Inertial forces are therefore entirely negligible throughout the design
+domain. The Navier--Stokes equations reduce to the \emph{Stokes creeping-flow}
+equations, justifying the Brinkman--Stokes model
+(Section~\ref{sec:brinkman}).
 
-\paragraph{P\'{e}clet number.}
-\[
-  \mathrm{Pe}
-  = \frac{4.46\times10^{-3}\times 500\times10^{-6}}{10^{-9}}
-  \approx 2.2\times10^{3}.
-\]
-The high P\'{e}clet number has two important consequences.
-First, diffusive mixing is confined to thin boundary layers of thickness
-$\delta \sim L_c\,\mathrm{Pe}^{-1/2} \approx 11\,\mu\mathrm{m}$,
-which is an order of magnitude below the coarse-mesh element size
-($\sim 100\,\mu\mathrm{m}$ across the channel height).
-This explains why passive diffusion alone cannot produce a controlled
-concentration gradient and why a topology-optimised channel \emph{network}
-is required to distribute the two inlet streams before diffusion acts.
-Second, the convection-dominated character of~\eqref{eq:nd_cd} makes it
-susceptible to spurious numerical oscillations on coarse meshes, motivating
-the SUPG stabilisation introduced in Section~\ref{sec:supg}.
+\paragraph{P\'eclet number.}
+The ratio of convective to diffusive axial transport is
+%
+\begin{equation}
+  \Pe
+  \;=\; \frac{U_{c}\,L_{x}}{D}
+  \;=\; \frac{1.25\times10^{-1}\times2\times10^{-3}}
+             {10^{-9}}
+  \;=\; 2.5\times10^{5} \;\gg\; 1.
+  \label{eq:Pe}
+\end{equation}
+%
+Convection dominates axial transport: the solute is swept downstream before
+it can diffuse along the channel length.
+The transverse diffusion layer thickness is
+%
+\begin{equation}
+  \delta
+  \;=\; \sqrt{\frac{D\,L_{x}}{U_{c}}}
+  \;=\; \sqrt{\frac{10^{-9}\times2\times10^{-3}}{1.25\times10^{-1}}}
+  \;\approx\; 4\,\mu\text{m},
+  \label{eq:delta}
+\end{equation}
+%
+which is smaller than the element size of the finest mesh used
+($\Delta y \approx 12.5\,\mu\text{m}$ for the $80\times20$ grid).
+A cell-level P\'eclet number
+$\Pe_{h} = U_{c}\Delta y / (2D) \approx 780 \gg 1$ confirms that
+node-to-node spurious oscillations will arise without stabilisation,
+motivating the SUPG scheme described in Section~\ref{sec:supg}.
 
 \paragraph{Darcy number.}
-\[
-  \mathrm{Da}
-  = \frac{10^{-3}}{10^{8}\times(500\times10^{-6})^2}
-  = 4\times10^{-5}.
-\]
-The condition $\mathrm{Da}\ll 1$ confirms that solid regions
-($\alpha = \alpha_{\max}$) are effectively impermeable: the velocity in a
-solid element is suppressed by a factor of $\mathrm{Da}$ relative to the
-surrounding fluid, ensuring a sharp fluid--solid contrast despite the
-continuous density representation.
+The Brinkman penalisation parameter $\alpha$ acts as an inverse
+permeability. Its effective Darcy number in the solid phase
+($\rho_{\mathrm{phys}}\!\to\!0$, $\alpha\!\to\!\alpha_{\max}=10^{9}$)
+is
+%
+\begin{equation}
+  \Da
+  \;=\; \frac{\mu}{\alpha_{\max}\,L_{y}^{2}}
+  \;=\; \frac{10^{-3}}{10^{9}\times(500\times10^{-6})^{2}}
+  \;=\; 4\times10^{-6} \;\ll\; 1,
+  \label{eq:Da}
+\end{equation}
+%
+confirming that solid regions are effectively impermeable.
+In fluid regions ($\alpha\!\to\!\alpha_{\min}\!\approx\!10^{-4}$) the
+Darcy number is $\Da\sim\mathcal{O}(1)$, recovering free Stokes flow.
+
+\paragraph{Summary and modelling hierarchy.}
+The three dimensionless groups $\Rey\ll1$, $\Pe\gg1$, and $\Da\ll1$
+(solid) jointly justify the modelling choices made in this work:
+%
+\begin{enumerate}
+  \item $\Rey\ll1$: \emph{Brinkman--Stokes equations} replace the full
+        Navier--Stokes system; inertia is discarded without loss of accuracy.
+  \item $\Pe\gg1$: \emph{Convection--diffusion} with SUPG stabilisation
+        governs scalar transport; purely diffusive models would be
+        qualitatively wrong.
+  \item $\Da\ll1$ (solid): The Brinkman penalisation produces genuinely
+        binary channel architectures in which solid regions are
+        hydrodynamically sealed.
+\end{enumerate}
 
 \subsection{Optimisation problem}
 The design is driven by a multi-objective cost functional that simultaneously penalises viscous dissipation (a proxy for pressure drop) and the deviation of the outlet concentration from a user-specified target \(c_{\text{target}}\):
