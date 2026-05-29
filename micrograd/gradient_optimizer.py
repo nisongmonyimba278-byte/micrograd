@@ -30,7 +30,7 @@ class GradientGeneratorOptimizer:
         self.V_star_final = V_star
         self.r_filter = 2 * (Lx / nx)
 
-    def run(self, max_iter=80, beta_continuation=(1,2,4,8,16), move=0.2,
+    def run(self, max_iter=80, beta_continuation=(1,2,4,8,16,32,64), move=0.2,
             V_star_schedule=None, method='oc', snapshot_iterations=None):
         method = fallback_to_oc(method)
         if V_star_schedule is None:
@@ -46,6 +46,8 @@ class GradientGeneratorOptimizer:
 
         best_J = float('inf')
         best_rho = self.rho.x.array.copy()
+        best_u_h = None
+        best_c_h = None
         for step in range(max_iter):
             current_V = V_seq[step]
             beta_idx = min(step // iters_per_beta, n_betas - 1)
@@ -78,13 +80,16 @@ class GradientGeneratorOptimizer:
             if J < best_J:
                 best_J = J
                 best_rho[:] = self.rho.x.array[:]
+                best_u_h, best_c_h = u_h, c_h
             if step % 5 == 0:
                 print(f"Iter {step:3d}, β={beta:4.1f}, V*={current_V:.3f}, J={J:.4e}")
 
         self.rho.x.array[:] = best_rho
         self.rho.x.scatter_forward()
         self.history = np.array(history)
-        self.u_h, self.c_h = u_h, c_h
+        # Use solution from best-objective iteration, not last iteration
+        self.u_h = best_u_h if best_u_h is not None else u_h
+        self.c_h = best_c_h if best_c_h is not None else c_h
         return self.rho_phys
 
     def plot(self):
