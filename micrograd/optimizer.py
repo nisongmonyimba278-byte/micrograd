@@ -113,3 +113,51 @@ def mma_update(rho_vec, sens_vec, V_rho, vol_frac_target, mma_updater,
     rho_new = mma_updater.update(rho_vec, 0.0, grad_obj,
                                  [g_vol], [dg_vol], xmin, xmax)
     return rho_new
+
+# ─── NLopt MMA updater (uses nlopt, no gcma required) ──────────────────────
+def nlopt_mma_update(rho_vec, sens_vec, V_rho, vol_frac_target,
+                     move=0.2, rho_min=0.001, rho_max=1.0):
+    """
+    Single MMA step via nlopt.LD_MMA.
+    Enforces volume constraint g(x) = mean(x) - V* <= 0.
+    """
+    import nlopt, numpy as np
+    from dolfinx import fem
+    import ufl
+
+    n = len(rho_vec)
+    v_test = ufl.TestFunction(V_rho)
+    M = fem.petsc.assemble_vector(fem.form(v_test * ufl.dx))
+    M.ghostUpdate()
+    m_i = M.array.copy()
+    total_mass = m_i.sum()
+
+    grad_obj = sens_vec.array.copy()
+
+    result = [rho_vec.copy()]  # store result from callback
+
+    def objective(x, grad):
+        if grad.size > 0:
+            grad[:] = grad_obj
+        return float(np.dot(grad_obj, x))
+
+    def volume_constraint(x, grad):
+        if grad.size > 0:
+            grad[:] = m_i / total_mass
+        return float(np.dot(m_i, x) / total_mass - vol_frac_target)
+
+    opt = nlopt.opt(nlopt.LD_MMA, n)
+    opt.set_min_objective(objective)
+    opt.add_inequality_constraint(volume_constraint, 1e-8)
+    opt.set_lower_bounds(np.maximum(rho_min,  rho_vec - move))
+    opt.set_upper_bounds(np.minimum(rho_max,  rho_vec + move))
+    opt.set_maxeval(1)        # single MMA step per iteration
+    opt.set_ftol_rel(0.0)
+    opt.set_xtol_rel(0.0)
+
+    x0 = rho_vec.clip(rho_min, rho_max).copy()
+    try:
+        x_new = opt.optimize(x0)
+    except Exception:
+        x_new = x0
+    return x_new

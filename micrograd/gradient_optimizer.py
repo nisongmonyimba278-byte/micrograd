@@ -4,7 +4,7 @@ import ufl
 from .mesh import create_rectangular_mesh
 from .solver import forward_solve
 from .adjoint import adjoint_and_sensitivity
-from .optimizer import oc_update, mma_update, MMAUpdater
+from .optimizer import oc_update, mma_update, MMAUpdater, nlopt_mma_update
 from .utilities import helmholtz_filter, heaviside_projection, alpha
 from . import utilities as _ut  # for alpha_max continuation
 from .compatibility import fallback_to_oc
@@ -31,7 +31,7 @@ class GradientGeneratorOptimizer:
         self.r_filter = 2 * (Lx / nx)
 
     def run(self, max_iter=400, beta_continuation=(1,2,4,8,16), move=0.2,
-            V_star_schedule=None, method='oc', snapshot_iterations=None):
+            V_star_schedule=None, method='nlopt_mma', snapshot_iterations=None):
         method = fallback_to_oc(method)
         if V_star_schedule is None:
             V_star_schedule = [(0, self.V_star_final), (max_iter-1, self.V_star_final)]
@@ -71,6 +71,8 @@ class GradientGeneratorOptimizer:
 
             if method == 'oc':
                 rho_new = oc_update(self.rho.x.array, sens_vec, self.V_rho, current_V, move=move)
+            elif method == 'nlopt_mma':
+                rho_new = nlopt_mma_update(self.rho.x.array, sens_vec, self.V_rho, current_V, move=move)
             else:
                 rho_new = mma_update(self.rho.x.array, sens_vec, self.V_rho, current_V, mma_updater, move=move)
             self.rho.x.array[:] = rho_new; self.rho.x.scatter_forward()
