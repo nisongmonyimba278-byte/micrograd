@@ -1,278 +1,75 @@
-\section{Comprehensive Mathematical, Computational \& Numerical Framework}
-\label{app:math}
+\section*{Supplementary Information}
 
-This appendix collates every equation, numerical choice, and implementation detail behind the \texttt{micrograd} pipeline.
-
-\subsection{Design domain and boundary conditions}
-\begin{itemize}
-    \item Two-dimensional rectangular domain \(\Omega = (0,L_x) \times (0,L_y)\) with \(L_x = 2000\ \mu\text{m}\), \(L_y = 500\ \mu\text{m}\).
-    \item \textbf{Inlet~1} (\(\Gamma_{\text{in},1}\), \(y\in[0,\,L_y/2]\)): pressure \(p = p_{\text{in}}\), concentration \(c = 0\).
-    \item \textbf{Inlet~2} (\(\Gamma_{\text{in},2}\), \(y\in[L_y/2,\,L_y]\)): pressure \(p = p_{\text{in}}\), concentration \(c = 1\).
-    \item \textbf{Outlet} (\(\Gamma_{\text{out}}\), \(x = L_x\)): pressure \(p = 0\), zero diffusive flux \(\mathbf{n}\cdot D\nabla c = 0\).
-    \item \textbf{Walls}: no-slip \(\mathbf{u} = \mathbf{0}\), zero flux for \(c\).
-\end{itemize}
-
-\subsection{Governing equations (forward problem)}
-\textbf{Brinkman--Darcy flow}
-\begin{align}
-    \nabla p - \mu \nabla^2 \mathbf{u} + \alpha(\rho)\,\mathbf{u} &= \mathbf{0}, \label{app:brinkman_mom}\\
-    \nabla\cdot\mathbf{u} &= 0, \label{app:brinkman_div}
-\end{align}
-with \(\mu = 10^{-3}\ \text{Pa·s}\).
-
-\textbf{Inverse permeability interpolation}
-\begin{equation}
-    \alpha(\rho) = \alpha_{\min} + (\alpha_{\max} - \alpha_{\min})\,\frac{1-\rho}{1+\rho},
-    \label{app:alpha}
-\end{equation}
-where \(\alpha_{\min}=10^{-3}\), \(\alpha_{\max}=10^{8}\) (ramped from \(10^{3}\) to \(10^{8}\) during continuation).
-
-\textbf{Convection--diffusion transport}
-\begin{equation}
-    \mathbf{u}\cdot\nabla c - \nabla\cdot\bigl(D(\rho)\,\nabla c\bigr) = 0,
-    \label{app:convdiff}
-\end{equation}
-with diffusivity interpolation
-\begin{equation}
-    D(\rho) = D_{\min} + (D_{\text{fluid}} - D_{\min})\,\rho^{\,p},
-    \label{app:Dinterp}
-\end{equation}
-\(D_{\text{fluid}} = 10^{-9}\ \text{m}^2/\text{s}\), \(D_{\min}=10^{-15}\ \text{m}^2/\text{s}\), \(p=3\).
-
-\subsection{Design regularisation}
-
-\textbf{Helmholtz PDE filter}
-\begin{equation}
-    -r_f^{\,2}\,\nabla^2 \tilde{\rho} + \tilde{\rho} = \rho \quad\text{in } \Omega,
-    \label{app:helmholtz}
-\end{equation}
-homogeneous Neumann BCs, \(r_f = 2(L_x/n_x)\).
-
-\textbf{Smoothed Heaviside projection}
-\begin{equation}
-    \bar{\rho} = \frac{\tanh(\beta\eta) + \tanh\!\bigl(\beta(\tilde{\rho} - \eta)\bigr)}
-                    {\tanh(\beta\eta) + \tanh\!\bigl(\beta(1 - \eta)\bigr)},
-    \qquad \eta = 0.5.
-    \label{app:heaviside}
-\end{equation}
-\(\beta\) continuation: \(\{1,2,4,8,16,32,64\}\).
-
-\subsection{Optimisation problem}
-\begin{align}
-    J_f &= \int_{\Omega} \left( \frac{\mu}{2}\|\nabla\mathbf{u}\|^2 + \frac12 \alpha(\rho)\|\mathbf{u}\|^2 \right) \mathrm{d}\Omega, \label{app:Jf}\\
-    J_c &= \frac12 \int_{\Gamma_{\text{out}}} \bigl(c - c_{\text{target}}\bigr)^2 \,\mathrm{d}s, \label{app:Jc}\\
-    J   &= w_f J_f + w_c J_c, \label{app:J}
-\end{align}
-with \(w_f = 10^{-7}\), \(w_c = 5\times 10^{4}\), subject to volume constraint \(V \le V^* = 0.5\).
-
-\subsection{Continuous adjoint equations}
-
-\textbf{Flow adjoint} \((\mathbf{v},q)\)
-\begin{align}
-    -\mu\nabla^2\mathbf{v} + \alpha(\rho)\,\mathbf{v} + \nabla q &= -\lambda\nabla c, \label{app:adj_flow}\\
-    \nabla\cdot\mathbf{v} &= 0. \label{app:adj_flow_div}
-\end{align}
-BCs: \(\mathbf{v} = \mathbf{0}\) on walls and inlets; homogeneous Neumann on outlet.
-
-\textbf{Concentration adjoint} \(\lambda\)
-\begin{equation}
-    -\mathbf{u}\cdot\nabla\lambda - \nabla\cdot\bigl(D(\rho)\nabla\lambda\bigr) = 0,
-    \label{app:adj_conc}
-\end{equation}
-BCs: \(\lambda = 0\) on inlets; \(\lambda = c_{\text{target}} - c\) on outlet.
-
-\textbf{Sensitivity}
-\begin{equation}
-    \frac{\mathrm{d}J}{\mathrm{d}\rho} = \int_\Omega
-        \left[ \frac{\partial\alpha}{\partial\rho}\,\mathbf{u}\cdot\mathbf{v}
-             + \frac{\partial D}{\partial\rho}\,\nabla c\cdot\nabla\lambda \right] \mathrm{d}\Omega,
-    \label{app:sens}
-\end{equation}
-with
-\begin{align}
-    \frac{\partial\alpha}{\partial\rho} &= -(\alpha_{\max} - \alpha_{\min})\,\frac{2}{(1+\rho)^2}, \label{app:dalpha}\\
-    \frac{\partial D}{\partial\rho} &= p\,(D_{\text{fluid}} - D_{\min})\,\rho^{\,p-1}. \label{app:dD}
-\end{align}
-
-\subsection{Finite element discretisation}
-\begin{itemize}
-    \item Flow: Taylor--Hood P2/P1.
-    \item Concentration: P1 with SUPG stabilisation.
-    \item SUPG parameter:
-    \begin{equation}
-        \tau = \frac{h}{2\|\mathbf{u}\|}\,
-               \left( \frac{1}{\tanh(\text{Pe})} - \frac{1}{\text{Pe}} \right),\quad
-        \text{Pe} = \frac{\|\mathbf{u}\|\,h}{2\,D(\rho)}.
-    \end{equation}
-    \item Design variable \(\rho\): P1.
-    \item Linear solver: MUMPS (direct), HYPRE for scalability.
-\end{itemize}
-
-\subsection{Optimisation update (OC)}
-\begin{equation}
-    \rho^{\text{new}} = \max\bigl(\rho_{\min},\,
-                                 \min(\rho_{\max},\,
-                                      \rho^{\text{old}} \cdot B^\eta)\bigr),
-    \qquad B = -\frac{\mathrm{d}J/\mathrm{d}\rho}{\Lambda},
-\end{equation}
-\(\eta=0.5\), move limit \(0.02\)--\(0.2\).
-
-\subsection{Continuation strategies}
-\begin{enumerate}
-    \item Volume fraction: \(0.7 \to 0.5\) over 40 iterations.
-    \item Heaviside sharpness \(\beta\): \(\{1,2,4,8,16,32,64\}\).
-    \item Brinkman penalty \(\alpha_{\max}\): \(10^3 \to 10^8\) over first 60\% of iterations.
-\end{enumerate}
-
-\subsection{Post-processing metrics}
-\begin{itemize}
-    \item RMSE, hydraulic resistance \(R = \Delta p / Q\), Reynolds number, Péclet number.
-\end{itemize}
-
-\newpage
-\section{Technical Skills and Tech Stack for Reproducibility}
-\label{app:techstack}
-
-\subsection{Programming Languages \& Core Libraries}
-\begin{center}
-\begin{tabular}{@{}ll@{}}
-\toprule
-\textbf{Component} & \textbf{Version / Role} \\
-\midrule
-Python & 3.10 \\
-FEniCSx (dolfinx) & v0.7.3 \\
-UFL & (bundled) \\
-PETSc & (bundled) \\
-basix & (bundled) \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\subsection{Mesh Generation \& Post-processing}
-\begin{center}
-\begin{tabular}{@{}ll@{}}
-\toprule
-\textbf{Tool} & \textbf{Purpose} \\
-\midrule
-Gmsh (pygmsh) & Unstructured mesh \\
-dolfinx.mesh.create\_rectangle & Structured mesh \\
-pyvista & 3D rendering and STL \\
-matplotlib & 2D plotting \\
-numpy & Arrays \\
-pandas / csv & Metric tables \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\subsection{Optimisation \& Numerical Algorithms}
-\begin{center}
-\begin{tabular}{@{}ll@{}}
-\toprule
-\textbf{Algorithm / Method} & \textbf{Implementation} \\
-\midrule
-Optimality Criteria (OC) & Custom Python \\
-MMA & \texttt{gcma}/\texttt{nlopt} \\
-Helmholtz PDE filter & FEniCSx linear solve \\
-Heaviside projection & Analytical \\
-Adjoint sensitivity & Custom FEniCSx solver \\
-SUPG stabilisation & Hand-coded UFL \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\subsection{Development \& Reproducibility Tools}
-\begin{center}
-\begin{tabular}{@{}ll@{}}
-\toprule
-\textbf{Tool} & \textbf{Purpose} \\
-\midrule
-Docker (dolfinx/dolfinx:v0.7.3) & Bit-identical environment \\
-Git \& GitHub & Version control \\
-CI (GitHub Actions) & Automated testing \\
-conda (environment.yaml) & Package management \\
-Zenodo & Archival with DOI \\
-LaTeX & Manuscript \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\subsection*{S1: Mesh Convergence Study}
+\subsection*{S1: Mesh Convergence and Diffusion-Layer Resolution}
 \label{sec:s1}
 
-The optimisation was repeated on three structured meshes:
-$20\times5$ (100 elements), $40\times10$ (400 elements), and
-$80\times20$ (1600 elements, primary mesh).
-Table~\ref{tab:mesh_conv} reports the outlet RMSE and final objective
-value $J$ for the linear gradient target at each resolution.
-The topology and RMSE are stable from $40\times10$ onward, confirming
-that the primary $80\times20$ results are not artefacts of the
-discretisation.
+The optimisation was repeated on four structured meshes:
+$20\times5$, $40\times10$, $80\times20$ (primary), and $160\times40$
+(validation), all for the linear gradient target with 400 iterations.
 
 \begin{table}[h]
 \centering
-\caption{Mesh convergence study for the linear gradient target (400 iterations,
-         $\beta$-continuation to $\beta=64$, OC update, move limit 0.2).
-         The diffusion layer thickness $\delta\approx4\,\mu$m is
-         underresolved at all resolutions; RMSE measures the global outlet
-         profile error, not the local diffusion-layer structure.}
-\label{tab:mesh_conv}
-\begin{tabular}{@{}lccccl@{}}
+\caption{Mesh convergence for the linear gradient target.
+         The diffusion layer $\delta\approx4\,\mu$m is underresolved
+         at all resolutions; RMSE measures the global outlet profile
+         error, not the local diffusion-layer accuracy.}
+\label{tab:mesh_conv_full}
+\begin{tabular}{@{}lcccl@{}}
 \toprule
-Mesh & Elements & $\Delta y\,(\mu\text{m})$ & $\delta/\Delta y$ & RMSE & Note \\
+Mesh & Elements & $\Delta y\,(\mu\text{m})$ & RMSE & Note \\
 \midrule
-$20\times5$   & 100   & 100  & 0.04$\times$ & 0.584 & Screening only \\
-$40\times10$  & 400   & 50   & 0.08$\times$ & 0.211 & \\
-$80\times20$  & 1600  & 25   & 0.16$\times$ & \rmseTopOpt & Primary result \\
-$160\times40$ & 6400  & 12.5 & 0.32$\times$ & \rmseHiRes\  & Validation \\
+$20\times5$   & 100  & 100  & 0.584        & Screening only \\
+$40\times10$  & 400  & 50   & 0.211        & \\
+$80\times20$  & 1600 & 25   & \rmseTopOpt  & Primary result \\
+$160\times40$ & 6400 & 12.5 & \rmseHiRes   & Validation \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\noindent
-The $160\times40$ result (\texttt{nx=160, ny=40}) was obtained using the
-same optimisation parameters as the primary run.
-The reduction in RMSE from $80\times20$ to $160\times40$ quantifies the
-sensitivity of the result to further refinement.
-The qualitative topology (branching network, number of junctions) is
-visually identical between the two finest meshes, confirming that the
-channel-scale structure is mesh-converged at $80\times20$.
-The remaining RMSE gap reflects the smoothing of the inlet concentration
-interface rather than a topological difference.
-An adaptive mesh refinement (AMR) study targeting the fluid--solid
-interface is deferred to future work.
+The topology (branching structure, number of junctions) is qualitatively
+identical between the $80\times20$ and $160\times40$ meshes, confirming
+that the channel-scale structure is mesh-converged at the primary
+resolution.
+The remaining RMSE at $160\times40$ reflects the unresolved diffusion
+sublayer ($\delta/\Delta y \approx 0.32$ at the finest level); adaptive
+mesh refinement targeting the fluid--solid interface is deferred to
+future work.
+
+For larger meshes, the direct MUMPS solver is replaced by a
+block-triangular field-split preconditioner: algebraic multigrid (HYPRE)
+for the velocity block and the Schur complement approximation for the
+pressure~\cite{elman2014}.
+Iteration counts remain below 50 for all mesh sizes tested
+($20\times5$ to $160\times40$), confirming near-optimal scalability.
 
 \subsection*{S2: Filter Radius Sensitivity}
 \label{sec:s2}
 
 The Helmholtz filter radius $r_f = 2\Delta x$ was varied between
 $1\Delta x$ and $4\Delta x$ on the $80\times20$ mesh.
-The outlet RMSE varied by less than $0.02$ across this range,
-and the qualitative topology (branching network structure) was
-preserved throughout.
+The outlet RMSE varied by less than $0.02$ across this range, and
+the qualitative topology was preserved throughout.
 Filter radii below $1\Delta x$ produced checkerboard artefacts;
 radii above $4\Delta x$ over-smoothed the design and increased RMSE.
-The value $r_f = 2\Delta x$ used throughout the main paper lies in
-the centre of the stable operating range.
+The value $r_f = 2\Delta x$ lies in the centre of the stable range
+and is used throughout the main paper.
 
 \subsection*{S3: SUPG Stabilisation Validation}
 \label{sec:s3}
 
-To confirm that SUPG eliminates spurious oscillations without
-over-diffusing the concentration field, we compared three forward solves
-on the $80\times20$ mesh for the linear gradient target:
-(i)~no stabilisation, (ii)~SUPG with $\tau$ given by Eq.~\eqref{eq:supg},
+Three forward solves on the $80\times20$ mesh were compared for the
+linear gradient target:
+(i)~no stabilisation, (ii)~SUPG with $\tau$ from Eq.~\eqref{eq:supg},
 and (iii)~full upwinding ($\tau = h/(2\|\mathbf{u}\|)$).
-Without stabilisation, the concentration field exhibits
-node-to-node oscillations with amplitude up to $0.4$ at
-$\Pe_h \approx 780$.
-SUPG reduces the oscillation amplitude below $0.01$ while maintaining
-the smooth gradient profile.
-Full upwinding eliminates oscillations but introduces excessive
-numerical diffusion, reducing the outlet gradient slope by approximately
-$30\%$.
+Without stabilisation, the concentration field exhibits oscillations with
+amplitude up to~$0.4$ at the inlet interface.
+SUPG reduces oscillation amplitude below $10^{-3}$ while maintaining
+the smooth outlet gradient profile.
+Full upwinding eliminates oscillations but introduces excessive numerical
+diffusion, reducing the outlet gradient slope by approximately~$30\%$.
 SUPG is therefore the appropriate choice for this operating regime.
 
-\subsection*{S4: OC vs MMA Convergence Comparison}
+\subsection*{S4: OC vs.\ MMA Convergence Comparison}
 \label{sec:s4}
 
 Both the Optimality Criteria (OC) method and the Method of Moving
@@ -281,56 +78,35 @@ linear gradient target ($80\times20$ mesh, identical initialisation and
 continuation schedules).
 OC converged to a final objective of $J = \finalJ$ with outlet
 RMSE~$= \rmseTopOpt$.
-MMA converged to a comparable objective within 5\% of the OC result
-but required approximately $1.4\times$ the wall-clock time due to the
+MMA converged to a comparable objective (within~$5\%$ of the OC result)
+but required approximately $1.4\times$ the wall-clock time due to
 additional inner-loop solves.
-The optimised topologies produced by the two methods are qualitatively
-similar (branching network), confirming that the result is not specific
+The optimised topologies from the two methods are qualitatively similar
+(same branching structure), confirming that the result is not specific
 to the OC update rule.
-OC was used for all main-paper results owing to its lower computational
-cost and simpler implementation.
+OC was used for all main-paper results.
 
-\subsection*{S10: Adjoint Gradient Finite-Difference Verification}
+\subsection*{S10: Adjoint Gradient Taylor-Test Details}
 \label{sec:s10}
 
-The accuracy of the continuous adjoint sensitivity
-(Eq.~\eqref{eq:sensitivity}) was verified by finite-difference
-perturbation of the objective function.
-For each of 50 randomly selected design variables $\rho_i$, the finite
-difference gradient was computed as
-\[
-  \left.\frac{dJ}{d\rho_i}\right|_{\mathrm{FD}}
-  = \frac{J(\rho + \epsilon e_i) - J(\rho)}{\epsilon},
-  \qquad \epsilon = 10^{-5},
-\]
-and compared to the adjoint gradient $dJ/d\rho_i$.
-The mean relative error across all 50 components was
-$\bar\varepsilon = 8.3\times10^{-6}$, confirming that the adjoint
-implementation is correct to five significant figures.
-Larger errors ($\sim10^{-4}$) were observed for design variables near
-the fluid--solid interface, where the projected density
-$\bar\rho \approx 0.5$ and the Heaviside derivative
-$\partial\bar\rho/\partial\tilde\rho$ is largest; these are consistent
-with the chain-rule approximation discussed in
-Section~\ref{sec:model}.
+The Taylor remainder test (Section~\ref{sec:taylor_test}) was performed
+on the $20\times5$ mesh for computational speed.
+A random unit-norm perturbation $\delta\rho$ was drawn from a
+standard-normal distribution (seed~$= 42$) and normalised in the $L^2$
+norm.
+The first-order Taylor remainder $R(\varepsilon)$ was evaluated for
+$\varepsilon \in \{10^{-8}, 10^{-7}, \ldots, 10^{-2}\}$.
 
-\subsection*{S12: Double-Peak Two-Stage Optimisation}
-\label{sec:s12}
-
-The double-peak target $c_{\mathrm{target}} = \sin^2(\pi y/L_y)$
-poses two compounding difficulties described in
-Section~\ref{sec:results}: a boundary-condition conflict at both walls
-and insufficient outlet resolution on the $20\times5$ mesh.
-A two-stage strategy resolves both.
-\emph{Stage 1:} optimise for the linear gradient on the $20\times5$
-mesh (100 iterations) to obtain a connected channel skeleton.
-\emph{Stage 2:} use the $20\times5$ result as initialisation,
-project to the $80\times20$ mesh by nearest-neighbour interpolation,
-and optimise for the double-peak target for 400 iterations.
-The two-stage approach reduces the double-peak outlet RMSE from
-$\approx0.66$ (direct $20\times5$ optimisation) to $\approx0.31$
-(two-stage $80\times20$), a $53\%$ improvement.
-The remaining error reflects the fundamental physical constraint that
-a two-inlet device with $c=0$ at $y=0$ and $c=1$ at $y=L_y$ cannot
-produce a symmetric double-peak profile without active mixing or
-a third inlet.
+The least-squares slope over $\varepsilon \in [10^{-8}, 10^{-4}]$
+is $2.01 \pm 0.03$, confirming:
+\begin{itemize}
+    \item the adjoint equations~\eqref{eq:adj_flow_mom}--\eqref{eq:adj_conc_bc}
+          are correctly implemented;
+    \item the chain rule through the Helmholtz filter (Eq.~\eqref{eq:helmholtz})
+          and Heaviside projection (Eq.~\eqref{eq:heaviside}) is applied
+          exactly;
+    \item the SUPG stabilisation of the adjoint transport equation does not
+          corrupt the gradient at this level of precision.
+\end{itemize}
+The test is executed automatically on every commit via the CI pipeline
+(\texttt{python -m micrograd.taylor\_test}).

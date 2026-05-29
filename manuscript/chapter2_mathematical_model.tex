@@ -253,6 +253,7 @@ The sharpness parameter \(\beta\) is increased during the optimisation (typicall
 All PDEs (flow and transport) are solved using the physical density \(\bar{\rho}\) after projection.
 
 \subsection{Adjoint sensitivity analysis}
+\label{sec:adjoint}
 To use gradient-based optimisation, the total derivative \(\mathrm{d}J/\mathrm{d}\rho\) must be evaluated efficiently.
 We employ the continuous adjoint method, which yields the sensitivity by solving a set of adjoint equations once per optimisation iteration, independently of the number of design variables.
 
@@ -327,6 +328,26 @@ is the pointwise derivative of the Heaviside projection~\eqref{eq:heaviside}.
 In the present implementation with \(\beta\le 64\) and the primary \(80\times20\) mesh the filter and projection layers are smooth enough that omitting this chain rule introduces only a minor scaling error in the sensitivity direction; however, Eq.~\eqref{eq:chain_rule} is the mathematically correct expression and should be included in finer-mesh or higher-\(\beta\) runs.
 
 Equation~\eqref{eq:sensitivity} is evaluated by first solving the forward problem~\eqref{eq:brinkman}--\eqref{eq:convdiff} to obtain \((\mathbf{u},p,c)\), then solving the adjoint problems~\eqref{eq:adj_flow_mom}--\eqref{eq:adj_conc_bc} for \((\mathbf{v},q,\lambda)\), and finally assembling the volume integral via Eq.~\eqref{eq:chain_rule}.
+
+
+\paragraph{Smooth differentiable penalty.}
+To enforce the physical bound $c \in [0,1]$ in a differentiable manner
+that is consistent with the adjoint derivation, we add a smooth
+$C^\infty$ penalty to the objective:
+\begin{equation}
+    J_{\mathrm{pen}} = \gamma \int_\Omega \phi_\delta(c)\,\mathrm{d}\Omega,
+    \label{eq:penalty}
+\end{equation}
+where $\gamma = 10^6$, $\delta = 10^{-6}$, and
+\begin{equation}
+    \phi_\delta(c) = \tfrac{1}{2}\bigl(\sqrt{c^2+\delta^2} - c\bigr)^2
+                   + \tfrac{1}{2}\bigl(\sqrt{(c-1)^2+\delta^2} + (c-1)\bigr)^2.
+    \label{eq:phi_delta}
+\end{equation}
+The function $\phi_\delta$ is non-negative and vanishes for
+$c \in [0,1]$; it replaces the hard clipping of $c_h$ to $[0,1]$
+previously used in the implementation, which is non-differentiable and
+alters the adjoint right-hand side.
 
 \subsection{Numerical stabilisation}
 \label{sec:supg}

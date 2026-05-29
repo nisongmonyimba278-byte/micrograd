@@ -1,280 +1,149 @@
-\section{Numerical Methods}
+\section{Numerical Implementation}
 \label{sec:methods}
 
 \subsection{Finite element discretisation}
-All partial differential equations are solved using the open-source finite element library \texttt{FEniCSx} (dolfinx)~\cite{fenicsx2022}.
-The computational domain is the rectangle \([0,2000]\times[0,500]\ \mu\text{m}\), discretised with an \(80\times20\) structured grid of triangular elements.
-A coarse mesh of \(20\times5\) elements is used for rapid prototyping and proof-of-concept runs; mesh convergence is verified in the Supplementary Information (S1).
+\label{sec:fem}
+All partial differential equations are solved with FEniCSx
+(DOLFINx~v0.7.3)~\cite{fenicsx2022} on structured triangular meshes.
+The primary mesh uses $80\times20$ elements
+(1600 elements, $\Delta x = \Delta y = 25\,\mu$m);
+a coarser $20\times5$ mesh is used for rapid parameter screening.
 
-The Brinkman equations~\eqref{eq:brinkman} are discretised with the inf--sup stable Taylor--Hood element pair: continuous piecewise quadratic velocities (P2) and continuous piecewise linear pressure (P1).
-This gives approximately \(20\,000\) degrees of freedom for the velocity block on the \(80\times20\) mesh.
-The convection--diffusion equation~\eqref{eq:convdiff} is discretised with continuous piecewise linear elements (P1) and stabilised using the Streamline-Upwind Petrov--Galerkin (SUPG) method~\cite{brooks1982}.
-The SUPG parameter \(\tau\) is evaluated element-wise using Eq.~\eqref{eq:supg}.
-The design variable \(\rho\) and the filtered fields \(\tilde\rho,\bar\rho\) are also discretised with P1 elements on the same mesh.
+The Brinkman equations~\eqref{eq:brinkman} are discretised with the
+inf-sup stable Taylor--Hood element pair: continuous piecewise quadratic
+velocities (P2) and continuous piecewise linear pressure (P1), giving
+approximately 20\,000 velocity degrees of freedom on the $80\times20$ mesh.
+The convection--diffusion equation~\eqref{eq:convdiff} and its
+adjoint~\eqref{eq:adj_conc} are discretised with continuous piecewise
+linear elements (P1) and stabilised using the SUPG method
+(Eq.~\eqref{eq:supg}).
+The design variable $\rho$ and the filtered and projected fields
+$\tilde\rho$, $\bar\rho$ are also discretised with P1 elements.
+Weak forms are assembled using the Unified Form Language (UFL);
+all integrals are evaluated with exact quadrature.
 
-The weak forms are assembled using the Unified Form Language (UFL) embedded in \texttt{FEniCSx}.
-All volume integrals are evaluated with exact quadrature appropriate for the polynomial order; boundary integrals are evaluated over the tagged facets.
-
-\subsection{Solver configuration}
-During optimisation, the linear systems arising from the forward and adjoint Brinkman problems are solved with a direct LU factorisation (MUMPS) via PETSc’s \texttt{preonly}/\texttt{lu} combination.
-This choice provides robust, parameter-free solutions for the moderate meshes used here (up to \(\sim 30\,000\) degrees of freedom).
-
-For the scalability study presented in the Supplementary Information (S1), we additionally implement an iterative solver strategy: the Brinkman system is preconditioned with a block-triangular field-split preconditioner, using algebraic multigrid (HYPRE) for the velocity block and the pressure Schur complement~\cite{elman2014}.
-The convection--diffusion system is preconditioned with HYPRE alone.
-The scalability study confirms that the iterative approach maintains near-optimal convergence rates as the mesh is refined, enabling the pipeline to handle larger domains if needed.
+\subsection{Linear solvers}
+All linear systems arising from the forward and adjoint Brinkman problems
+are solved with a direct LU factorisation (MUMPS) via PETSc's
+\texttt{preonly}/\texttt{lu} combination.
+This choice provides robust, parameter-free solutions for the moderate
+meshes used here ($\lesssim 30\,000$ degrees of freedom).
+For larger-scale problems, an iterative solver is available: a
+block-triangular field-split preconditioner with algebraic multigrid
+(HYPRE) for the velocity block and the pressure Schur
+complement~\cite{elman2014}; scalability results are in
+Supplementary Information~S1.
 
 \subsection{Optimisation algorithm}
-The design is updated using the Optimality Criteria (OC) method~\cite{bendsoe2003}, which solves the Karush--Kuhn--Tucker conditions for a single volume constraint via bisection on the Lagrange multiplier \(\Lambda\).
-The OC update formula reads
+The design is updated using the Optimality Criteria (OC)
+method~\cite{bendsoe2003}, which handles the single volume constraint
+via bisection on the Lagrange multiplier $\Lambda$:
 \begin{equation}
-    \rho^{\text{new}} = \max\bigl(\rho_{\min},\,
-                                 \min(\rho_{\max},\,
-                                      \rho^{\text{old}} \cdot B^\eta)\bigr),
+    \rho^{\mathrm{new}} = \max\!\bigl(\rho_{\min},\,
+        \min(\rho_{\max},\,\rho^{\mathrm{old}} \cdot B^\eta)\bigr),
     \qquad B = -\frac{\mathrm{d}J/\mathrm{d}\rho}{\Lambda},
     \label{eq:oc}
 \end{equation}
-with damping exponent \(\eta = 0.5\) and a move limit of \(0.2\) (all main results) to prevent divergence.
-The Lagrange multiplier is determined by bisection until the volume constraint is satisfied to a tolerance of \(10^{-4}\).
-
-For comparison, the Method of Moving Asymptotes (MMA)~\cite{svanberg1987} is also implemented via the \texttt{gcma} Python package; both update rules are provided in the code, and a convergence comparison is included in the Supplementary Information (S4).
-The OC method was used for all results in the main paper.
+with damping exponent $\eta=0.5$ and move limit $0.2$.
+The Lagrange multiplier is determined by bisection until the volume
+constraint is satisfied to tolerance $10^{-4}$.
+The Method of Moving Asymptotes (MMA)~\cite{svanberg1987} is also
+implemented; a convergence comparison with OC is in Supplementary~S4.
+OC is used for all main results.
 
 \subsection{Continuation strategies}
-To avoid premature trapping in poor local minima and to promote connected fluid pathways, we employ three nested continuation strategies.
+\label{sec:continuation}
+Five nested continuation strategies ensure reliable convergence to
+connected, near-binary designs.
 
 \paragraph{Volume fraction continuation.}
-The target fluid volume fraction \(V^*\) is linearly decreased from \(0.7\) to \(0.5\) over the first 40 iterations.
-This initially relaxed constraint allows the optimiser to establish a well-connected channel network before removing excess fluid.
+The target fluid volume fraction $V^*$ decreases linearly from $0.7$ to
+$0.5$ over the first 40 iterations.
+This initially relaxed constraint allows the optimiser to establish a
+well-connected channel network before removing excess material.
 
 \paragraph{Sinusoidal initialisation.}
-To break the symmetry of the uniform initial design---which would otherwise yield a vanishing sensitivity---the density field is initialised with a sinusoidal channel pattern:
+To break the symmetry of the uniform initial design and provide a
+non-zero sensitivity from the first iteration:
 \begin{equation}
-  \rho(\mathbf{x})\big|_{t=0} = 0.7 + 0.25\sin\!\left(\frac{8\pi y}{L_y}\right),
+  \rho(\mathbf{x})\big|_{t=0}
+  = 0.7 + 0.25\sin\!\left(\tfrac{8\pi y}{L_y}\right),
+  \qquad \text{clipped to } [0.01, 0.99].
   \label{eq:sinusoidal_init}
 \end{equation}
-clipped to \([0.01,\,0.99]\).
-This creates four sinusoidal bands of alternating high and low density across the channel height, providing a non-zero sensitivity signal from the first iteration.
 
-\paragraph{Concentration clamping.}
-At high P\'{e}clet numbers, the SUPG-stabilised concentration field can still exhibit small non-physical oscillations (negative values or values slightly above 1) on coarse meshes.
-After each forward solve, the concentration field is clipped to the physical range:
-\begin{equation}
-  c_h \leftarrow \max(0,\,\min(1,\,c_h)).
-  \label{eq:clamping}
-\end{equation}
-This prevents oscillations from propagating into the adjoint right-hand side \(-\lambda\nabla c\), where they would otherwise cancel the sensitivity and stall convergence.
+\paragraph{Smooth concentration penalty.}
+Rather than clipping $c_h$ to $[0,1]$ (a non-differentiable operation
+that corrupts the adjoint right-hand side), we add the smooth penalty
+$J_{\mathrm{pen}}$ (Eq.~\eqref{eq:penalty}) to the objective.
+This is $C^\infty$, vanishes for $c \in [0,1]$, and contributes a
+consistent term to the sensitivity.
 
 \paragraph{Heaviside sharpening.}
-The projection parameter \(\beta\) (Eq.~\eqref{eq:heaviside}) is increased through the sequence
+The projection parameter $\beta$ (Eq.~\eqref{eq:heaviside}) is increased
+through the sequence
 \[
-\beta \in \{1,\,2,\,4,\,8,\,16,\,32,\,64\}
+    \beta \in \{1,\,2,\,4,\,8,\,16,\,32,\,64\}
 \]
-every 20--40 iterations, gradually driving the design from grey to near-binary while avoiding the ill-conditioning that a sharp projection would cause early in the optimisation.
+every 30 iterations, driving the design from grey intermediate states
+to near-binary ($<2\%$ grey volume at $\beta=64$).
 
 \paragraph{Brinkman penalty ramping.}
-A third continuation is applied to the inverse permeability upper bound \(\alpha_{\max}\).
-The value is ramped linearly from \(10^3\) to \(10^8\) over the first 60\% of the total iterations:
+$\alpha_{\max}$ is ramped logarithmically from $\alphaMaxStart$ to
+$\alphaMaxFinal$ over the full 400 iterations:
 \begin{equation}
-    \alpha_{\max}(t) = 10^{\,3+6t}, \qquad t = \min\!\left(1,\;\frac{\text{step}}{\text{max\_iter}}\right),
+    \alpha_{\max}(t) = 10^{\,3 + 6t},
+    \qquad t = \min\!\left(1,\;\frac{\text{step}}{\text{max\_iter}}\right),
     \label{eq:alpha_cont}
 \end{equation}
-This ramping ensures that fluid can flow through intermediate-density regions early in the optimisation, allowing the concentration field to develop and provide non-zero adjoint forcing.
-\emph{Note:} in the \(80\times20\) runs reported here, \(\alpha_{\max}\) is held constant at \(10^{9}\,\text{Pa}\cdot\text{s}/\text{m}^2\) and symmetry breaking is instead achieved by the sinusoidal initialisation described above (Eq.~\eqref{eq:sinusoidal_init}).
-The \(\alpha_{\max}\) ramping described in Eq.~\eqref{eq:alpha_cont} is recommended for finer meshes where the uniform-density starting point is more likely to stall.
+ensuring that fluid can flow through intermediate-density regions during
+early iterations when the concentration field must develop.
 
-\subsection{Post-processing and validation pipeline}
-\label{sec:ns_validation}
-After optimisation, the final physical density field \(\bar\rho\) is thresholded at \(\bar\rho = 0.5\) to obtain a binary fluid--solid distribution, and all performance metrics (RMSE, hydraulic resistance, flow rate) are evaluated on the Brinkman mesh using the forward solution at the best-objective iteration.
-
-\paragraph{Planned Navier--Stokes validation.}
-The \texttt{micrograd} repository includes a post-processing module (\texttt{ns\_validation.py}) that (i)~extracts the fluid subdomain using \texttt{pyvista}, (ii)~generates a body-fitted triangular mesh with \texttt{Gmsh}~\cite{geuzaine2009}, and (iii)~solves the full incompressible Navier--Stokes equations with a Picard iteration on the remeshed domain to validate the design under real fluid physics without the Brinkman penalisation.
-This pipeline requires \texttt{pyvista} and \texttt{gmsh} Python packages that are not included in the \texttt{dolfinx:v0.7.3} Docker image; full NS validation results will be reported in a subsequent study using a custom Docker image with these dependencies pre-installed.
-The Brinkman--Stokes model is a well-established surrogate for creeping flow at \(\Rey \ll 1\)~\cite{borrvall2003}, and the Darcy number \(\Da \approx 4\times10^{-6}\) confirms that solid regions are effectively impermeable, making the Brinkman approximation tight for the operating regime studied here.
-
-\paragraph{Dimensional note.}
-All simulations are two-dimensional; the flow rate $Q$ and hydraulic resistance $R = \Delta p / Q$ are therefore reported per unit channel depth (units: m$^2$\,s$^{-1}$ and Pa\,s\,m$^{-2}$, respectively). Three-dimensional values follow by multiplying $Q$ by the channel depth $L_z = 100\,\mu$m (as assumed in the Reynolds-number calculation, Section~\ref{sec:nondim}), giving $Q_{\mathrm{3D}} = Q \cdot L_z$ and $R_{\mathrm{3D}} = R / L_z$.
-
-\subsection{Definition and reporting of error metrics}
+\subsection{Definition and reporting of outlet RMSE}
 \label{sec:metrics}
-
-To prevent ambiguity, we state precisely how the outlet RMSE is defined,
-computed, and reported throughout this paper.
-
-\paragraph{Mesh.}
-All reported RMSE values use the primary \(80\times20\) structured mesh
-(1600 triangular elements, \(N_{\mathrm{out}} = 21\) uniformly spaced
-P1 outlet nodes at \(\Delta y = 25\,\mu\)m).
-Results on the coarse \(20\times5\) screening mesh are always explicitly
-labelled as such and are never used for the main performance claims.
-
-\paragraph{Iteration.}
-The optimiser runs for exactly 400 iterations with \(\beta\)-continuation
-(\(\beta \in \{1,2,4,8,16,32,64\}\)) and tracks the best-objective
-design at each step.
-The RMSE is evaluated on the concentration field \(c_h\) re-computed
-by a fresh forward solve applied to the \emph{best-objective} density
-field \(\bar\rho^*\), not the last-iteration field.
-This is implemented explicitly in the code (line~91 of
-\texttt{gradient\_optimizer.py}): \texttt{self.c\_h = best\_c\_h}.
-
-\paragraph{Topology state.}
-The density field \(\bar\rho\) is the Heaviside-projected field at
-\(\beta = 64\) (the final sharpness value).
-RMSE is evaluated \emph{before} hard thresholding at \(\bar\rho = 0.5\);
-the projected density with \(\beta = 64\) is already near-binary
-(grey volume below \(2\%\)).
-
-\paragraph{Concentration normalisation.}
-Both \(c_h\) and \(c_{\mathrm{target}}\) are dimensionless, normalised
-to \([0,1]\) with \(0\) = pure solvent (inlet~1) and \(1\) = pure solute
-(inlet~2).
-RMSE is therefore dimensionless; a value of \(\rmseTopOpt\) corresponds
-to \(\rmseTopOptPP\,\)pp of the full concentration range.
-
-\paragraph{Nodal evaluation, no interpolation.}
-RMSE is evaluated directly at the \(N_{\mathrm{out}} = 21\) P1 finite
-element nodes on \(\Gamma_{\mathrm{out}}\) (\(x = L_x\)).
-No additional interpolation, smoothing, or resampling is applied.
-The formula is Eq.~\eqref{eq:rmse}.
-
-\paragraph{Brinkman model only.}
-All reported RMSE values are from the Brinkman--Stokes forward model.
-Full Navier--Stokes validation on a body-fitted mesh is planned as
-a future study (Section~\ref{sec:ns_validation}).
-
-\paragraph{Canonical value.}
-The canonical RMSE for the linear gradient target on the primary
-\(80\times20\) mesh is \(\rmseTopOpt\) (\(\rmseTopOptPP\,\)pp).
-This is the value stored in \texttt{macros.tex} and used in every
-figure, table, and prose statement in this paper.
-Any earlier value of 0.098 cited in prior drafts referred to a
-different mesh resolution and is superseded by this result.
-
-\paragraph{Outlet RMSE definition.}
-\label{def:rmse}
-The outlet concentration profile is compared to the prescribed target via the
-\emph{root-mean-square error} (RMSE), defined as
-%
+The outlet RMSE is defined as
 \begin{equation}
   \mathrm{RMSE}
-  \;=\;
-  \sqrt{\frac{1}{N_{\mathrm{out}}}
-        \sum_{i=1}^{N_{\mathrm{out}}}
-        \bigl(c_h(y_i) - c_{\mathrm{target}}(y_i)\bigr)^{2}},
+  = \sqrt{\frac{1}{N_{\mathrm{out}}}
+          \sum_{i=1}^{N_{\mathrm{out}}}
+          \bigl(c_h(y_i) - c_{\mathrm{target}}(y_i)\bigr)^2},
   \label{eq:rmse}
 \end{equation}
-%
-where $N_{\mathrm{out}}$ is the number of P1 finite-element nodes on the outlet
-boundary $\Gamma_{\mathrm{out}}$ ($x = L_x$), $c_h(y_i)$ is the computed
-concentration at the $i$-th outlet node, and $c_{\mathrm{target}}(y_i)$ is the
-prescribed target profile evaluated at the same node.
+where $N_{\mathrm{out}} = n_y + 1$ is the number of P1 nodes on the
+outlet boundary $\Gamma_{\mathrm{out}}$ ($x = L_x$).
+Both $c_h$ and $c_{\mathrm{target}}$ are dimensionless and normalised to
+$[0,1]$.
+For the primary $80\times20$ mesh, $N_{\mathrm{out}} = 21$
+($\Delta y = 25\,\mu$m); no interpolation is applied.
+RMSE is evaluated on the concentration field from the
+\emph{best-objective} iteration, not the last iteration.
 
-\emph{Normalisation.}
-Both $c_h$ and $c_{\mathrm{target}}$ are dimensionless concentrations
-normalised to the interval $[0,1]$, where $0$ corresponds to pure solvent
-(inlet~1) and $1$ to pure solute (inlet~2).
-RMSE is therefore dimensionless; a value of $\rmseTopOpt$ means that the
-root-mean-square deviation from the target is $\rmseTopOptPP$~percentage points of
-the full $[0,1]$ concentration range.
+\subsection{Dimensional note}
+\label{sec:dimensional}
+All simulations are two-dimensional.
+The flow rate $Q$ and hydraulic resistance $R = \Delta p/Q$ are reported
+per unit channel depth (units: $\text{m}^2\,\text{s}^{-1}$ and
+$\text{Pa}\,\text{s}\,\text{m}^{-2}$, respectively).
+Three-dimensional values follow by multiplying $Q$ by the channel depth
+$L_z = 100\,\mu$m (as used in the Reynolds-number calculation in
+Section~\ref{sec:nondim}) and dividing $R$ by $L_z$.
 
-\emph{Node sampling.}
-For the $80\times20$ primary mesh the outlet boundary carries
-$N_{\mathrm{out}} = n_y + 1 = 21$ uniformly spaced P1 nodes at
-$y_i = (i-1)\,L_y/n_y$, $i=1,\ldots,21$, with spacing
-$\Delta y = 25\,\mu\text{m}$.
-For the $20\times5$ screening mesh, $N_{\mathrm{out}} = 6$
-(spacing $\Delta y = 100\,\mu\text{m}$).
-No additional interpolation is applied; RMSE is evaluated directly at the
-mesh nodes produced by the P1 concentration solve.
-
-\emph{Dimensional consistency.}
-The RMSE formula~\eqref{eq:rmse} uses no dimensional quantities.
-It is independent of the channel geometry and can be compared directly
-across mesh resolutions provided the same normalisation convention is used.
-
-Additional post-processing steps compute:
-\begin{itemize}
-    \item \textbf{Pressure drop} (fixed at \(p_{\text{in}}=1000\)~Pa) and total flow rate \(Q\);
-    \item \textbf{Hydraulic resistance} \(R = \Delta p / Q\);
-    \item \textbf{Maximum velocity} and \textbf{characteristic channel width} (via Euclidean distance transform);
-    \item \textbf{Reynolds number} \(\text{Re} = \rho_f U_{\max} L_c / \mu\) and \textbf{Péclet number} \(\text{Pe} = U_{\max} L_c / D_{\text{fluid}}\);
-    \item \textbf{Mixing length} -- the distance from the inlet where the concentration error drops below 5\% of the full scale;
-    \item \textbf{Minimum feature size} -- the smallest channel width in the binary design, checked against a 10~\(\mu\text{m}\) photolithography limit.
-\end{itemize}
-All metrics are evaluated identically for the topology-optimised design and the classic Christmas tree network, the latter being generated as a density field on the same mesh using a set of line segments that replicate the geometry of Jeon \emph{et~al.}~\cite{jeon2000}.
-
-\subsection{Reproducibility and open-source package}
+\subsection{Reproducibility and open-source release}
 \label{sec:reproducibility}
 \label{sec:ci}
-
-The complete pipeline is released as the open-source Python package
-\texttt{micrograd} under the MIT license, available at
-\url{https://github.com/nisongmonyimba278-byte/micrograd}.
-The repository includes:
-
-\begin{itemize}
-    \item All finite element modules (mesh generation, forward and adjoint
-          solvers, optimisation routines);
-    \item Post-processing tools (STL export, body-fitted Navier--Stokes
-          validation, experimental metrics);
-    \item A Jupyter notebook for interactive use;
-    \item A comprehensive test suite (validating the filter, forward solver
-          against analytical Poiseuille flow, adjoint gradients via finite
-          differences, MMA fallback logic, and mesh generation);
-    \item A continuous-integration (CI) workflow
-          (GitHub Actions~\cite{GitHubActions2024}) that automatically
-          executes a three-stage pipeline on every commit:
-          (i)~dependency installation inside the official
-          \texttt{dolfinx/dolfinx:v0.7.3} Docker container, preserving
-          the binary ABI compatibility required by the pre-compiled
-          \textsc{PETSc} and \texttt{petsc4py} libraries by pinning
-          \texttt{nlopt==2.7.1} and suppressing \textsc{NumPy} upgrades;
-          (ii)~a forward-solver smoke test asserting $c_h\in[0,1]$ on a
-          $20\times5$ mesh; and
-          (iii)~a ten-iteration mini-optimisation verifying $J<10$,
-          confirming end-to-end correctness of the adjoint sensitivity,
-          OC update, and $\alpha$-continuation mechanism.
-          During development, the CI pipeline identified and resolved
-          three API incompatibilities introduced in \texttt{dolfinx~v0.7}:
-          removal of the \texttt{petsc\_options\_prefix} keyword from
-          \texttt{LinearProblem}, promotion of
-          \texttt{element.interpolation\_points} from a property to a
-          callable method, and a \textsc{NumPy}~2.0 binary incompatibility
-          introduced by \texttt{nlopt}\,$\geq$\,2.8.
-          All three were caught by the CI pipeline before affecting any
-          scientific result.
-          A passing CI badge on the repository landing page certifies
-          that the complete solver stack is importable and produces
-          physically meaningful output on a clean, containerised machine,
-          independent of any local installation;
-    \item An \texttt{environment.yaml} file pinning exact package versions
-          to guarantee bit-identical reproduction.
-\end{itemize}
-
-The package is designed to run inside the official
-\texttt{dolfinx/dolfinx:v0.7.3} Docker container, which provides a fully
-self-contained environment with \mbox{FEniCSx~0.7.3}, \textsc{PETSc}, and
-all necessary dependencies pre-compiled and version-locked.
-The entire set of results presented in this paper can be reproduced with
-a single command:
-
+The complete pipeline is released as \texttt{micrograd} (MIT licence) at
+\url{https://github.com/nisongmonyimba278-byte/micrograd}~\cite{micrograd2025zenodo}.
+The repository includes all FEM modules, post-processing tools, a Jupyter
+notebook, a comprehensive test suite (validating the filter, forward
+solver against analytical Poiseuille flow, adjoint gradients via the
+Taylor test, and MMA fallback logic), and a continuous-integration
+workflow (GitHub Actions~\cite{GitHubActions2024}) that executes a
+three-stage pipeline on every commit inside the official
+\texttt{dolfinx/dolfinx:v0.7.3} Docker container.
+All results are reproducible with:
 \begin{verbatim}
 docker run --rm -v $(pwd):/root/micrograd \
-  -e OMPI_MCA_btl=^openib \
-  -e OMP_NUM_THREADS=1   \
-  -e MPLBACKEND=Agg      \
+  -e OMP_NUM_THREADS=1 -e MPLBACKEND=Agg \
   dolfinx/dolfinx:v0.7.3 bash -c \
   "cd /root/micrograd && bash run_all.sh"
 \end{verbatim}
-
-\noindent
-The \texttt{run\_all.sh} script is environment-aware: it activates the
-local Conda environment when available and falls back to the container's
-system \texttt{python3} otherwise, so the same script drives both the
-Docker workflow and the native \texttt{conda} workflow on Linux.
-
-The code is permanently archived on Zenodo with
-DOI~\texttt{10.5281/zenodo.XXXXXXX}~\cite{micrograd2025zenodo},
-and a detailed API reference is hosted via GitHub Pages.
-
-

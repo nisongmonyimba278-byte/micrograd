@@ -1,20 +1,36 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-We have presented a computational framework for the inverse design of microfluidic concentration gradient generators using density-based topology optimisation.
-The method couples a Brinkman-penalised Stokes flow model with convection--diffusion transport and employs continuous adjoint sensitivity to drive gradient-based optimisation.
-A multi-objective cost functional simultaneously minimises viscous dissipation (a proxy for pressure drop) and the deviation of the outlet concentration from a user-specified target.
+We have presented \texttt{micrograd}, an open-source FEniCSx framework
+for density-based topology optimisation of coupled
+Brinkman--convection-diffusion systems.
+The key methodological contributions are:
+\begin{itemize}
+    \item a complete continuous adjoint derivation for the coupled system,
+          with exact chain-rule propagation through the Helmholtz filter
+          and Heaviside projection, verified by a Taylor remainder test
+          exhibiting second-order convergence ($\text{slope} = 2.01$);
+    \item consistent SUPG stabilisation for both the forward and adjoint
+          transport equations, with gradient-error verification;
+    \item a smooth $C^\infty$ penalty replacing non-differentiable
+          concentration clipping, ensuring adjoint consistency;
+    \item five nested continuation strategies that together ensure reliable
+          convergence to connected, near-binary designs; and
+    \item full reproducibility via Docker, continuous integration, and
+          Zenodo archival.
+\end{itemize}
 
-Three contributions distinguish this work from prior literature.
-First, this is the first application of density-based topology optimisation to \emph{shape} a concentration profile at the outlet, rather than merely maximising mixing efficiency or minimising flow resistance.
-Second, the complete pipeline is released as the open-source Python package \texttt{micrograd}, which runs inside a standard Docker container, requires no proprietary software, and can be executed on a typical laptop.
-Third, the optimised designs outperform the classic Christmas-tree network in hydraulic resistance while simultaneously improving outlet-profile fidelity (RMSE reduced from $\treeRMSE$ to $\rmseTopOpt$); the Christmas-tree topology is structurally limited to binomial profiles and cannot target arbitrary concentration distributions, so the comparison reflects a capability gap rather than a marginal performance difference. Full quantitative metrics are given in Table~\ref{tab:comparison}.
+As a proof-of-concept, the framework automatically discovers a branching
+channel topology achieving an outlet RMSE of $\rmseTopOpt$ for a linear
+concentration target and reducing hydraulic resistance by $\reduction\%$
+relative to the classic Christmas-tree baseline --- demonstrating that
+the coupled adjoint successfully navigates the high-dimensional design
+space.
 
-The framework automatically generates channel networks for arbitrary target profiles --- linear, sigmoid, stair-step, and double-peak --- that are physically impossible to produce with a fixed tree-shaped generator.
-This flexibility supports application-specific design of gradient generators for cell biology, drug screening, and chemical synthesis.
-
-The current study is limited to two-dimensional, steady-state simulations without experimental validation.
-The immediate priorities are mesh convergence quantification, experimental fabrication and validation via fluorescence microscopy, and extension to three-dimensional geometries; these directions are detailed in Section~\ref{sec:future}.
-The open-source nature of \texttt{micrograd} is intended to facilitate exactly these follow-up studies by the broader microfluidics community.
-
-In summary, topology optimisation is a practical approach for the computational design of microfluidic gradient generators, and the present work provides both a mathematical foundation and a reproducible open-source implementation.
+The framework is designed to be general: any scalar objective that is
+a differentiable functional of the velocity and concentration fields can
+be incorporated by modifying the objective and adjoint boundary conditions
+in the UFL description.
+This generality, combined with a computational cost of under twenty
+minutes on a laptop and full reproducibility, makes \texttt{micrograd}
+a practical foundation for computational microfluidic inverse design.

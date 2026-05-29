@@ -1,18 +1,23 @@
-\section{Data and Code Availability}
+\section{Data and code availability}
 \label{sec:data}
 
-All source code, example scripts, and post-processing tools described in this paper are publicly available in the \texttt{micrograd} GitHub repository at
-\begin{center}
-\url{https://github.com/nisongmonyimba278-byte/micrograd}.
-\end{center}
-The repository is released under the MIT license and includes a comprehensive \texttt{README.md} with installation and usage instructions, as well as a Docker container configuration that guarantees bit-identical reproduction of all simulations. A passing continuous-integration badge (\href{https://github.com/nisongmonyimba278-byte/micrograd/actions}{\texttt{CI: passing}}) on the repository landing page certifies that the complete solver stack is importable and produces physically meaningful output on a clean, containerised machine independent of any local installation~\cite{GitHubActions2024}.
+All source code, example scripts, and post-processing tools are publicly
+available at
+\url{https://github.com/nisongmonyimba278-byte/micrograd}
+under the MIT licence.
+The repository includes the complete pipeline (forward solver, adjoint
+solver, Taylor-test module, optimiser, post-processing), a Jupyter
+notebook for interactive exploration, a test suite, and a
+continuous-integration workflow (GitHub Actions~\cite{GitHubActions2024})
+that executes a three-stage validation pipeline on every commit inside
+the official \texttt{dolfinx/dolfinx:v0.7.3} Docker container.
 
-The exact version of the code used to produce the results in this paper is permanently archived on Zenodo with DOI:
-\begin{center}
-\url{https://doi.org/[DOI pending]}.
-\end{center}
-
-The raw simulation data (final density fields, convergence histories, and performance metrics in CSV format) are included in the \texttt{figures/} and \texttt{manuscript/} directories of the repository and are also deposited alongside the Zenodo archive.  
-The finite-element meshes, boundary condition tags, and solver configurations are self-contained within the Python package; the \texttt{environment.yaml} file pins all software versions to ensure reproducibility.
-
-For any questions or requests for additional data, please contact the corresponding author or open an issue on the GitHub repository.
+All results in this paper are reproducible with a single command:
+\begin{verbatim}
+docker run --rm -v $(pwd):/root/micrograd \
+  -e OMP_NUM_THREADS=1 -e MPLBACKEND=Agg \
+  dolfinx/dolfinx:v0.7.3 bash -c \
+  "cd /root/micrograd && bash run_all.sh"
+\end{verbatim}
+The code is archived on Zenodo~\cite{micrograd2025zenodo}
+(DOI:~\texttt{10.5281/zenodo.XXXXXXX}).

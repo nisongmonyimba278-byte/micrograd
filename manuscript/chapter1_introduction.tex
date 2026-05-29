@@ -1,96 +1,81 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Concentration gradient generators are indispensable in microfluidics for a wide range of biological and chemical applications, including cell chemotaxis studies, drug screening, and nanoparticle synthesis~\cite{whitesides2006}.
-The classic ``Christmas tree'' network introduced by Jeon \emph{et~al.}~\cite{jeon2000} demonstrated that multiple fluid streams, repeatedly split and recombined in a planar network of microchannels, can produce a smooth, predictable concentration profile at the outlet.
-This design has been widely adopted because it operates entirely on laminar flow and diffusion, requiring no moving parts.
-However, the Christmas tree relies on a fixed, hand-drawn branching topology: the network geometry is prescribed \emph{a~priori}, and the resulting outlet profile is essentially a binomial distribution -- a single family of monotonic, symmetric concentration profiles.
-Modifying the profile shape requires cumbersome, trial-and-error re-dimensioning of each channel segment, and the design offers no guarantee of optimality in terms of pressure drop, mixing length, or channel volume.
+Density-based topology optimisation for Stokes flow, introduced by
+Borrvall and Petersson~\cite{borrvall2003}, has been extended to
+conjugate heat transfer~\cite{alexandersen2014}, scalar transport
+problems~\cite{makhija2015}, and unsteady flows~\cite{kreissl2011}.
+Its application to microfluidics is particularly attractive because the
+small length scales of soft-lithography devices make manual re-design
+expensive and trial-and-error slow~\cite{whitesides2006}.
+A growing literature on topology-optimised microfluidic components
+(micromixers, heat exchangers, valves) demonstrates the potential of the
+approach~\cite{na2022,feppon2024,li2023}, but several computational gaps
+remain.
 
-\subsection{Topology optimisation of fluidic systems}
-A powerful alternative to manual geometric design is topology optimisation, a computational method that automatically distributes material within a design domain to extremise a user-defined objective function.
-The seminal work of Borrvall and Petersson (2003) established the density-based approach for Stokes flow by introducing an inverse permeability that penalises solid regions, thereby transforming the shape design problem into a continuous material distribution problem solvable with gradient-based optimisers~\cite{borrvall2003}.
-Their formulation has become the foundation for a growing body of research in fluidic topology optimisation~\cite{gersborg2005,olesen2006,evgrafov2005,challis2009}.
+\subsection*{Gaps addressed by this work}
 
-In the two decades since, the topology optimisation community has extended the Borrvall--Petersson framework in several directions directly relevant to the present work.
-Poulsen, Aage, Gersborg-Hansen, and Sigmund addressed the scalability of Stokes flow topology optimisation to large-scale three-dimensional problems, demonstrating that the density method can handle industrial-sized design domains when combined with efficient iterative solvers and parallel computing~\cite{aage2008,poulsen2003}.
-Kreissl, Pingen, Evgrafov, and Maute introduced multi-objective formulations for dynamically tunable fluidic devices, where the channel layout is designed to accommodate mechanical actuation and fluid--structure interaction~\cite{kreissl2010,kreissl2011}.
-Their work also pioneered the application of the level-set method to fluid topology optimisation, providing sharp fluid--solid interfaces and enabling unsteady flow design~\cite{kreissl2012}.
+\emph{Gap~1 --- Coupled flow-transport adjoint.}
+Existing open-source topology optimisation codes for fluidic systems
+target pure flow (pressure-drop minimisation~\cite{borrvall2003}) or
+global scalar mixing~\cite{na2022}.
+The simultaneous optimisation of a coupled Brinkman--convection-diffusion
+system with a cost that contains both a flow term and a boundary
+concentration-mismatch term requires a coupled adjoint whose derivation
+and discretisation are non-trivial, particularly at high P\'eclet numbers.
 
-\subsection{Coupling flow with scalar transport}
-A critical step toward designing functional microfluidic devices -- rather than merely minimising pressure drop -- is the simultaneous optimisation of the flow field and a transported scalar quantity, such as temperature or concentration.
-Alexandersen, Andreasen, Aage, and Sigmund developed a density-based topology optimisation framework for coupled convection problems, applying it to forced and natural convection heat sinks and micropumps~\cite{alexandersen2014,alexandersen2020}.
-Makhija and Maute extended level-set topology optimisation to scalar transport problems, using the extended finite element method (XFEM) to capture concentration fields on evolving interfaces~\cite{makhija2015}.
-Deng (2018) published the first monograph dedicated to topology optimisation theory for laminar flow, comprehensively covering the density method and level-set method for inverse design of microfluidic components including passive micromixers, electroosmotic micromixers, no-moving-part microvalves, and valveless micropumps~\cite{deng2018}.
+\emph{Gap~2 --- SUPG-consistent adjoint in FEniCSx.}
+At the P\'eclet numbers relevant to microfluidic transport ($\Pe \sim 10^2$--$10^5$
+depending on operating conditions), the convection--diffusion equation
+and its adjoint require stabilisation.
+We apply the SUPG scheme~\cite{brooks1982} consistently to both the
+forward and adjoint transport equations and verify the resulting gradient
+accuracy via a Taylor remainder test, something not previously reported
+for this class of problems in FEniCSx.
 
-\subsection{Open-source and multiscale developments}
-Na \emph{et~al.} (2022) provided an open-source topology optimisation framework for passive micromixer design, employing continuous adjoint sensitivity and demonstrating that topology optimisation can generate smooth, manufacturable channel geometries competitive with hand-designed serpentine mixers~\cite{na2022}.
-Feppon (2024) introduced a multiscale topology optimisation method for fluid microchannels based on asymptotic homogenisation, enabling the design of spatially modulated channel arrays with enhanced heat and mass transfer performance~\cite{feppon2024}.
-A comprehensive review by Li \emph{et~al.} (2023) surveyed the technical progress of fluid topology optimisation over the preceding decade, highlighting the growing adoption of the density method for microfluidic mixers, heat exchangers, and flow distributors~\cite{li2023}.
+\emph{Gap~3 --- End-to-end reproducibility.}
+Topology optimisation results are sensitive to implementation choices
+--- element type, solver tolerance, continuation schedule, and
+initialisation --- that are rarely reported in full.
+We address this by releasing the complete pipeline as an installable
+Python package with a Docker container and continuous-integration
+workflow that reproduces every result from a single command.
 
-\subsection{Inverse design of concentration gradient generators}
-Recently, deep-learning-based inverse design has been applied to concentration gradient generators.
-Yang and Wang (2020) trained a deep neural network on a physics-based component model to predict the design parameters required to achieve a desired concentration profile in complex network topologies~\cite{yang2020}.
-While this approach demonstrates the potential of data-driven inverse design, it still operates within the space of pre-conceived network architectures and does not discover novel channel layouts.
+\subsection*{Contributions}
 
-\subsection{Knowledge gap and contributions}
-Despite these advances, three important gaps remain.
-First, density-based topology optimisation has \emph{not} been applied to the inverse design of concentration gradient generators: the simultaneous optimisation of flow and convection-diffusion transport to achieve an \emph{arbitrary user-specified concentration profile at the outlet} is, to the best of our knowledge, not previously reported in the literature.
-Second, the existing topology-optimised microfluidic components (micromixers, valves, pumps, heat sinks) have been designed for mixing efficiency or pressure-drop minimisation, not for producing a spatially controlled concentration field.
-Third, no open-source, fully reproducible Python pipeline exists that combines the forward model, adjoint sensitivity, and optimiser into a single tool accessible to experimental microfluidics researchers without a commercial software license.
-
-In this paper, we address all three gaps by:
 \begin{enumerate}
-    \item Formulating a density-based topology optimisation problem for coupled Brinkman--convection-diffusion transport, with a multi-objective cost function that simultaneously minimises viscous dissipation and outlet concentration profile mismatch.
-    \item Deriving the continuous adjoint equations and implementing them in FEniCSx, enabling efficient gradient computation with respect to all design variables simultaneously, independently of their number.
-    \item Publishing the complete pipeline as an open-source Python package (\texttt{micrograd}), including mesh generation, forward and adjoint solvers, optimisation routines (OC and MMA), and post-processing tools.
-    \item Demonstrating that the optimised designs outperform the classic Christmas tree generator by \textbf{\reduction\%} in hydraulic resistance (from \($\treeHydRes$\) to \($\hydResTopOpt$\)~Pa\(\cdot\)s/m\(^2\)) while producing a substantially closer approximation to the prescribed linear profile (topology-optimised RMSE~$=\rmseTopOpt$; Christmas-tree RMSE~$=\treeRMSE$).
-    \item Showing that the framework can generate non-obvious channel topologies for arbitrary target profiles -- linear, sigmoid, double-peak, and stair-step -- that are impossible to produce with fixed tree-shaped generators.
+    \item \textbf{Coupled adjoint formulation.}
+          We derive the continuous adjoint for the Brinkman--convection-diffusion
+          system and show that the sensitivity decomposes cleanly into
+          flow-adjoint and concentration-adjoint contributions
+          (Section~\ref{sec:adjoint}).
+    \item \textbf{Taylor-test-verified implementation.}
+          We implement the stabilised forward and adjoint solvers in FEniCSx
+          and verify gradient correctness via a Taylor remainder test with
+          second-order convergence, confirming exact chain-rule propagation
+          through the Helmholtz filter and Heaviside projection
+          (Section~\ref{sec:verification}).
+    \item \textbf{Continuation strategies for robust convergence.}
+          Five nested continuation strategies are presented and analysed:
+          volume relaxation, sinusoidal initialisation, smooth differentiable
+          penalty for the concentration bounds, Heaviside $\beta$-sharpening,
+          and logarithmic $\alpha_{\max}$ ramping (Section~\ref{sec:continuation}).
+    \item \textbf{Open-source reproducible package.}
+          \texttt{micrograd} is released under the MIT licence with Docker,
+          CI (GitHub Actions), and Zenodo archival
+          (Section~\ref{sec:reproducibility}).
+    \item \textbf{Proof-of-concept validation.}
+          We demonstrate the framework on microfluidic concentration gradient
+          generation with mesh-convergence and adjoint-accuracy studies
+          (Section~\ref{sec:results}).
 \end{enumerate}
 
 The remainder of this paper is organised as follows.
-Section~\ref{sec:model} presents the mathematical model and the adjoint sensitivity analysis.
-Section~\ref{sec:methods} describes the numerical implementation and the open-source \texttt{micrograd} package.
-Section~\ref{sec:results} presents the results, including mesh convergence, validation against Navier--Stokes, comparison with the Christmas tree, and the gallery of target profiles.
-Section~\ref{sec:discussion} discusses the limitations and future research directions, and Section~\ref{sec:conclusion} concludes the paper.
-
-\paragraph{Recent developments (2021--2026).}
-Several advances since 2021 widen the design space for computational
-inverse design of microfluidic devices and motivate the present work.
-
-\emph{Differentiable CFD.}
-The emergence of fully differentiable fluid solvers---frameworks in which
-every arithmetic operation is tracked by automatic differentiation so that
-exact gradients propagate through the PDE solve---has made continuous
-adjoint methods more accessible~\cite{bezgin2023jaxfluids}.
-These tools support the kind of gradient-based optimisation loop we employ,
-and confirm that adjoint sensitivity remains the method of choice for
-PDE-constrained design in the low-Reynolds-number regime.
-
-\emph{Physics-informed and neural-operator surrogates.}
-Physics-informed neural networks with hard constraints (hPINNs) have been
-applied to topology optimisation as a mesh-free alternative to FEM-based
-adjoint methods~\cite{lu2021hpinn,karniadakis2021pinns}.
-Neural operators (Fourier-DeepONet and related architectures) have been
-used to replace the PDE forward solve inside the optimisation loop,
-achieving order-of-magnitude speedups for channel topology
-problems~\cite{kou2025neural}.
-These approaches are complementary to, rather than competitive with, the
-density-based adjoint method presented here: they require large offline
-training datasets that are unavailable for the present gradient-generation
-problem, where the target profile itself is the design input.
-
-\emph{Topology optimisation for transport.}
-Papadopoulos \& S{\"u}li~\cite{papadopoulos2022stokes} provided the first
-rigorous finite-element convergence analysis for the Borrvall--Petersson
-Stokes topology optimisation problem, establishing strong convergence of
-discrete adjoint solutions and underpinning the numerical reliability of
-the formulation adopted here.
-Liu et al.~\cite{liu2025phasefield} extended density-based topology
-optimisation to microfluidic mixers using a phase-field regularisation,
-demonstrating 2D and 3D designs for concentration uniformisation.
-Critically, none of these works target an \emph{arbitrary prescribed
-outlet profile}: they optimise mixing uniformity or flow dissipation, not
-the shape of the outlet concentration distribution.
-The present study fills this gap.
-
+Section~\ref{sec:model} presents the mathematical model and adjoint
+derivation.
+Section~\ref{sec:methods} describes the FEniCSx implementation and
+continuation strategies.
+Section~\ref{sec:verification} presents verification studies.
+Section~\ref{sec:results} presents the proof-of-concept result.
+Section~\ref{sec:discussion} discusses limitations and future directions,
+and Section~\ref{sec:conclusion} concludes.

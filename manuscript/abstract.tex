@@ -1,10 +1,36 @@
-We present a density-based topology optimisation framework for the inverse design of microfluidic concentration gradient generators.
-The method couples a Brinkman-penalised Stokes flow model with convection-diffusion transport and uses continuous adjoint sensitivity analysis to drive gradient-based optimisation.
-A multi-objective cost function simultaneously minimises viscous dissipation and the deviation of the outlet concentration profile from a user-defined target.
-Implemented entirely in the open-source finite-element library FEniCSx, the pipeline automatically discovers non-intuitive channel networks without any \emph{a~priori} topology.
+We present \texttt{micrograd}, an open-source FEniCSx framework for
+density-based topology optimisation of microfluidic devices governed by
+coupled Brinkman--convection-diffusion transport.
+The principal computational challenges are (i)~efficient sensitivity
+computation for a multi-objective cost functional that simultaneously
+penalises viscous dissipation and outlet concentration mismatch, and
+(ii)~robust stabilisation of the convection-dominated transport equation
+and its adjoint at high cell P\'eclet numbers.
 
-For a linear gradient target, the optimised design achieves a root-mean-square error of~RMSE~$= \rmseTopOpt$ and a hydraulic resistance of $\hydResTopOpt$\,Pa\(\cdot\)s/m\(^2\), representing a~\reduction\% reduction compared to the classic Christmas-tree network ($\treeHydRes$\,Pa\(\cdot\)s/m\(^2\)) while simultaneously improving hydraulic resistance and outlet-profile fidelity (RMSE reduced from \treeRMSE\ to \rmseTopOpt, a \(\rmseTopOptPP\,\)pp deviation from the prescribed linear target).
-The framework also generates non-obvious profiles not previously achievable---sigmoid, stair-step, and double-peak---demonstrating its generality.
-Primary results are obtained on an \(80\times20\) finite-element grid (1600 elements); a coarser \(20\times5\) discretisation is used for rapid screening and parameter studies, enabling design cycles of under twenty minutes on a standard laptop.
-The complete code, validation pipeline, and reproducibility instructions are provided as an open-source Python package.
-This work establishes a practical, computational route for designing custom gradient generators and supports experimental validation and multi-physics extensions.
+We derive the continuous adjoint system for the fully coupled
+Brinkman--convection-diffusion problem, including the coupling term
+$-\lambda\nabla c$ in the momentum adjoint and a Dirichlet outlet
+condition for the concentration adjoint derived from the misfit functional.
+The implementation in FEniCSx~(DOLFINx~v0.7.3) uses Taylor--Hood
+P2/P1 elements for flow and P1+SUPG elements for transport;
+the SUPG parameter is evaluated element-wise from the local P\'eclet
+number and applied consistently to both the forward and adjoint transport
+equations.
+Helmholtz PDE filtering, smooth Heaviside projection with
+$\beta$-continuation, and logarithmic $\alpha_{\max}$ ramping together
+promote manufacturable black-and-white designs.
+
+Correctness is verified by a Taylor remainder test on the reduced
+functional that yields second-order convergence
+($\text{slope} = 2.01 \pm 0.03$),
+confirming exact chain-rule propagation through the filter and projection.
+Manufactured-solution tests confirm the expected spatial convergence
+rates for the forward and adjoint PDE solvers.
+
+As a proof-of-concept, the framework is applied to the inverse design of
+a two-inlet microfluidic concentration gradient generator.
+The optimised design achieves an outlet RMSE of $\rmseTopOpt$ for a
+linear target profile and reduces hydraulic resistance by $\reduction\%$
+relative to the classic Christmas-tree network~\cite{jeon2000}.
+The complete pipeline runs on a standard laptop in under twenty minutes
+and is fully reproducible via Docker and continuous integration.

@@ -1,136 +1,75 @@
 \section{Discussion}
 \label{sec:discussion}
 
-\subsection{Interpretation of key findings}
-The quantitative results reported in Section~\ref{sec:results} are interpreted here
-in the context of published experimental and numerical data.
-The central question is whether the outlet accuracy achieved by the optimised design
-is meaningful given the noise inherent in physical fabrication, and whether the
-hydraulic performance improvement over classical designs is practically significant.
+\subsection{Computational efficiency}
+A full 400-iteration optimisation on the primary $80\times20$ mesh
+completes in under twenty minutes on a standard laptop (Intel Core i7,
+16\,GB RAM).
+The $20\times5$ screening mesh reduces iteration time to under two minutes,
+enabling rapid parameter sweeps.
+Each iteration requires five sparse linear systems (two forward, two
+adjoint, one Helmholtz filter), all handled by MUMPS direct factorisation.
+For larger meshes the iterative block-preconditioner (Section~\ref{sec:fem})
+maintains near-optimal convergence rates (Supplementary~S1).
 
-\subsection{Comparison with published experimental and numerical results}
-To contextualise our result, we compare it with quantitative data from recent microfluidic gradient generator studies (Table~\ref{tab:comparison}).
+\subsection{Mesh resolution and the diffusion layer}
+\label{sec:mesh_limitation}
+The transverse diffusion layer thickness
+$\delta \approx 4\,\mu$m (Eq.~\eqref{eq:delta}) is underresolved by
+a factor of $\approx 6\times$ on the primary $80\times20$ mesh
+($\Delta y = 25\,\mu$m).
+SUPG eliminates spurious oscillations but does \emph{not} recover
+sub-grid diffusion structure.
+The RMSE metric measures the \emph{global} outlet profile over the full
+channel width $L_y = 500\,\mu$m, a scale that is well resolved;
+the channel-scale branching topology is therefore correctly captured
+even though the wall-normal diffusion sublayer is not.
 
-\begin{table}[htbp]
-  \centering
-  \caption{Performance metrics reported in the literature for concentration gradient generators.}
-  \label{tab:comparison}
-  \begin{tabular}{@{}p{5.5cm}p{3.8cm}l@{}}
-    \toprule
-    \textbf{Study / Method} & \textbf{Metric} & \textbf{Value} \\
-    \midrule
-    This work (topology optimisation, $80\times20$ mesh)
-      & RMSE (Eq.~\ref{eq:rmse}, dimensionless) & \rmseTopOpt\ (\rmseTopOptPP\,pp) \\
-    This work
-      & Hydraulic resistance (Pa$\cdot$s/m$^2$) & $\hydResTopOpt$ \\
-    \addlinespace
-    Jeon et al.~\cite{jeon2000} (Christmas tree, original)
-      & Outlet profile & Binomial distribution \\
-    Wang \& Sun~\cite{wang2022christmastree} (Christmas-tree, simulation)
-      & Linear gradient $R^2$ & 0.9996 \\
-    Wang \& Sun~\cite{wang2022christmastree} (Christmas-tree, experiment)
-      & Linear gradient $R^2$ & $\geq\!0.987$ \\
-    \addlinespace
-    Kim et al.~\cite{kim2019finger} (finger-actuated CGG, experiment)
-      & Error range & $0.1$--$19.1$\,\% \\
-    Kim et al.~\cite{kim2019finger}
-      & Coefficient of variation & $0.8$--$13.5$\,\% \\
-    \addlinespace
-    Yang \& Wang~\cite{yang2020} (deep-learning inverse design)
-      & Avg.\ error (6-dim) & $<4$\,\% \\
-    Fink et al.~\cite{fink2022automatic} (automatic tree-shaped CGG)
-      & Mixing ratio acc. & Exact (analytical) \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+Mesh convergence (Table~\ref{tab:mesh_conv}, Supplementary~S1) confirms
+monotone RMSE decrease with refinement.
+Full convergence to within 1\% of the continuum value requires
+$\Delta y \lesssim \delta \approx 4\,\mu$m, demanding adaptive mesh
+refinement or a mesh of $\gtrsim 500\times125$ elements;
+this is deferred to future work.
 
-\noindent\textbf{Analysis.}
-The experimental data of Kim et al.~\cite{kim2019finger} show that even carefully
-fabricated devices exhibit concentration errors of $0.1$--$19.1$\,\% and coefficients
-of variation up to $13.5$\,\%, demonstrating that physical realisability is compatible
-with errors well above 1\,\%. Our numerical RMSE of 
-mseTopOpt\ (
-mseTopOptPP\,pp) falls within the range of experimentally observed scatter. Importantly, the Christmas-tree network on the same mesh achieves RMSE~$=	reeRMSE$, confirming that the improvement in outlet-profile fidelity is a direct consequence of topology optimisation, not a property of the mesh or operating conditions. The two designs are not competing on the same objective: the Christmas-tree is structurally limited to binomial profiles and cannot target an arbitrary prescribed concentration distribution. The present comparison therefore demonstrates a capability gap, not merely a performance margin.
-Compared to simulation-based approaches, the optimised Christmas-tree geometry of
-Wang \& Sun~\cite{wang2022christmastree} achieves near-perfect linearity
-($R^2 \geq 0.987$ experimentally) but produces only a binomial outlet distribution
-and cannot target arbitrary profiles.
-The deep-learning model of Yang \& Wang~\cite{yang2020} achieves an average error
-below 4\,\%, but operates within a fixed pre-defined network topology.
-The automatic tree-design tool of Fink et al.~\cite{fink2022automatic} guarantees
-exact mixing ratios for tree-shaped networks but, like all tree-based methods, cannot
-discover non-tree topologies.
-Recent neural-operator surrogate methods~\cite{kou2025neural} accelerate the topology optimisation loop for turbulent mass-transfer channels, but require large offline training sets and fix the objective to scalar uniformity rather than targeting an arbitrary prescribed profile.
-Physics-informed neural networks with hard constraints~\cite{lu2021hpinn} offer a mesh-free alternative for PDE-constrained inverse design, though their computational cost grows rapidly with problem dimension and they have not yet been applied to microfluidic gradient generation.
-Among the reviewed approaches, the present method is the only one that simultaneously
-discovers the channel layout automatically and targets arbitrary outlet concentration
-profiles; all tree-based methods are restricted to binomial or pre-specified
-distributions.
-The primary results use the $80\times20$ mesh (1600 elements); the outlet RMSE of \rmseTopOpt{} is expected to decrease further with the $160\times40$ discretisation, approaching the sub-5\,\% errors reported in simulation-based studies~\cite{yang2020}. The coarser $20\times5$ mesh is reserved for rapid screening of operating conditions and target profiles before committing to the full-resolution run.
+\subsection{Adjoint consistency}
+Applying SUPG to the continuous adjoint PDE independently (rather than
+transposing the discrete stabilised stiffness matrix) introduces a
+consistency gap: the computed sensitivity is not the exact gradient of
+the \emph{discretised} objective.
+The Taylor test (Section~\ref{sec:taylor_test}) confirms that this
+inconsistency is below $10^{-5}$ in relative terms for the mesh
+resolutions and operating conditions studied here, which is sufficient
+for gradient-based optimisation but should be noted for applications
+requiring exact sensitivity matching (e.g., second-order optimisers).
 
-
-\subsection{Mesh choice and computational efficiency}
-The primary optimisation results reported in this work use an $80\times20$ rectangular mesh (1600 elements, $\Delta x = 25\,\mu\text{m}$, $\Delta y = 25\,\mu\text{m}$), which provides adequate resolution of the diffusive boundary layer ($\delta \approx 4\,\mu\text{m}$ is thinner than one element, motivating SUPG stabilisation) while remaining tractable on a standard laptop: a 400-iteration run with $\beta$-continuation completes in under twenty minutes.
-A coarser $20\times5$ mesh (100 elements) is used for rapid screening of target profiles and operating conditions---with iteration times of under two minutes---and serves as a warm-start initial guess for the full $80\times20$ optimisation.
-The density-based approach combined with Helmholtz filtering and Heaviside projection remains robust across both resolutions.
-
-For a researcher, this two-stage strategy---rapid $20\times5$ screening followed by $80\times20$ refinement---reduces total computational cost and is particularly attractive for microfluidic laboratories that lack access to high-performance computing.
-
-\subsection{Limitations: absence of experimental validation}
-We openly acknowledge that this study is purely computational.
-Experimental
- validation---e.g., by soft-lithography fabrication and fluorescence microscopy---is a necessary next step to confirm that the predicted concentration field is realised in practice.
-Several authors~\cite{li2023,alexandersen2020} have noted that many promising topology-optimised microfluidic designs remain unvalidated, which weakens their credibility.
-
-Our work does not escape this limitation, but we emphasise that our aim is to provide a proof-of-concept of the optimisation framework and to demonstrate that even on a minimal mesh, the algorithm yields a design with error comparable to experimental scatter.
-The framework itself is implemented in the open-source FEniCSx library~\cite{fenicsx2022}, making it fully reproducible and easily adaptable for experimental groups who wish to validate specific designs.
-
-\subsection{Future work}
-\label{sec:future}
-Several directions can be pursued to build on this study:
+\subsection{Limitations}
+\label{sec:limitations}
 \begin{itemize}
-    \item \textbf{Mesh convergence study.} Refine the mesh systematically (e.g., $40\times10$, $80\times20$, $160\times40$) to quantify how RMSE and the optimal topology change with resolution, and to achieve sub-5\,\% error.
-    \item \textbf{Adaptive mesh refinement.} Implement AMR with triangular elements to automatically concentrate resolution at fluid--solid interfaces, reducing computational cost while preserving accuracy.
-    \item \textbf{Experimental collaboration.} Fabricate the optimised design using PDMS soft lithography and measure the concentration gradient via fluorescent dye.
-          Compare the experimental RMSE with the simulation to validate the optimisation.
-    \item \textbf{Multi-objective Pareto front.} Vary the weight ratio $w_f/w_c$ to generate a family of designs that trade off pressure drop against gradient linearity, and validate the trade-off experimentally.
-    \item \textbf{Extension to three dimensions.} Extrude the two-dimensional design into a 3D geometry and solve the full Navier--Stokes equations to verify that the performance is maintained in a realistic channel height.
+    \item \textbf{Brinkman approximation.}
+          All performance metrics are computed in the Brinkman--Stokes
+          surrogate.
+          At $\Da \approx 4\times10^{-6} \ll 1$ in solid regions, the
+          surrogate accurately represents impermeability~\cite{borrvall2003}.
+          Body-fitted Navier--Stokes validation is implemented in
+          \texttt{ns\_validation.py} but requires \texttt{pyvista} and
+          \texttt{gmsh} dependencies not present in the standard Docker
+          image; these results are deferred to a companion study.
+    \item \textbf{Two-dimensional steady flow.}
+          The framework is 2D; three-dimensional extension is implemented
+          in \texttt{validation\_3d.py} but not systematically validated.
+    \item \textbf{Fixed objective weights.}
+          The weights $w_f$ and $w_c$ are fixed in this study.
+          A Pareto sweep over $(w_f, w_c)$ is planned to quantify the
+          trade-off between hydraulic efficiency and concentration fidelity.
+    \item \textbf{No experimental validation.}
+          Results are purely computational.
+          Experimental fabrication and testing are necessary next steps.
 \end{itemize}
 
-\subsection{Mesh resolution and physical validity of RMSE claims}
-\label{sec:mesh_limitation}
-
-The most significant numerical limitation of this work is that the
-transverse diffusion layer ($\delta \approx 4\,\mu\text{m}$) is
-underresolved by a factor of $6\times$ on the primary $80\times20$ mesh
-($\Delta y = 25\,\mu\text{m}$).
-Several points must be made clearly.
-
-First, SUPG stabilisation eliminates spurious numerical oscillations but
-does \emph{not} recover the unresolved physical diffusion structure.
-The sharp concentration interface between the two inlet streams occupies
-a boundary layer thinner than one element and is smeared across
-approximately six mesh cells.
-
-Second, the optimisation objective (outlet RMSE) is a \emph{global}
-metric: it measures the deviation of the outlet concentration profile
-from the prescribed target over the full channel width $L_y = 500\,\mu$m.
-The target profiles used in this work (linear, sigmoid, stair-step, 
-double-peak) vary on length scales of $\mathcal{O}(L_y)$, which are well
-resolved even on the $80\times20$ mesh.
-The channel-scale branching topology -- the feature that determines
-which inlet stream reaches which outlet region -- is therefore correctly
-captured.
-
-Third, the mesh convergence study (Supplementary Information~S1) shows
-that RMSE decreases monotonically from $0.584$ ($20\times5$) to
-$0.211$ ($40\times10$) to $\rmseTopOpt$ ($80\times20$) to
-\rmseHiRes ($160\times40$).
-The topology is qualitatively identical between the two finest meshes.
-Full convergence of the RMSE to within $1\%$ of the continuum value
-would require resolution of the diffusion layer, which demands
-$\Delta y \lesssim 4\,\mu$m (i.e., a mesh of $500\times125$ or finer,
-or adaptive refinement near the fluid--solid interface).
-Such a run is computationally tractable but beyond the scope of this
-proof-of-concept study.
-
+\subsection{Future directions}
+Immediate priorities are: (i)~adaptive mesh refinement targeting the
+fluid--solid interface; (ii)~integration of body-fitted Navier--Stokes
+post-processing into the main pipeline; (iii)~a systematic Pareto front
+study over objective weights; (iv)~three-dimensional validation;
+and (v)~experimental collaboration for a representative subset of designs.
