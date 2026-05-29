@@ -90,11 +90,6 @@ def run_convergence_study(target_expr, Lx=2000e-6, Ly=500e-6,
     plt.close()
 
     # Figure 2: Final topologies side by side
-    try:
-        try:
-    import pyvista
-except ImportError:
-    pyvista = None as pv
         import dolfinx
         n_meshes = len(results)
         fig, axes = plt.subplots(1, n_meshes, figsize=(4*n_meshes, 4))
@@ -102,11 +97,7 @@ except ImportError:
             axes = [axes]
         for ax, r in zip(axes, results):
             topology, cells, geometry = dolfinx.plot.vtk_mesh(r['V_rho'])
-            if pv is not None:
-                grid = if pv is not None:  pv.UnstructuredGrid(cells, geometry, topology)
             grid["density"] = r['rho_phys'].x.array.real
-            if pv is not None:
-                plotter = if pv is not None:  pv.Plotter(off_screen=True)
             plotter.add_mesh(grid, cmap="coolwarm", show_edges=False, clim=[0,1])
             plotter.view_xy()
             img = plotter.screenshot(return_img=True)
