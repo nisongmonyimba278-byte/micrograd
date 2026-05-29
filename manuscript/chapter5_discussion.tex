@@ -1,14 +1,12 @@
 \section{Discussion}
 \label{sec:discussion}
 
-\subsection{Summary of key findings}
-We have presented a density-based topology optimisation framework for the inverse design of a microfluidic concentration gradient generator.
-Using a coarse mesh ($20\times5$ elements) and a three-stage continuation strategy (volume fraction, Heaviside sharpness $\beta$, Brinkman penalty $\alpha_{\max}$), the optimised device achieves a linear concentration profile at the outlet with a root-mean-square error of $\rmseTopOpt$ ($\approx $9.8$~pp of the full-scale range$ relative error).
-The objective function (weighted sum of flow dissipation and concentration mismatch) decreased from $\sim 4.17$ to \finalJ, while the hydraulic resistance of the optimised design (\hydResTopOpt~Pa$\cdot$s/m$^3$) is \reduction\% lower than that of the classic Christmas-tree network (\treeHydRes~Pa$\cdot$s/m$^3$).
-The final fluid volume fraction reached the prescribed target of $50\%$.
-
-The framework also successfully produced non-monotonic profiles that are impossible to generate with a fixed tree-shaped generator, demonstrating that the method is not limited to a single family of outlet gradients.
-These results establish topology optimisation as a viable, efficient, and general tool for the computational design of microfluidic gradient generators.
+\subsection{Interpretation of key findings}
+The quantitative results reported in Section~\ref{sec:results} are interpreted here
+in the context of published experimental and numerical data.
+The central question is whether the outlet accuracy achieved by the optimised design
+is meaningful given the noise inherent in physical fabrication, and whether the
+hydraulic performance improvement over classical designs is practically significant.
 
 \subsection{Comparison with published experimental and numerical results}
 To contextualise our result, we compare it with quantitative data from recent microfluidic gradient generator studies (Table~\ref{tab:comparison}).
@@ -61,12 +59,13 @@ below 4\,\%, but operates within a fixed pre-defined network topology.
 The automatic tree-design tool of Fink et al.~\cite{fink2022automatic} guarantees
 exact mixing ratios for tree-shaped networks but, like all tree-based methods, cannot
 discover non-tree topologies.
-Our topology-optimised geometry is the only approach that (i)~automatically discovers
-the channel layout, (ii)~targets arbitrary outlet concentration profiles, and
-(iii)~achieves a 99.7\,\% reduction in hydraulic resistance compared to the classic
-Christmas-tree baseline~\cite{jeon2000}. The 9.8\,\% RMSE is a coarse-mesh result;
-a finer $80\times20$ discretisation is expected to reduce it to $\leq 5$\,\%,
-matching the best reported numerical accuracies~\cite{yang2020}.
+Among the reviewed approaches, the present method is the only one that simultaneously
+discovers the channel layout automatically and targets arbitrary outlet concentration
+profiles; all tree-based methods are restricted to binomial or pre-specified
+distributions.
+The outlet error on the coarse $20\times5$ mesh is expected to decrease with
+mesh refinement; a finer $80\times20$ discretisation should approach the
+sub-5\,\% errors reported in simulation-based studies~\cite{yang2020}.
 
 
 \subsection{Role of the coarse mesh and computational efficiency}
@@ -89,6 +88,7 @@ Our work does not escape this limitation, but we emphasise that our aim is to pr
 The framework itself is implemented in the open-source FEniCSx library~\cite{fenicsx2022}, making it fully reproducible and easily adaptable for experimental groups who wish to validate specific designs.
 
 \subsection{Future work}
+\label{sec:future}
 Several directions can be pursued to build on this study:
 \begin{itemize}
     \item \textbf{Mesh convergence study.} Refine the mesh systematically (e.g., $40\times10$, $80\times20$, $160\times40$) to quantify how RMSE and the optimal topology change with resolution, and to achieve sub-5\,\% error.
@@ -99,7 +99,4 @@ Several directions can be pursued to build on this study:
     \item \textbf{Extension to three dimensions.} Extrude the two-dimensional design into a 3D geometry and solve the full Navier--Stokes equations to verify that the performance is maintained in a realistic channel height.
 \end{itemize}
 
-\subsection{Concluding remarks for the discussion}
-In summary, our topology optimisation framework produces a microfluidic gradient generator with a linearity error of 9.8\,\% on a very coarse mesh---a result that lies within the scatter of published experimental data.
-The computational efficiency and open-source implementation make it a valuable tool for rapid prototyping of concentration gradient generators.
-While experimental validation remains for future work, the presented framework provides a solid computational foundation that can directly guide experimental efforts.
+

@@ -1,20 +1,20 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-We have presented a fully \emph{in silico} framework for the inverse design of microfluidic concentration gradient generators using density-based topology optimisation.
+We have presented a computational framework for the inverse design of microfluidic concentration gradient generators using density-based topology optimisation.
 The method couples a Brinkman-penalised Stokes flow model with convection--diffusion transport and employs continuous adjoint sensitivity to drive gradient-based optimisation.
 A multi-objective cost functional simultaneously minimises viscous dissipation (a proxy for pressure drop) and the deviation of the outlet concentration from a user-specified target.
 
 Three contributions distinguish this work from prior literature.
 First, this is the first application of density-based topology optimisation to \emph{shape} a concentration profile at the outlet, rather than merely maximising mixing efficiency or minimising flow resistance.
 Second, the complete pipeline is released as the open-source Python package \texttt{micrograd}, which runs inside a standard Docker container, requires no proprietary software, and can be executed on a typical laptop.
-Third, the optimised designs outperform the classic Christmas-tree network by \reduction\% in hydraulic resistance (from \treeHydRes to \hydResTopOpt~Pa\(\cdot\)s/m\(^3\)) while maintaining a comparable outlet linearity (RMSE~=~\rmseTopOpt, or $9.8$~pp of the full-scale range).
+Third, the optimised designs outperform the classic Christmas-tree network in hydraulic resistance while maintaining comparable outlet linearity; the quantitative comparison is given in Table~\ref{tab:comparison}.
 
-The framework also demonstrates a unique generality, automatically generating channel networks for arbitrary target profiles --- linear, sigmoid, stair-step, and double-peak --- that are physically impossible to produce with a fixed tree-shaped generator.
-This flexibility allows to rapid, application-specific design of gradient generators for cell biology, drug screening, and chemical synthesis.
+The framework automatically generates channel networks for arbitrary target profiles --- linear, sigmoid, stair-step, and double-peak --- that are physically impossible to produce with a fixed tree-shaped generator.
+This flexibility supports application-specific design of gradient generators for cell biology, drug screening, and chemical synthesis.
 
 The current study is limited to two-dimensional, steady-state simulations without experimental validation.
-The next steps are clear: (i) perform a systematic mesh convergence study to push the RMSE below 5\%; (ii) fabricate the optimised design using standard PDMS soft lithography and validate the gradient via fluorescence microscopy; and (iii) extend the framework to three-dimensional geometries with full Navier--Stokes physics.
+The immediate priorities are mesh convergence quantification, experimental fabrication and validation via fluorescence microscopy, and extension to three-dimensional geometries; these directions are detailed in Section~\ref{sec:future}.
 The open-source nature of \texttt{micrograd} is intended to facilitate exactly these follow-up studies by the broader microfluidics community.
 
-In summary, topology optimisation is a powerful and practical tool for inventing novel microfluidic gradient generators, and the present work provides both a rigorous mathematical foundation and a fully reproducible computational implementation.
+In summary, topology optimisation is a practical approach for the computational design of microfluidic gradient generators, and the present work provides both a mathematical foundation and a reproducible open-source implementation.
