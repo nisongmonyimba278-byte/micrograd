@@ -129,7 +129,7 @@ done
 hdr "11. Macro values (no nan, no XXXXXXX)"
 while IFS= read -r line; do
     name=$(echo "$line" | grep -oP '(?<=\\newcommand{\\)[^}]+')
-    val=$(echo  "$line" | grep -oP '(?<=\}\{)[^}]+')
+    val=$(echo  "$line" | grep -oP '(?<=\}\{).*' | sed 's/\\ensuremath{//g; s/}*$//')
     [[ "$val" == *nan*       ]] && { fail "$name = $val  (nan — run generate_macros.py)"; continue; }
     [[ "$val" == *XXXXXXX*   ]] && { warn "$name = $val  (Zenodo DOI not yet registered)"; continue; }
     [[ "$val" == *yourusername* ]] && { fail "$name = $val  (placeholder URL)"; continue; }
@@ -170,8 +170,7 @@ hdr "14. Recent literature coverage  (2021–2026)"
 RECENT_OK=0
 for year in 2021 2022 2023 2024 2025; do
     N=$(grep -c "year.*=.*{$year}" manuscript/references.bib 2>/dev/null || echo 0)
-    [[ "$N" -gt 0 ]] && { ok "$year: $N reference(s)"; ((RECENT_OK++)); }  \
-                     || warn "$year: 0 references"
+    if [[ "$N" -gt 0 ]]; then ok "$year: $N reference(s)"; ((RECENT_OK++)); else warn "$year: 0 references"; fi
 done
 [[ "$RECENT_OK" -ge 4 ]] && ok "Recent literature coverage adequate" \
     || fail "Recent literature coverage weak — add 2021–2026 references"
