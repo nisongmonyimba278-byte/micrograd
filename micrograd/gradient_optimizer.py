@@ -4,7 +4,7 @@ import ufl
 from .mesh import create_rectangular_mesh
 from .solver import forward_solve
 from .adjoint import adjoint_and_sensitivity
-from .optimizer import oc_update, mma_update, MMAUpdater, nlopt_mma_update
+from .optimizer import oc_update, mma_update, MMAUpdater, nlopt_mma_update, reset_mma_state
 from .utilities import helmholtz_filter, heaviside_projection, alpha
 from . import utilities as _ut  # for alpha_max continuation
 from .compatibility import fallback_to_oc
@@ -38,6 +38,7 @@ class GradientGeneratorOptimizer:
         sched = np.array(V_star_schedule)
         V_seq = np.interp(np.arange(max_iter), sched[:,0], sched[:,1])
         history = []
+        reset_mma_state()  # clear MMA asymptote history for fresh run
         n_betas = len(beta_continuation); iters_per_beta = min(80, max_iter // n_betas)
         mma_updater = None
         if method == 'mma':
@@ -53,7 +54,10 @@ class GradientGeneratorOptimizer:
             beta = beta_continuation[beta_idx]
             # Alpha-max continuation: log ramp 1e3→1e9 over all iterations
             # log ramp keeps alpha low (≤1e5) for first ~40% of iters
-            _ut.alpha_max = 1e5  # fixed: sweep showed 1e5 maximises OC signal
+            # Alpha ramp: start low so flow propagates through gray domain,
+            # ramp to 1e5 (sweep-optimal) over first half, hold for sharpening
+            _frac = min(1.0, 2.0 * step / max_iter)
+            _ut.alpha_max = 10 ** (3.0 + 2.0 * _frac)  # 1e3 → 1e5
 
             helmholtz_filter(self.rho, self.rho_filt, self.V_rho, self.r_filter)
             heaviside_projection(self.rho_filt, self.rho_phys, beta)
