@@ -59,6 +59,8 @@ below 4\,\%, but operates within a fixed pre-defined network topology.
 The automatic tree-design tool of Fink et al.~\cite{fink2022automatic} guarantees
 exact mixing ratios for tree-shaped networks but, like all tree-based methods, cannot
 discover non-tree topologies.
+Recent neural-operator surrogate methods~\cite{kou2025neural} accelerate the topology optimisation loop for turbulent mass-transfer channels, but require large offline training sets and fix the objective to scalar uniformity rather than targeting an arbitrary prescribed profile.
+Physics-informed neural networks with hard constraints~\cite{lu2021hpinn} offer a mesh-free alternative for PDE-constrained inverse design, though their computational cost grows rapidly with problem dimension and they have not yet been applied to microfluidic gradient generation.
 Among the reviewed approaches, the present method is the only one that simultaneously
 discovers the channel layout automatically and targets arbitrary outlet concentration
 profiles; all tree-based methods are restricted to binomial or pre-specified

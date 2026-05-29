@@ -54,3 +54,44 @@ Section~\ref{sec:model} presents the mathematical model and the adjoint sensitiv
 Section~\ref{sec:methods} describes the numerical implementation and the open-source \texttt{micrograd} package.
 Section~\ref{sec:results} presents the results, including mesh convergence, validation against Navier--Stokes, comparison with the Christmas tree, and the gallery of target profiles.
 Section~\ref{sec:discussion} discusses the limitations and future research directions, and Section~\ref{sec:conclusion} concludes the paper.
+
+\paragraph{Recent developments (2021--2026).}
+Several advances since 2021 widen the design space for computational
+inverse design of microfluidic devices and motivate the present work.
+
+\emph{Differentiable CFD.}
+The emergence of fully differentiable fluid solvers---frameworks in which
+every arithmetic operation is tracked by automatic differentiation so that
+exact gradients propagate through the PDE solve---has made continuous
+adjoint methods more accessible~\cite{bezgin2023jaxfluids}.
+These tools support the kind of gradient-based optimisation loop we employ,
+and confirm that adjoint sensitivity remains the method of choice for
+PDE-constrained design in the low-Reynolds-number regime.
+
+\emph{Physics-informed and neural-operator surrogates.}
+Physics-informed neural networks with hard constraints (hPINNs) have been
+applied to topology optimisation as a mesh-free alternative to FEM-based
+adjoint methods~\cite{lu2021hpinn,karniadakis2021pinns}.
+Neural operators (Fourier-DeepONet and related architectures) have been
+used to replace the PDE forward solve inside the optimisation loop,
+achieving order-of-magnitude speedups for channel topology
+problems~\cite{kou2025neural}.
+These approaches are complementary to, rather than competitive with, the
+density-based adjoint method presented here: they require large offline
+training datasets that are unavailable for the present gradient-generation
+problem, where the target profile itself is the design input.
+
+\emph{Topology optimisation for transport.}
+Papadopoulos \& S{\"u}li~\cite{papadopoulos2022stokes} provided the first
+rigorous finite-element convergence analysis for the Borrvall--Petersson
+Stokes topology optimisation problem, establishing strong convergence of
+discrete adjoint solutions and underpinning the numerical reliability of
+the formulation adopted here.
+Liu et al.~\cite{liu2025phasefield} extended density-based topology
+optimisation to microfluidic mixers using a phase-field regularisation,
+demonstrating 2D and 3D designs for concentration uniformisation.
+Critically, none of these works target an \emph{arbitrary prescribed
+outlet profile}: they optimise mixing uniformity or flow dissipation, not
+the shape of the outlet concentration distribution.
+The present study fills this gap.
+
