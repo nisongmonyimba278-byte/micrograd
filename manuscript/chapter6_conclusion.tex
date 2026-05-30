@@ -8,8 +8,8 @@ The key methodological contributions are:
 \begin{itemize}
     \item a complete continuous adjoint derivation for the coupled system,
           with exact chain-rule propagation through the Helmholtz filter
-          and Heaviside projection, verified by a Taylor remainder test
-          exhibiting second-order convergence ($\text{slope} = 2.01$);
+          and Heaviside projection, with gradient direction verified by
+          gradient-descent monotonicity (Section~\ref{sec:taylor_test});
     \item consistent SUPG stabilisation for both the forward and adjoint
           transport equations, with gradient-error verification;
     \item a smooth $C^\infty$ penalty replacing non-differentiable
