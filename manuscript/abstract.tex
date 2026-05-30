@@ -16,9 +16,10 @@ P2/P1 elements for flow and P1+SUPG elements for transport;
 the SUPG parameter is evaluated element-wise from the local P\'eclet
 number and applied consistently to both the forward and adjoint transport
 equations.
-Helmholtz PDE filtering, smooth Heaviside projection with
-$\beta$-continuation, and logarithmic $\alpha_{\max}$ ramping together
-promote manufacturable black-and-white designs.
+Helmholtz PDE filtering, Heaviside projection with
+$\beta$-continuation to $\beta=\betaMax$, and logarithmic
+$\alpha_{\max}$ ramping to $\alphaMaxFinal$ together drive the
+design toward low gray-zone fractions.
 
 Correctness is verified by a Taylor remainder test on the reduced
 functional that yields second-order convergence
@@ -32,5 +33,5 @@ a two-inlet microfluidic concentration gradient generator.
 The optimised design achieves an outlet RMSE of $\rmseTopOpt$ for a
 linear target profile and reduces hydraulic resistance by $\reduction\%$
 relative to the classic Christmas-tree network~\cite{jeon2000}.
-The complete pipeline runs on a standard laptop in under twenty minutes
+The complete pipeline runs on a standard laptop in under thirty minutes
 and is fully reproducible via Docker and continuous integration.
