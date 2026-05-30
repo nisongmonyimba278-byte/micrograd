@@ -53,7 +53,9 @@ def adjoint_and_sensitivity(msh, boundary_data, rho_phys, u_h, c_h, target_expr,
              + tau * ufl.dot(uv, ufl.grad(lam)) * ufl.dot(uv, ufl.grad(phi)) * ufl.dx)
     L_lam = fem.Constant(msh, 0.0) * phi * ufl.dx
     delta = fem.Function(Vc); delta.interpolate(target_expr)
-    delta.x.array[:] -= c_h.x.array[:]; delta.x.scatter_forward()
+    delta.x.array[:] -= c_h.x.array[:]
+    delta.x.array[:] *= w_c  # scale by w_c: adjoint BC = w_c*(c_target-c)
+    delta.x.scatter_forward()
     bc_lo = fem.dirichletbc(delta, fem.locate_dofs_topological(Vc, fd, out))
     bc_l1 = fem.dirichletbc(PETSc.ScalarType(0.0), fem.locate_dofs_topological(Vc, fd, i1), Vc)
     bc_l2 = fem.dirichletbc(PETSc.ScalarType(0.0), fem.locate_dofs_topological(Vc, fd, i2), Vc)
@@ -79,7 +81,7 @@ def adjoint_and_sensitivity(msh, boundary_data, rho_phys, u_h, c_h, target_expr,
     zero_p = fem.Function(W1); zero_p.x.array[:] = 0.0
     bc_p_adj = fem.dirichletbc(zero_p, dofs_p, W.sub(1))
 
-    rhs_expr = lam_h * ufl.grad(c_h)
+    rhs_expr = w_f * lam_h * ufl.grad(c_h)  # w_f scaling for flow adjoint RHS
     rhs_func = fem.Function(Vv)
     rhs_func.interpolate(fem.Expression(rhs_expr, (lambda p: p() if callable(p) else p)(Vv.element.interpolation_points)))
     L_adj = - ufl.inner(rhs_func, w_s) * ufl.dx
@@ -90,13 +92,17 @@ def adjoint_and_sensitivity(msh, boundary_data, rho_phys, u_h, c_h, target_expr,
     # ---- Objective ----
     Jf = fem.assemble_scalar(fem.form(0.5*mu*ufl.inner(ufl.grad(u_h), ufl.grad(u_h))*ufl.dx
                                       + 0.5*alpha(rho_phys)*ufl.inner(u_h, u_h)*ufl.dx))
-    Jc = fem.assemble_scalar(fem.form(0.5*ufl.inner(delta, delta) * ds_out))
+    # delta was scaled by w_c for adjoint BC; unscale for Jc computation
+    delta_unscaled = fem.Function(Vc)
+    delta_unscaled.x.array[:] = delta.x.array[:] / w_c
+    Jc = fem.assemble_scalar(fem.form(0.5*ufl.inner(delta_unscaled, delta_unscaled) * ds_out))
     J = float(w_f*Jf + w_c*Jc)
 
     drho_dalpha = -(_ut.alpha_max - _ut.alpha_min)*2.0/(1.0+rho_phys)**2
     drho_dD = p_simp*(D_fluid-D_min)*rho_phys**(p_simp-1)
     test_rho = ufl.TestFunction(V_rho)
-    sens_form = (drho_dalpha * ufl.inner(u_h, vh) * test_rho
+    # w_f weights flow terms; w_c already encoded in lam_h via BC scaling
+    sens_form = (w_f * drho_dalpha * ufl.inner(u_h, vh) * test_rho
                  + drho_dD * ufl.inner(ufl.grad(c_h), ufl.grad(lam_h)) * test_rho) * ufl.dx
     sens_vec = _assemble_vector(fem.form(sens_form))
     sens_vec.ghostUpdate()
