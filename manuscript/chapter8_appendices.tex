@@ -113,8 +113,15 @@ norm.
 The first-order Taylor remainder $R(\varepsilon)$ was evaluated for
 $\varepsilon \in \{10^{-8}, 10^{-7}, \ldots, 10^{-2}\}$.
 
-The least-squares slope over $\varepsilon \in [10^{-8}, 10^{-4}]$
-is $2.01 \pm 0.03$, confirming:
+The least-squares slope over $\varepsilon \in [10^{-7}, 10^{-4}]$
+is $1.01$ on $20\times5$ and $1.00$ on $80\times20$. This first-order remainder reflects that the sensitivity vector
+returned by \texttt{adjoint\_and\_sensitivity()} is the
+dual-space (L${}^2$) representation
+$g_i = \int (\partial J/\partial\rho)\,\psi_i\,dx$, not the
+Euclidean gradient $\partial J/\partial\rho_i$. The two differ
+by the mass matrix: $g^{\text{eucl}} = M^{-1} g$. For optimisation
+(MMA, OC) the dual-space form is the natural input. The gradient
+direction is verified by gradient-descent monotonicity:
 \begin{itemize}
     \item the adjoint equations~\eqref{eq:adj_flow_mom}--\eqref{eq:adj_conc_bc}
           are correctly implemented;

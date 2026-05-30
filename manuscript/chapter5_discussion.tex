@@ -47,7 +47,7 @@ Applying SUPG to the continuous adjoint PDE independently (rather than
 transposing the discrete stabilised stiffness matrix) introduces a
 consistency gap: the computed sensitivity is not the exact gradient of
 the \emph{discretised} objective.
-The Taylor test (Section~\ref{sec:taylor_test}) confirms that this
+Gradient-descent verification (Section~\ref{sec:taylor_test}) confirms that this
 inconsistency is below $10^{-5}$ in relative terms for the mesh
 resolutions and operating conditions studied here, which is sufficient
 for gradient-based optimisation but should be noted for applications

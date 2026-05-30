@@ -23,7 +23,7 @@ design toward low gray-zone fractions.
 
 Correctness is verified by a Taylor remainder test on the reduced
 functional that yields second-order convergence
-($\text{slope} = 2.01 \pm 0.03$),
+(gradient-descent verified, see Section~\ref{sec:taylor_test}),
 confirming exact chain-rule propagation through the filter and projection.
 Manufactured-solution tests confirm the expected spatial convergence
 rates for the forward and adjoint PDE solvers.

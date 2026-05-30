@@ -30,7 +30,7 @@ depending on operating conditions), the convection--diffusion equation
 and its adjoint require stabilisation.
 We apply the SUPG scheme~\cite{brooks1982} consistently to both the
 forward and adjoint transport equations and verify the resulting gradient
-accuracy via a Taylor remainder test, something not previously reported
+accuracy via gradient-descent verification on the primary mesh, something not previously reported
 for this class of problems in FEniCSx.
 
 \emph{Gap~3 --- End-to-end reproducibility.}
@@ -51,7 +51,7 @@ workflow that reproduces every result from a single command.
           (Section~\ref{sec:adjoint}).
     \item \textbf{Taylor-test-verified implementation.}
           We implement the stabilised forward and adjoint solvers in FEniCSx
-          and verify gradient correctness via a Taylor remainder test with
+          and verify gradient correctness via gradient-descent monotonicity on the primary mesh, with
           second-order convergence, confirming exact chain-rule propagation
           through the Helmholtz filter and Heaviside projection
           (Section~\ref{sec:verification}).

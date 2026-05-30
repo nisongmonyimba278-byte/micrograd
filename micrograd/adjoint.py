@@ -53,9 +53,7 @@ def adjoint_and_sensitivity(msh, boundary_data, rho_phys, u_h, c_h, target_expr,
              + tau * ufl.dot(uv, ufl.grad(lam)) * ufl.dot(uv, ufl.grad(phi)) * ufl.dx)
     L_lam = fem.Constant(msh, 0.0) * phi * ufl.dx
     delta = fem.Function(Vc); delta.interpolate(target_expr)
-    delta.x.array[:] -= c_h.x.array[:]
-    delta.x.array[:] *= w_c  # adjoint BC: λ|_out = w_c*(c_target-c)
-    delta.x.scatter_forward()
+    delta.x.array[:] -= c_h.x.array[:]; delta.x.scatter_forward()
     bc_lo = fem.dirichletbc(delta, fem.locate_dofs_topological(Vc, fd, out))
     bc_l1 = fem.dirichletbc(PETSc.ScalarType(0.0), fem.locate_dofs_topological(Vc, fd, i1), Vc)
     bc_l2 = fem.dirichletbc(PETSc.ScalarType(0.0), fem.locate_dofs_topological(Vc, fd, i2), Vc)
@@ -92,22 +90,13 @@ def adjoint_and_sensitivity(msh, boundary_data, rho_phys, u_h, c_h, target_expr,
     # ---- Objective ----
     Jf = fem.assemble_scalar(fem.form(0.5*mu*ufl.inner(ufl.grad(u_h), ufl.grad(u_h))*ufl.dx
                                       + 0.5*alpha(rho_phys)*ufl.inner(u_h, u_h)*ufl.dx))
-    # delta = w_c*(c_target-c), so Jc_true = integral(delta²)/(2*w_c²)
-    Jc_scaled = fem.assemble_scalar(fem.form(0.5*ufl.inner(delta, delta) * ds_out))
-    Jc = float(Jc_scaled) / (w_c**2)  # unscale
+    Jc = fem.assemble_scalar(fem.form(0.5*ufl.inner(delta, delta) * ds_out))
     J = float(w_f*Jf + w_c*Jc)
 
     drho_dalpha = -(_ut.alpha_max - _ut.alpha_min)*2.0/(1.0+rho_phys)**2
     drho_dD = p_simp*(D_fluid-D_min)*rho_phys**(p_simp-1)
     test_rho = ufl.TestFunction(V_rho)
-    # Sensitivity dJ/drho:
-    # - lam_h encodes w_c (via BC scaled by w_c)
-    # - vh encodes w_c (driven by lam_h) but NOT w_f
-    # - direct Jf term: w_f * 0.5 * drho_dalpha * |u|^2
-    # - adjoint flow term: w_f * drho_dalpha * u.v (add w_f here)
-    # - concentration via D: drho_dD * grad(c).grad(lam) (w_c in lam_h)
-    sens_form = (w_f * drho_dalpha * (ufl.inner(u_h, vh)
-                                      + 0.5*ufl.inner(u_h, u_h)) * test_rho
+    sens_form = (drho_dalpha * ufl.inner(u_h, vh) * test_rho
                  + drho_dD * ufl.inner(ufl.grad(c_h), ufl.grad(lam_h)) * test_rho) * ufl.dx
     sens_vec = _assemble_vector(fem.form(sens_form))
     sens_vec.ghostUpdate()
