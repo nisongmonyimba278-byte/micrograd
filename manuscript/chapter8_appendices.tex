@@ -9,10 +9,14 @@ $20\times5$, $40\times10$, $80\times20$ (primary), and $160\times40$
 
 \begin{table}[h]
 \centering
-\caption{Mesh convergence for the linear gradient target.
+\caption{Optimizer performance across mesh resolutions.
          The $20\times5$ mesh is excluded (too coarse; reversed-flow
-         local minima found). The $40\times10$ result shows optimizer
-         sensitivity rather than mesh convergence.
+         local minima). The $40\times10$ result shows optimizer
+         sensitivity (plateau after iter~100).
+         The $80\times20$ primary result uses 600 iterations;
+         the $160\times40$ validation uses 400 iterations
+         (not fully converged; RMSE expected to decrease further
+         with the full 600-iteration schedule).
          RMSE measures the global outlet profile error.}
 \label{tab:mesh_conv_full}
 \begin{tabular}{@{}lcccl@{}}
@@ -22,7 +26,7 @@ Mesh & Elements & $\Delta y\,(\mu\text{m})$ & RMSE & Note \\
 $20\times5$   & 100  & 100  & ---          & excluded (too coarse; $N_{\mathrm{out}}=6$) \\
 $40\times10$  & 400  & 50   & 0.414        & optimizer not converged \\
 $80\times20$  & 1600 & 25   & \rmseTopOpt  & Primary result \\
-$160\times40$ & 6400 & 12.5 & \rmseHiRes   & Validation \\
+$160\times40$ & 6400 & 12.5 & \rmseHiRes   & 400 iter (not converged) \\
 \bottomrule
 \end{tabular}
 \end{table}
