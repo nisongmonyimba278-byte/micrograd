@@ -5,7 +5,8 @@
 
 The optimisation was repeated on four structured meshes:
 $20\times5$, $40\times10$, $80\times20$ (primary), and $160\times40$
-(validation), all for the linear gradient target with 400 iterations.
+(validation), all for the linear gradient target
+         ($80\times20$: 600 iters; $160\times40$: 600 iters).
 
 \begin{table}[h]
 \centering
@@ -14,7 +15,7 @@ $20\times5$, $40\times10$, $80\times20$ (primary), and $160\times40$
          local minima). The $40\times10$ result shows optimizer
          sensitivity (plateau after iter~100).
          The $80\times20$ primary result uses 600 iterations;
-         the $160\times40$ validation uses 400 iterations
+         the $160\times40$ validation uses 600 iterations
          (not fully converged; RMSE expected to decrease further
          with the full 600-iteration schedule).
          RMSE measures the global outlet profile error.}
@@ -78,7 +79,7 @@ SUPG is therefore the appropriate choice for this operating regime.
 \label{sec:s4}
 
 Both the Optimality Criteria (OC) method and the Method of Moving
-Asymptotes (MMA)~\cite{svanberg1987} were run for 400 iterations on the
+The hybrid OC/MMA schedule was run for 600 iterations on the
 linear gradient target ($80\times20$ mesh, identical initialisation and
 continuation schedules).
 The hybrid OC/MMA strategy (OC for topology formation at $\beta=1$--$2$,
@@ -105,7 +106,7 @@ iteration once the topology is established.
 \subsection*{S10: Adjoint Gradient Taylor-Test Details}
 \label{sec:s10}
 
-The Taylor remainder test (Section~\ref{sec:taylor_test}) was performed
+The adjoint gradient verification (Section~\ref{sec:taylor_test}) was performed
 on the $20\times5$ mesh for computational speed.
 A random unit-norm perturbation $\delta\rho$ was drawn from a
 standard-normal distribution (seed~$= 42$) and normalised in the $L^2$
