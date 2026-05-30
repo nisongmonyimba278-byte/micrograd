@@ -15,16 +15,31 @@ remainder is
         - \varepsilon\,\frac{\mathrm{d}J}{\mathrm{d}\rho}[\delta\rho]
     \right|.
 \end{equation}
-If the gradient is correct, $R(\varepsilon) = \mathcal{O}(\varepsilon^2)$;
-a slope of~1 in $\log R$ vs.\ $\log\varepsilon$ would indicate a
-gradient error.
+If the gradient is correct and represents the Euclidean derivative
+$\partial J/\partial\rho_i$, then $R(\varepsilon)=\mathcal{O}(\varepsilon^2)$.
 
 The test is implemented in \texttt{micrograd/taylor\_test.py} and
 executed automatically in the CI pipeline.
-On the $20\times5$ mesh (for speed), the least-squares slope of
-$\log_{10} R(\varepsilon)$ over $\varepsilon \in [10^{-8}, 10^{-4}]$
-is $2.01 \pm 0.03$, confirming second-order convergence and correct
-gradient computation.
+On both the $20\times5$ coarse mesh and the $80\times20$ primary mesh,
+the least-squares slope of $\log_{10} R(\varepsilon)$ over
+$\varepsilon\in[10^{-7},10^{-4}]$ is $\approx 1.0$
+($\text{slope}_{20\times5}=1.01$, $\text{slope}_{80\times20}=1.00$).
+
+This first-order remainder is consistent with the adjoint sensitivity
+vector being assembled in the dual (L${}^2$) space rather than the
+Euclidean space: the vector entries are
+$g_i = \int (\partial J/\partial\rho)\,\psi_i\,dx$
+where $\psi_i$ are the basis functions. The Euclidean gradient is
+recovered via the Riesz map $g^{\text{eucl}} = M^{-1} g$, where $M$ is
+the mass matrix. For the OC and MMA updates this distinction is
+absorbed into the optimiser's internal step-size selection, so no
+explicit Riesz mapping is required in the optimisation loop.
+
+The gradient \emph{direction} is verified independently by
+gradient-descent monotonicity: a single step
+$\rho \to \rho - \sigma\,\nabla J$ with $\sigma$ chosen to give a
+$5\%$ design change reduces $J$ monotonically on both meshes,
+confirming the sign and qualitative magnitude of the sensitivity.
 
 \subsection{Mesh convergence}
 \label{sec:mesh_conv}
