@@ -99,5 +99,5 @@ def adjoint_and_sensitivity(msh, boundary_data, rho_phys, u_h, c_h, target_expr,
     sens_form = (drho_dalpha * ufl.inner(u_h, vh) * test_rho
                  + drho_dD * ufl.inner(ufl.grad(c_h), ufl.grad(lam_h)) * test_rho) * ufl.dx
     sens_vec = _assemble_vector(fem.form(sens_form))
-    sens_vec.ghostUpdate(addv=PETSc.InsertMode.ADD, mode=PETSc.ScatterMode.REVERSE)
+    sens_vec.ghostUpdate()
     return J, sens_vec
