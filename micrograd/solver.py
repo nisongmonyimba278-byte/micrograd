@@ -1,6 +1,14 @@
 import basix.ufl
 from dolfinx import fem
-from dolfinx.fem.petsc import LinearProblem
+from dolfinx.fem.petsc import LinearProblem as _LinearProblem
+
+def _LP(a, L, bcs, petsc_options_prefix, petsc_options):
+    try:
+        return _LinearProblem(a, L, bcs=bcs,
+                              petsc_options_prefix=petsc_options_prefix,
+                              petsc_options=petsc_options)
+    except TypeError:
+        return _LinearProblem(a, L, bcs=bcs, petsc_options=petsc_options)
 import ufl
 from petsc4py import PETSc
 from .utilities import alpha, D_eff
@@ -30,7 +38,7 @@ def forward_solve(msh, boundary_data, rho_phys, mu=1e-3, D_fluid=1e-9,
     bc_i1 = fem.dirichletbc(p_in,  fem.locate_dofs_topological((W1, Vp), fd, i1),  W1)
     bc_i2 = fem.dirichletbc(p_in,  fem.locate_dofs_topological((W1, Vp), fd, i2),  W1)
     bc_out = fem.dirichletbc(p_out, fem.locate_dofs_topological((W1, Vp), fd, out), W1)
-    wh = LinearProblem(a, L, bcs=[bc_walls, bc_i1, bc_i2, bc_out], petsc_options={"ksp_type": "preonly", "pc_type": "lu"}).solve()
+    wh = _LP(a, L, bcs=[bc_walls, bc_i1, bc_i2, bc_out], petsc_options_prefix="lp3_", petsc_options={"ksp_type": "preonly", "pc_type": "lu"}).solve()
     uh = wh.sub(0).collapse(); ph = wh.sub(1).collapse()
     c, d = ufl.TrialFunction(Vc), ufl.TestFunction(Vc)
     D = D_eff(rho_phys, D_fluid); hc = ufl.CellDiameter(msh)
@@ -42,5 +50,5 @@ def forward_solve(msh, boundary_data, rho_phys, mu=1e-3, D_fluid=1e-9,
     Lc = fem.Constant(msh, PETSc.ScalarType(0.0)) * d * ufl.dx
     bc_c1 = fem.dirichletbc(PETSc.ScalarType(1.0), fem.locate_dofs_topological(Vc, fd, i1), Vc)
     bc_c2 = fem.dirichletbc(PETSc.ScalarType(0.0), fem.locate_dofs_topological(Vc, fd, i2), Vc)
-    ch = LinearProblem(a_c, Lc, bcs=[bc_c1, bc_c2], petsc_options={"ksp_type": "preonly", "pc_type": "lu"}).solve()
+    ch = _LP(a_c, Lc, bcs=[bc_c1, bc_c2], petsc_options_prefix="lp4_", petsc_options={"ksp_type": "preonly", "pc_type": "lu"}).solve()
     return uh, ph, ch

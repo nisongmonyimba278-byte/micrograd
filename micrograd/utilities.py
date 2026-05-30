@@ -1,6 +1,15 @@
 import ufl
 from dolfinx import fem
-from dolfinx.fem.petsc import LinearProblem
+from dolfinx.fem.petsc import LinearProblem as _LinearProblem
+
+def _LP(a, L, bcs, petsc_options_prefix, petsc_options):
+    """Version-safe LinearProblem constructor."""
+    try:
+        return _LinearProblem(a, L, bcs=bcs,
+                              petsc_options_prefix=petsc_options_prefix,
+                              petsc_options=petsc_options)
+    except TypeError:
+        return _LinearProblem(a, L, bcs=bcs, petsc_options=petsc_options)
 import numpy as np
 from petsc4py import PETSc
 
@@ -15,7 +24,7 @@ def helmholtz_filter(rin, rout, V, rf):
     u, v = ufl.TrialFunction(V), ufl.TestFunction(V)
     a = rf**2*ufl.inner(ufl.grad(u),ufl.grad(v))*ufl.dx + u*v*ufl.dx
     L = rin * v * ufl.dx
-    res = LinearProblem(a, L, bcs=[], petsc_options={"ksp_type":"cg","pc_type":"jacobi"}).solve()
+    res = _LP(a, L, bcs=[], petsc_options_prefix="lp1_", petsc_options={"ksp_type":"cg","pc_type":"jacobi"}).solve()
     rout.x.array[:] = res.x.array[:]; rout.x.scatter_forward()
 
 def heaviside_projection(r, rout, b, e=0.5):
