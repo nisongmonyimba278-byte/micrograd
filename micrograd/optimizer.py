@@ -1,7 +1,14 @@
+from petsc4py import PETSc
 # micrograd/optimizer.py
 """Design update routines: OC and Svanberg MMA (self-contained)."""
 import numpy as np
 from dolfinx import fem
+
+# dolfinx version compatibility: assemble_vector location
+try:
+    from dolfinx.fem.petsc import assemble_vector as _assemble_vector
+except ImportError:
+    from dolfinx.fem import assemble_vector as _assemble_vector
 import ufl
 from .compatibility import check_mma_available
 
@@ -10,8 +17,8 @@ from .compatibility import check_mma_available
 def oc_update(rho_vec, sens_vec, V_rho, vol_frac_target, move=0.2,
               eta=0.5, rho_min=0.001, rho_max=1.0):
     v_test = ufl.TestFunction(V_rho)
-    M = fem.petsc.assemble_vector(fem.form(v_test * ufl.dx))
-    M.ghostUpdate()
+    M = _assemble_vector(fem.form(v_test * ufl.dx))
+    M.ghostUpdate(addv=PETSc.InsertMode.ADD, mode=PETSc.ScatterMode.REVERSE)
     m_i = M.array
     sens_array = sens_vec.array.copy()
     target_vol = vol_frac_target * np.sum(m_i)
@@ -48,8 +55,8 @@ class MMAUpdater:
 def mma_update(rho_vec, sens_vec, V_rho, vol_frac_target, mma_updater,
                move=0.2, rho_min=0.001, rho_max=1.0):
     v_test = ufl.TestFunction(V_rho)
-    M = fem.petsc.assemble_vector(fem.form(v_test * ufl.dx))
-    M.ghostUpdate()
+    M = _assemble_vector(fem.form(v_test * ufl.dx))
+    M.ghostUpdate(addv=PETSc.InsertMode.ADD, mode=PETSc.ScatterMode.REVERSE)
     m_i = M.array
     current_vol = np.dot(m_i, rho_vec)
     total_mass  = np.sum(m_i)
@@ -96,8 +103,8 @@ def nlopt_mma_update(rho_vec, sens_vec, V_rho, vol_frac_target,
 
     # Volume constraint
     v_test = ufl.TestFunction(V_rho)
-    M_vec  = fem.petsc.assemble_vector(fem.form(v_test * ufl.dx))
-    M_vec.ghostUpdate()
+    M_vec  = _assemble_vector(fem.form(v_test * ufl.dx))
+    M_vec.ghostUpdate(addv=PETSc.InsertMode.ADD, mode=PETSc.ScatterMode.REVERSE)
     m_i   = M_vec.array.copy()
     M_tot = m_i.sum()
     dg    = m_i / M_tot

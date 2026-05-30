@@ -1,6 +1,18 @@
 # adjoint.py — penalty method (homogeneous BCs)
 import numpy as np, basix.ufl
 from dolfinx import fem
+
+# dolfinx version compatibility: assemble_vector location
+try:
+    from dolfinx.fem.petsc import assemble_vector as _assemble_vector
+except ImportError:
+    from dolfinx.fem import assemble_vector as _assemble_vector
+
+# dolfinx version compatibility: functionspace vs FunctionSpace
+try:
+    _functionspace = fem.functionspace
+except AttributeError:
+    _functionspace = fem.FunctionSpace
 from dolfinx.fem.petsc import LinearProblem as _LinearProblem
 
 def _LP(a, L, bcs, petsc_options_prefix, petsc_options):
@@ -21,9 +33,9 @@ def adjoint_and_sensitivity(msh, boundary_data, rho_phys, u_h, c_h, target_expr,
     P2 = basix.ufl.element("Lagrange", msh.topology.cell_name(), 2,
                             shape=(msh.geometry.dim,))
     P1 = basix.ufl.element("Lagrange", msh.topology.cell_name(), 1)
-    W  = fem.functionspace(msh, basix.ufl.mixed_element([P2, P1]))
-    Vc = fem.functionspace(msh, ("Lagrange", 1))
-    Vv = fem.functionspace(msh, ("Lagrange", 2, (msh.geometry.dim,)))
+    W  = _functionspace(msh, basix.ufl.mixed_element([P2, P1]))
+    Vc = _functionspace(msh, ("Lagrange", 1))
+    Vv = _functionspace(msh, ("Lagrange", 2, (msh.geometry.dim,)))
     V_rho = rho_phys.function_space
 
     i1 = boundary_data["inlet1"]; i2 = boundary_data["inlet2"]
@@ -86,6 +98,6 @@ def adjoint_and_sensitivity(msh, boundary_data, rho_phys, u_h, c_h, target_expr,
     test_rho = ufl.TestFunction(V_rho)
     sens_form = (drho_dalpha * ufl.inner(u_h, vh) * test_rho
                  + drho_dD * ufl.inner(ufl.grad(c_h), ufl.grad(lam_h)) * test_rho) * ufl.dx
-    sens_vec = fem.petsc.assemble_vector(fem.form(sens_form))
-    sens_vec.ghostUpdate()
+    sens_vec = _assemble_vector(fem.form(sens_form))
+    sens_vec.ghostUpdate(addv=PETSc.InsertMode.ADD, mode=PETSc.ScatterMode.REVERSE)
     return J, sens_vec

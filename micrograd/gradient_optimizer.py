@@ -1,5 +1,11 @@
 import numpy as np
 from dolfinx import fem
+
+# dolfinx version compatibility: functionspace vs FunctionSpace
+try:
+    _functionspace = fem.functionspace
+except AttributeError:
+    _functionspace = fem.FunctionSpace
 import ufl
 from .mesh import create_rectangular_mesh
 from .solver import forward_solve
@@ -14,7 +20,7 @@ class GradientGeneratorOptimizer:
                  target_expr=None, w_f=1e-3, w_c=5e1, V_star=0.5):
         self.Lx, self.Ly = Lx, Ly
         self.msh, self.boundary_data = create_rectangular_mesh(Lx, Ly, nx, ny)
-        self.V_rho = fem.functionspace(self.msh, ("Lagrange", 1))
+        self.V_rho = _functionspace(self.msh, ("Lagrange", 1))
         self.rho = fem.Function(self.V_rho)
         # Sinusoidal channel initialization to break symmetry
         import numpy as _np

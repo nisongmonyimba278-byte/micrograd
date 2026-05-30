@@ -1,5 +1,11 @@
 import basix.ufl
 from dolfinx import fem
+
+# dolfinx version compatibility: functionspace vs FunctionSpace
+try:
+    _functionspace = fem.functionspace
+except AttributeError:
+    _functionspace = fem.FunctionSpace
 from dolfinx.fem.petsc import LinearProblem as _LinearProblem
 
 def _LP(a, L, bcs, petsc_options_prefix, petsc_options):
@@ -20,8 +26,8 @@ def forward_solve(msh, boundary_data, rho_phys, mu=1e-3, D_fluid=1e-9,
     fd = msh.topology.dim - 1
     P2 = basix.ufl.element("Lagrange", msh.topology.cell_name(), 2, shape=(msh.geometry.dim,))
     P1 = basix.ufl.element("Lagrange", msh.topology.cell_name(), 1)
-    W  = fem.functionspace(msh, basix.ufl.mixed_element([P2, P1]))
-    Vc = fem.functionspace(msh, ("Lagrange", 1))
+    W  = _functionspace(msh, basix.ufl.mixed_element([P2, P1]))
+    Vc = _functionspace(msh, ("Lagrange", 1))
     (u, p) = ufl.TrialFunctions(W); (v, q) = ufl.TestFunctions(W)
     a = (mu * ufl.inner(ufl.grad(u), ufl.grad(v)) * ufl.dx
          + alpha(rho_phys) * ufl.inner(u, v) * ufl.dx
