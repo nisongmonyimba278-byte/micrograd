@@ -1,7 +1,11 @@
 # micrograd/manufacturability.py (updated)
 import numpy as np, matplotlib.pyplot as plt
-from scipy.ndimage import distance_transform_edt
-from scipy.interpolate import griddata
+try:
+    from scipy.ndimage import distance_transform_edt
+    from scipy.interpolate import griddata
+except ImportError:
+    distance_transform_edt = None
+    griddata = None
 
 def measure_min_feature_size(rho_phys, V_rho, threshold=0.5, resolution=1e-6,
                              plot_distribution=False, output_file=None):

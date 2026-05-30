@@ -2,8 +2,12 @@
 import numpy as np
 from dolfinx import fem
 import ufl
-from scipy.ndimage import distance_transform_edt
-from scipy.interpolate import griddata
+try:
+    from scipy.ndimage import distance_transform_edt
+    from scipy.interpolate import griddata
+except ImportError:
+    distance_transform_edt = None
+    griddata = None
 
 def compute_metrics(msh, boundary_data, rho_phys, u_h, c_h, target_expr,
                     mu=1e-3, rho_fluid=1000.0, D_fluid=1e-9,

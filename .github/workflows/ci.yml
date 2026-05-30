@@ -22,8 +22,10 @@ jobs:
           pip install --break-system-packages \
             "setuptools==59.5.0" \
             "nlopt==2.7.1" \
+            "scipy" \
+            "matplotlib" \
             pytest 2>/dev/null || \
-          pip install "setuptools==59.5.0" "nlopt==2.7.1" pytest
+          pip install "setuptools==59.5.0" "nlopt==2.7.1" scipy matplotlib pytest
 
       - name: Install micrograd
         run: |
