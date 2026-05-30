@@ -29,7 +29,10 @@ def helmholtz_filter(rin, rout, V, rf):
 
 def heaviside_projection(r, rout, b, e=0.5):
     expr = (ufl.tanh(b*e)+ufl.tanh(b*(r-e)))/(ufl.tanh(b*e)+ufl.tanh(b*(1.0-e)))
-    rout.interpolate(fem.Expression(expr, rout.function_space.element.interpolation_points))
+    # interpolation_points is a property in newer dolfinx, method in older
+    _pts = rout.function_space.element.interpolation_points
+    if callable(_pts): _pts = _pts()
+    rout.interpolate(fem.Expression(expr, _pts))
     rout.x.scatter_forward()
 def smooth_penalty(c_h, gamma=1e6, delta=1e-6):
     """
