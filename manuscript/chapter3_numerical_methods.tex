@@ -35,21 +35,23 @@ complement~\cite{elman2014}; scalability results are in
 Supplementary Information~S1.
 
 \subsection{Optimisation algorithm}
-The design is updated using the Optimality Criteria (OC)
-method~\cite{bendsoe2003}, which handles the single volume constraint
-via bisection on the Lagrange multiplier $\Lambda$:
+The design is updated using a hybrid optimisation strategy.
+In the topology-formation phase (iterations~0--299), the
+Optimality Criteria (OC) method~\cite{bendsoe2003} is used:
 \begin{equation}
     \rho^{\mathrm{new}} = \max\!\bigl(\rho_{\min},\,
         \min(\rho_{\max},\,\rho^{\mathrm{old}} \cdot B^\eta)\bigr),
     \qquad B = -\frac{\mathrm{d}J/\mathrm{d}\rho}{\Lambda},
     \label{eq:oc}
 \end{equation}
-with damping exponent $\eta=0.5$ and move limit $0.2$.
-The Lagrange multiplier is determined by bisection until the volume
-constraint is satisfied to tolerance $10^{-4}$.
-The Method of Moving Asymptotes (MMA)~\cite{svanberg1987} is also
-implemented; a convergence comparison with OC is in Supplementary~S4.
-OC is used for all main results.
+with damping exponent $\eta=0.5$ and move limit $0.15$.
+In the sharpening phase (iterations~300--599), the Method of Moving
+Asymptotes (MMA)~\cite{svanberg1987} is used with move limit $0.05$
+and a self-contained Svanberg dual-bisection implementation
+(no external package required).
+A convergence comparison is in Supplementary~S4.
+The volume constraint is enforced explicitly in both update rules
+via Lagrange multiplier bisection (OC) and dual bisection (MMA).
 
 \subsection{Continuation strategies}
 \label{sec:continuation}
@@ -57,10 +59,12 @@ Five nested continuation strategies ensure reliable convergence to
 connected, near-binary designs.
 
 \paragraph{Volume fraction continuation.}
-The target fluid volume fraction $V^*$ decreases linearly from $0.7$ to
-$0.5$ over the first 40 iterations.
-This initially relaxed constraint allows the optimiser to establish a
-well-connected channel network before removing excess material.
+The target fluid volume fraction $V^*$ is fixed at $0.5$ throughout
+all 600 iterations.
+Experiments with a relaxed initial $V^*=0.7$ ramping to $0.5$ over
+the first half of iterations were found to cause the OC update to
+chase a moving target, preventing convergence; fixing $V^*$ from the
+start eliminates this instability.
 
 \paragraph{Sinusoidal initialisation.}
 To break the symmetry of the uniform initial design and provide a
@@ -83,21 +87,27 @@ consistent term to the sensitivity.
 The projection parameter $\beta$ (Eq.~\eqref{eq:heaviside}) is increased
 through the sequence
 \[
-    \beta \in \{1,\,2,\,4,\,8,\,16,\,32,\,64\}
+    \beta \in \{1,\,2,\,4,\,8,\,16\}
 \]
-every 30 iterations, driving the design from grey intermediate states
-to near-binary ($<2\%$ grey volume at $\beta=64$).
+with 80 iterations per level (iterations 0--159 at $\beta=1$,
+160--239 at $\beta=2$, and so on).
+The grey-zone fraction at $\beta=\betaMax$ is $\grayFrac$
+(Section~\ref{sec:thresholding}).
 
 \paragraph{Brinkman penalty ramping.}
 $\alpha_{\max}$ is ramped logarithmically from $\alphaMaxStart$ to
 $\alphaMaxFinal$ over the full 400 iterations:
 \begin{equation}
-    \alpha_{\max}(t) = 10^{\,3 + 6t},
-    \qquad t = \min\!\left(1,\;\frac{\text{step}}{\text{max\_iter}}\right),
+    \alpha_{\max}(t) = 10^{\,3 + t},
+    \qquad t = \min\!\left(1,\;2\cdot\frac{\text{step}}{\text{max\_iter}}\right),
     \label{eq:alpha_cont}
 \end{equation}
-ensuring that fluid can flow through intermediate-density regions during
-early iterations when the concentration field must develop.
+ramping from $\alphaMaxStart$ to $\alphaMaxFinal=10^5$ over the
+first half of iterations, then holding fixed.
+Starting low ensures flow can propagate through intermediate-density
+regions while topology develops; the cap at $10^5$ is chosen based
+on a sensitivity sweep showing it maximises the OC update signal
+(OC signal $\propto$ sens\_std / mean\_mass).
 
 \subsection{Definition and reporting of outlet RMSE}
 \label{sec:metrics}

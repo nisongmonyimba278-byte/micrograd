@@ -2,11 +2,9 @@
 \label{sec:discussion}
 
 \subsection{Computational efficiency}
-A full 400-iteration optimisation on the primary $80\times20$ mesh
-completes in under twenty minutes on a standard laptop (Intel Core i7,
+A full 600-iteration optimisation on the primary $80\times20$ mesh
+completes in under thirty minutes on a standard laptop (Intel Core i7,
 16\,GB RAM).
-The $20\times5$ screening mesh reduces iteration time to under two minutes,
-enabling rapid parameter sweeps.
 Each iteration requires five sparse linear systems (two forward, two
 adjoint, one Helmholtz filter), all handled by MUMPS direct factorisation.
 For larger meshes the iterative block-preconditioner (Section~\ref{sec:fem})

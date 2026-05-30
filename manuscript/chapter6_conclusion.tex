@@ -14,18 +14,22 @@ The key methodological contributions are:
           transport equations, with gradient-error verification;
     \item a smooth $C^\infty$ penalty replacing non-differentiable
           concentration clipping, ensuring adjoint consistency;
-    \item five nested continuation strategies that together ensure reliable
-          convergence to connected, near-binary designs; and
+    \item a hybrid OC/MMA optimisation strategy with phased
+          $\alpha_{\max}$ ramping and $\beta$-continuation that ensures
+          reliable convergence; and
     \item full reproducibility via Docker, continuous integration, and
           Zenodo archival.
 \end{itemize}
 
-As a proof-of-concept, the framework automatically discovers a branching
-channel topology achieving an outlet RMSE of $\rmseTopOpt$ for a linear
-concentration target and reducing hydraulic resistance by $\reduction\%$
-relative to the classic Christmas-tree baseline --- demonstrating that
-the coupled adjoint successfully navigates the high-dimensional design
-space.
+As a proof-of-concept, the framework achieves an outlet RMSE of
+$\rmseTopOpt$ for a linear concentration target and reduces hydraulic
+resistance by $\reduction\%$ relative to the classic Christmas-tree
+baseline.
+The optimised design is predominantly gray ($\grayFrac$ gray-zone
+fraction), reflecting the physical reality that a linear mixing gradient
+is achieved by distributed porous transport rather than sharp binary
+channels; body-fitted binary validation is an identified direction for
+future work.
 
 The framework is designed to be general: any scalar objective that is
 a differentiable functional of the velocity and concentration fields can

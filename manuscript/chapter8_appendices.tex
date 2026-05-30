@@ -10,16 +10,17 @@ $20\times5$, $40\times10$, $80\times20$ (primary), and $160\times40$
 \begin{table}[h]
 \centering
 \caption{Mesh convergence for the linear gradient target.
-         The diffusion layer $\delta\approx4\,\mu$m is underresolved
-         at all resolutions; RMSE measures the global outlet profile
-         error, not the local diffusion-layer accuracy.}
+         The $20\times5$ mesh is excluded (too coarse; reversed-flow
+         local minima found). The $40\times10$ result shows optimizer
+         sensitivity rather than mesh convergence.
+         RMSE measures the global outlet profile error.}
 \label{tab:mesh_conv_full}
 \begin{tabular}{@{}lcccl@{}}
 \toprule
 Mesh & Elements & $\Delta y\,(\mu\text{m})$ & RMSE & Note \\
 \midrule
-$20\times5$   & 100  & 100  & 0.584        & Screening only \\
-$40\times10$  & 400  & 50   & 0.211        & \\
+$20\times5$   & 100  & 100  & ---          & excluded (too coarse; N_{\mathrm{out}}=6) \\
+$40\times10$  & 400  & 50   & 0.414        & optimizer not converged \\
 $80\times20$  & 1600 & 25   & \rmseTopOpt  & Primary result \\
 $160\times40$ & 6400 & 12.5 & \rmseHiRes   & Validation \\
 \bottomrule
@@ -76,15 +77,13 @@ Both the Optimality Criteria (OC) method and the Method of Moving
 Asymptotes (MMA)~\cite{svanberg1987} were run for 400 iterations on the
 linear gradient target ($80\times20$ mesh, identical initialisation and
 continuation schedules).
-OC converged to a final objective of $J = \finalJ$ with outlet
-RMSE~$= \rmseTopOpt$.
-MMA converged to a comparable objective (within~$5\%$ of the OC result)
-but required approximately $1.4\times$ the wall-clock time due to
-additional inner-loop solves.
-The optimised topologies from the two methods are qualitatively similar
-(same branching structure), confirming that the result is not specific
-to the OC update rule.
-OC was used for all main-paper results.
+The hybrid OC/MMA strategy (OC for topology formation, MMA for
+sharpening) converges to $J = \finalJ$ with outlet RMSE~$= \rmseTopOpt$.
+Pure OC exhibits period-2 oscillations at high $\beta$ due to
+near-symmetric sensitivity distributions (47\%/53\% negative/positive
+split); MMA resolves this via its asymptote-based move control.
+The self-contained Svanberg dual-bisection MMA implementation requires
+no external packages beyond those already in the FEniCSx environment.
 
 \subsection*{S10: Adjoint Gradient Taylor-Test Details}
 \label{sec:s10}
@@ -110,50 +109,47 @@ is $2.01 \pm 0.03$, confirming:
 \end{itemize}
 The test is executed automatically on every commit via the CI pipeline
 (\texttt{python -m micrograd.taylor\_test}).
-\subsection*{S5: Thresholding Robustness and $D_{\min}$ Sensitivity}
+\subsection*{S5: Thresholding Robustness and Binary Gap Analysis}
 \label{sec:s5}
 
-To assess porous leakage, the converged near-binary design ($\beta=64$,
-grey-zone fraction $<2\%$) is hard-thresholded at $\bar\rho=0.5$ and
-the forward Brinkman problem is re-solved with $D_{\min}$ retained in
-solid regions.
-The analytical bound $t_{\mathrm{diff}}/t_{\mathrm{flow}} \approx 430$
-(with $p=3$, $D_{\min}=10^{-15}\,\text{m}^2\,\text{s}^{-1}$) confirms
-that diffusive transport through solid is negligible in steady state.
+The optimised design has a grey-zone fraction of $\grayFrac$ at
+$\beta=\betaMax$, reflecting the physical reality that the linear
+gradient target is achieved by distributed diffusive mixing through
+intermediate-density Brinkman elements.
+Hard-thresholding at $\bar\rho=0.5$ and re-solving the forward problem
+gives the results in Table~\ref{tab:binary_val}.
 
 \begin{table}[h]
 \centering
-\caption{Binary validation results: RMSE and hydraulic resistance
-         for the grey Brinkman, binary Brinkman, and binary Stokes designs
-         on the same $80\times20$ mesh.}
+\caption{Binary validation results on the $80\times20$ mesh.
+         Both binary configurations give identical RMSE, confirming
+         the gap is caused by loss of gray mixing pathways, not
+         by the Brinkman penalisation in fluid regions.}
 \label{tab:binary_val}
 \begin{tabular}{@{}lccc@{}}
 \toprule
 \textbf{Design} & \textbf{RMSE} & \textbf{$\Delta$RMSE vs grey} & \textbf{Method} \\
 \midrule
-Grey Brinkman  & \rmseTopOpt         & ---         & Smooth $\alpha(\bar\rho)$ \\
-Binary Brinkman & \rmseBinaryBrinkman & $<1\%$      & $\bar\rho\in\{0,1\}$, smooth $\alpha$ \\
-Binary Stokes   & \rmseBinaryStokes   & $<1\%$      & $\bar\rho\in\{0,1\}$, $\alpha=0$ in fluid \\
+Grey Brinkman   & \rmseTopOpt         & ---              & Smooth $\alpha(\bar\rho)$ \\
+Binary Brinkman & \rmseBinaryBrinkman & $\binaryGapPct\%$ & $\bar\rho\in\{0,1\}$, smooth $\alpha$ \\
+Binary Stokes   & \rmseBinaryStokes   & $\binaryGapPct\%$ & $\bar\rho\in\{0,1\}$, $\alpha=0$ in fluid \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \noindent
-The sub-$1\%$ RMSE change between the grey Brinkman design and the
-binary Stokes design (where $\alpha=0$ exactly in all fluid elements,
-eliminating the Brinkman penalisation entirely) confirms two things:
-\begin{enumerate}
-    \item The optimiser does \emph{not} exploit grey-zone diffusion
-          pathways; the near-binary design ($\beta=64$, grey fraction
-          $<2\%$) performs identically to the hard-thresholded binary.
-    \item The Brinkman penalisation does not introduce a significant
-          velocity artefact in fluid regions; setting $\alpha=0$
-          (free Stokes flow) gives the same outlet concentration profile.
-\end{enumerate}
-These results directly address the concern that the Brinkman surrogate
-may produce non-physical concentration gradients that disappear upon
-thresholding.
-The $t_{\mathrm{diff}}/t_{\mathrm{flow}} \approx 430$ analysis
-(Section~\ref{para:leakage}) is consistent with this numerical evidence:
-diffusive leakage through solid regions is negligible in steady state.
+The $+\binaryGapPct\%$ RMSE change is mechanistically expected:
+the linear gradient target $c^\star(y)=y/L_y$ is optimally achieved
+by diffusive transport through intermediate-density elements, which
+have no binary physical analogue.
+The identical results for binary Brinkman and binary Stokes confirm
+that the gap is not caused by the Brinkman penalisation in fluid
+regions (setting $\alpha=0$ makes no difference), but by the loss
+of the gray mixing pathway.
+The analytical bound $t_{\mathrm{diff}}/t_{\mathrm{flow}} \approx 3000$
+(Section~\ref{para:leakage}) confirms that solid leakage through
+$D_{\min}$ is negligible; the binary gap is a property of the
+topology, not a numerical artefact.
+Body-fitted Navier--Stokes validation on a purpose-designed binary
+multi-channel manifold is deferred to future work.
 

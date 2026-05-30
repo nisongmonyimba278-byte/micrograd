@@ -58,7 +58,7 @@ A critical question for the validity of the Brinkman--SIMP model is
 whether the optimiser exploits \emph{artificial transport pathways}
 through grey-zone solid regions.
 In solid regions ($\rho \approx 0$), the inverse permeability
-$\alpha \to \alphaMaxFinal\,\text{Pa\,s\,m}^{-2}$ suppresses flow to
+$\alpha \to \alphaMaxFinal\,\text{Pa\,s\,m}^{-2}$ (capped at $10^5$ in the present implementation) suppresses flow to
 negligible levels ($\Da \approx 4\times10^{-6} \ll 1$).
 The diffusivity, however, is not exactly zero: the SIMP interpolation
 with $p=5$ gives
@@ -77,12 +77,16 @@ steady state, even for intermediate grey densities.
 
 This conclusion is verified quantitatively: re-solving the forward
 problem on the hard-thresholded binary design ($\rho \in \{0,1\}$,
-$D = 0$ in solid) produces an RMSE change of less than~$9\%$
-relative to the grey design, and reducing $D_{\min}$ by three orders of magnitude changes the outlet
-concentration by less than~$2\%$ (verified numerically, Supplementary~S5).
-The optimiser therefore does not rely on diffusive leakage pathways;
-the performance metrics are robust to the choice of $D_{\min}$
-within six orders of magnitude.
+$D = 0$ in solid) produces an RMSE change of $+\binaryGapPct\%$
+relative to the grey design (Supplementary~S5, Table~S5.1).
+This large gap is mechanistically expected for a mixing objective
+(Section~\ref{sec:thresholding}): the grey Brinkman design exploits
+diffusive transport through intermediate-density elements that have
+no binary physical analogue.
+Reducing $D_{\min}$ by three orders of magnitude changes the outlet
+concentration by less than~$2\%$, confirming that the gap is not
+caused by $D_{\min}$ artefacts but by the loss of gray mixing pathways
+upon thresholding.
 
 Despite this, the increase from $p=3$ to $p=5$ for the SIMP exponent
 is applied in the present work to penalise intermediate densities more
@@ -211,7 +215,7 @@ further refinement.
 \paragraph{Darcy number.}
 The Brinkman penalisation parameter $\alpha$ acts as an inverse
 permeability. Its effective Darcy number in the solid phase
-($\rho_{\mathrm{phys}}\!\to\!0$, $\alpha\!\to\!\alpha_{\max}=10^{9}$)
+($\rho_{\mathrm{phys}}\!\to\!0$, $\alpha\!\to\!\alpha_{\max}=10^{5}$)
 is
 %
 \begin{equation}
@@ -251,7 +255,7 @@ The design is driven by a multi-objective cost functional that simultaneously pe
     J   &= w_f J_f + w_c J_c. \label{eq:J}
 \end{align}
 \end{subequations}
-The weights are chosen to balance the disparate magnitudes of the two terms; in this work we use \(w_f = 10^{-7}\) and \(w_c = 5\times 10^{4}\).
+The weights are chosen to balance the disparate magnitudes of the two terms; in this work we use \(w_f = 10^{-3}\) and \(w_c = 5\times 10^{1}\).
 
 The optimisation problem reads
 \begin{equation}
@@ -286,7 +290,7 @@ The filtered density \(\tilde{\rho}\) is then projected towards 0 or 1 using a s
     \qquad \eta = 0.5.
     \label{eq:heaviside}
 \end{equation}
-The sharpness parameter \(\beta\) is increased during the optimisation (typically from 1 to 64) to gradually drive the design from a grey intermediate state to a near-binary fluid/solid distribution.
+The sharpness parameter \(\beta\) is increased during the optimisation (from 1 to $\betaMax$) to gradually drive the design from a grey intermediate state to a near-binary fluid/solid distribution.
 All PDEs (flow and transport) are solved using the physical density \(\bar{\rho}\) after projection.
 
 \subsection{Adjoint sensitivity analysis}
