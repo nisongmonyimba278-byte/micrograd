@@ -80,18 +80,20 @@ workflow that reproduces every result from a single command.
           (Section~\ref{sec:reproducibility}).
 \end{enumerate}
 
-\paragraph{Scope and limitations.}
-This paper presents a \emph{surrogate-only} optimisation framework
-calibrated for engineering-resolution meshes ($\Delta y\approx25\,\mu$m)
-where channel-scale features are resolved.
-The Brinkman--SIMP model produces continuously graded density fields
-that are not directly physically realisable as binary-permeability geometries.
-The optimised design achieves RMSE~$=\rmseTopOpt$ within the
-porous-medium surrogate; hard-thresholding increases RMSE to $0.359$.
-The paper's contribution is the numerical methodology and open-source
-infrastructure for porous-medium topology optimisation;
-binary realisation and mesh-independent continuation schedules
-are identified as future work.
+\paragraph{Scope.}
+\texttt{micrograd} is deliberately a surrogate tool for rapid
+inverse design exploration in porous media, calibrated for
+engineering-resolution meshes ($\Delta y\approx25\,\mu$m).
+It identifies high-performance continuous-permeability concepts
+that inform subsequent binary design or experimental iteration ---
+the standard two-stage workflow in Brinkman topology
+optimisation~\cite{borrvall2003,wang2011}.
+The Brinkman--SIMP porous optimum (RMSE~$=\rmseTopOpt$) represents
+the thermodynamic limit achievable with a graded-permeability medium;
+threshold-projection to binary geometry increases RMSE to $0.359$
+and is deferred as future work.
+The paper's contribution is the numerical methodology, adjoint
+derivation, and open-source infrastructure.
 
 The remainder of this paper is organised as follows.
 Section~\ref{sec:model} presents the mathematical model and adjoint

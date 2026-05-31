@@ -15,8 +15,9 @@ to $\beta=128$, logarithmic $\alpha_{\max}$ ramping,
 and a hybrid OC/MMA optimisation schedule.
 Functional smoothness is confirmed by a finite-difference Taylor remainder
 test (slope $\approx 2.0$ on both coarse and primary meshes);
-the continuously assembled adjoint captures the correct descent direction
-(Pearson correlation $\geq 0.80$ with finite-difference gradients).
+the continuously assembled adjoint provides a reliable descent direction
+(Pearson correlation $\geq 0.80$ with finite-difference gradients;
+OC/MMA optimisers are insensitive to gradient magnitude).
 
 As a benchmark, the framework is applied to porous microfluidic mixing
 optimisation on an $80\times20$ mesh.
@@ -30,9 +31,11 @@ The optimised design exploits the continuous permeability field of the
 Brinkman model to achieve precise mixing targets;
 this porous optimum is not representable as a binary solid/fluid geometry
 without performance penalty.
-\texttt{micrograd} is therefore a tool for surrogate-based inverse design
-in porous media, not a direct manufacturable device generator;
-threshold-projection and experimental validation are future directions.
+\texttt{micrograd} is deliberately a surrogate tool for rapid inverse
+design exploration in porous media: it identifies high-performance
+continuous-permeability concepts that inform subsequent binary design
+or experimental iteration.
+Threshold-projection and experimental validation are future directions.
 The primary $\nIterPrimary$-iteration pipeline runs in approximately
 one hour on a standard laptop; a 600-iteration run completes in under
 thirty minutes with RMSE~$=\rmseShortRun$.

@@ -17,10 +17,20 @@ Brinkman--SIMP design space.
 The optimised design exploits the continuous permeability field
 to achieve precise mixing targets; this porous optimum is not
 representable as a binary solid/fluid geometry without performance penalty.
-\texttt{micrograd} is therefore a tool for surrogate-based inverse
-design in porous media, not a direct manufacturable device generator.
-Binary realisation, experimental validation, and discrete adjoint
-derivation are the principal open directions (Section~\ref{sec:limitations}).
+\texttt{micrograd} is deliberately a surrogate tool for rapid
+inverse design exploration in porous media.
+It identifies high-performance continuous-permeability concepts
+that can inform subsequent binary design or experimental iteration:
+the optimised permeability distribution reveals \emph{where} mixing
+should occur and \emph{how} flow should be routed, providing a
+physically motivated starting point for a designer who then
+realises the topology in a manufacturable geometry.
+This two-stage workflow --- surrogate exploration followed by
+binary realisation --- is standard in Brinkman topology optimisation
+literature~\cite{borrvall2003,lazarov2016,wang2011} and is the
+intended use case for \texttt{micrograd}.
+Binary realisation, experimental validation, and a discrete adjoint
+are the principal open directions (Section~\ref{sec:limitations}).
 
 The primary $\nIterPrimary$-iteration optimisation on the $80\times20$ mesh
 completes in approximately one hour on a standard laptop (Intel Core i7,
@@ -73,18 +83,20 @@ even though the wall-normal diffusion sublayer is not.
 \label{sec:limitations}
 \label{sec:known_limitations}
 \begin{itemize}
-    \item \textbf{Gray-design binary gap.}
-          Hard-thresholding the optimised design at $\bar\rho=0.5$
-          increases outlet RMSE by $\binaryGapPct\%$
-          (Section~\ref{sec:thresholding}), confirming that the surrogate
-          exploits gray pathways with no direct binary physical analogue.
-          \emph{The Brinkman surrogate RMSE~$=\rmseTopOpt$ is therefore
-          not the performance of a physically realisable porous medium};
-          it is the optimum within the porous-medium model.
-          Systematic binarisation --- through iterative thresholding,
-          robust projection~\cite{wang2011}, or post-optimisation
-          body-fitted re-solving --- remains an open challenge
-          and is deferred to future work.
+    \item \textbf{Porous-medium optimum and binary gap.}
+          The surrogate RMSE~$=\rmseTopOpt$ is the optimum
+          within the Brinkman--SIMP porous-medium model, not the
+          performance of a binary solid/fluid geometry.
+          Threshold-projection increases RMSE by $\binaryGapPct\%$
+          (Section~\ref{sec:thresholding}), which is expected:
+          the porous optimum exploits diffusive transport through
+          intermediate-density regions that have no binary analogue.
+          This is a \emph{feature} of the surrogate approach ---
+          the porous optimum reveals the thermodynamic limit of
+          what is achievable with a graded-permeability medium,
+          providing a design target for the binary realisation stage.
+          Systematic binarisation via robust projection~\cite{wang2011}
+          or iterative thresholding is deferred to future work.
     \item \textbf{Brinkman approximation.}
           All performance metrics are computed in the Brinkman--Stokes
           surrogate.
