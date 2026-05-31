@@ -9,7 +9,7 @@
 
 ## Author
 - **Name:** Nisong Monyimba
-- **Institution:** University of Ghana, Department of Mathematics
+- **Institution:** School of Biological and Health Systems Engineering, Arizona State University
 - **Email:** nisongmonyimba278@gmail.com
 
 ## Key Results
@@ -44,7 +44,7 @@ git archive --format=zip HEAD -o micrograd_v1.0.zip
 # Go to https://zenodo.org → New upload
 # Upload micrograd_v1.0.zip
 # Title: micrograd: FEniCSx topology optimisation of Brinkman-convection-diffusion systems
-# Authors: Nisong Monyimba (University of Ghana)
+# Authors: Nisong Monyimba (Arizona State University)
 # License: MIT
 # Click 'Reserve DOI' BEFORE publishing
 # Copy the DOI (format: 10.5281/zenodo.XXXXXXX)
@@ -71,8 +71,8 @@ git push origin main
 Add to main.tex author block:
 ```latex
 \author{Nisong Monyimba\textsuperscript{1}\thanks{ORCID: 0009-0000-7558-8580}}
-\affil{\textsuperscript{1}Department of Mathematics,
-       University of Ghana, Accra, Ghana}
+\affil{\textsuperscript{1}School of Biological and Health Systems Engineering,
+       Arizona State University, Tempe, AZ, USA}
 ```
 Register free ORCID at https://orcid.org if you do not have one.
 
