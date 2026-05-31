@@ -70,50 +70,6 @@ The smoothness test (FD Taylor slope $\approx 2$) and direction test
 (correlation $\geq 0.80$) together confirm that the implementation
 is consistent and the sensitivity vector provides a reliable descent direction.
 
-\subsection{Additional target profiles}
-\label{sec:extra_profiles}
-To demonstrate generality beyond the linear gradient target,
-Figure~\ref{fig:extra_profiles} shows results for two additional
-concentration profiles optimised on the $80\times20$ mesh with the
-same 600-iteration hybrid OC/MMA schedule.
-
-The sigmoid target $c^*(y)=\sigma(12(y/L_y-0.5))$
-achieves RMSE~$=0.639$: the sharp transition at the channel midpoint
-requires concentration gradients steeper than the Brinkman diffusion
-model can sustain, so the surrogate optimum approximates the
-sigmoid with a smoother profile.
-The Gaussian peak target
-$c^*(y)=\exp(-(y/L_y-0.5)^2/0.02)$
-achieves RMSE~$=0.318$: the localised peak is better approximated
-because the optimizer can concentrate mixing pathways near the channel
-centreline.
-The relatively high sigmoid RMSE ($0.639$) has a clear physical origin:
-the sigmoid requires a concentration step change steeper than
-the diffusion capacity of the Brinkman model.
-At the operating P\'{e}clet number ($\Pe\sim10^3$), the diffusion
-length over the domain is
-$\ell_D = \sqrt{D_{\rm fluid}\,L_x/U}\approx 45\,\mu$m,
-insufficient to create the sharp transition demanded by the sigmoid.
-The optimizer correctly identifies the smoothest achievable approximation.
-The Gaussian peak ($0.318$) is better approximated because its localised
-structure can be reproduced by concentrating mixing pathways near the
-channel centreline.
-Both results confirm that the framework adapts to non-linear targets
-without modification; achievable RMSE depends on how well the target
-can be reproduced by diffusive mixing within the Brinkman surrogate.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{../figures/extra_profiles.pdf}
-    \caption{Outlet concentration profiles for two additional target
-             functions on the $80\times20$ mesh (600-iter hybrid OC/MMA).
-             Left: sigmoid target (RMSE~$=0.639$);
-             right: Gaussian peak (RMSE~$=0.318$).
-             Performance depends on how well the target can be
-             reproduced by diffusive mixing in the Brinkman surrogate.}
-    \label{fig:extra_profiles}
-\end{figure}
-
 \subsection{Mesh sensitivity}
 \label{sec:mesh_conv}
 The optimisation was repeated on three structured meshes:
