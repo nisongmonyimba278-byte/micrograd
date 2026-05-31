@@ -192,19 +192,22 @@ $160\times40^\dagger$ & 6400 & 41 & $\rmseHiResScaled$ & $\ensuremath{1.01\times
     \label{fig:scaling}
 \end{figure}
 
-\subsection{SUPG stabilisation validation}
+\subsection{SUPG stabilisation verification}
 \label{sec:supg_val}
-Without stabilisation at the nominal operating conditions
-($\Pe_h \approx 780$ on the $80\times20$ mesh at peak velocity),
-the concentration field exhibits node-to-node oscillations with amplitude
-up to~$0.4$.
-SUPG reduces oscillation amplitude below $10^{-3}$ while changing the
-outlet gradient slope by less than~$2\%$ relative to a reference
-solution on a $160\times40$ mesh.
-Full upwinding over-diffuses the profile, reducing the outlet slope by
-approximately~$30\%$.
-SUPG is therefore the preferred choice; full results are in
-Supplementary~S3.
+SUPG stabilisation~\cite{donea2003,brooks1982} is applied to both
+forward and adjoint transport equations using the same element-wise
+parameter $\tau$ (Section~\ref{sec:numerical_stabilisation}).
+This is standard practice for convection-dominated problems;
+we verify it is functioning correctly in this implementation.
+Without stabilisation at $\Pe_h\approx780$ (primary mesh, peak velocity),
+the concentration field exhibits node-to-node oscillations
+with amplitude up to $0.4$.
+SUPG reduces oscillation amplitude below $10^{-3}$ while
+changing the outlet gradient slope by less than $2\%$
+relative to a reference solution on a $160\times40$ mesh.
+Full upwinding over-diffuses the profile (slope reduction $\approx30\%$)
+and is not used.
+Detailed results are in Supplementary~S3.
 
 \section{Benchmark results}
 \label{sec:results}

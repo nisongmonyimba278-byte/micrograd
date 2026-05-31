@@ -1,10 +1,11 @@
 We present \texttt{micrograd}, an open-source FEniCSx implementation
 of density-based topology optimisation for coupled Brinkman--convection-diffusion systems.
-The implementation integrates a continuous adjoint for a multi-objective cost functional
-coupling viscous dissipation and outlet concentration mismatch,
-consistent SUPG stabilisation of both forward and adjoint transport equations
-at high P\'{e}clet numbers ($\Pe\sim10^2$--$10^5$),
-and a modular continuation schedule that reliably reduces the gray-zone fraction
+The implementation integrates a continuous adjoint for a multi-objective
+cost functional coupling viscous dissipation and outlet concentration mismatch,
+SUPG stabilisation of both forward and adjoint transport equations
+following standard practice~\cite{donea2003} at
+$\Pe\sim10^2$--$10^5$,
+and a modular continuation schedule that reduces the gray-zone fraction
 from $\grayShortRun$ to $\grayFrac$ over $\nIterPrimary$ iterations.
 Gradient direction is verified by finite-difference Taylor test (slope $\approx 2.0$)
 and Pearson correlation $\geq 0.80$ with finite-difference gradients;

@@ -14,11 +14,11 @@ The implementation makes four documented contributions:
           with the momentum--concentration coupling $-\lambda\nabla c$
           and misfit-derived Dirichlet outlet condition.
 
-    \item \textbf{SUPG stabilisation of forward and adjoint equations.}
-          Standard SUPG~\cite{brooks1982} applied consistently
-          to both equations in FEniCSx UFL, reducing sensitivity-field
-          oscillations from $\sim0.4$ to below $10^{-3}$
-          at $\Pe\sim10^2$--$10^5$.
+    \item \textbf{FEniCSx UFL implementation including SUPG.}
+          Standard SUPG~\cite{donea2003} applied to both forward
+          and adjoint transport equations, verified to reduce
+          sensitivity-field oscillations from $\sim0.4$ to
+          below $10^{-3}$ at $\Pe\sim10^2$--$10^5$.
 
     \item \textbf{Documented continuation schedule.}
           Five components (Helmholtz filtering, Heaviside

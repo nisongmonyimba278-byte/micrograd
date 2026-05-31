@@ -147,16 +147,17 @@ the architectural features of \texttt{micrograd} against existing
 open-source frameworks.
 We highlight three specific advantages.
 
-\paragraph{SUPG-stabilised adjoint.}
-Na et al.~\cite{na2022} and Feppon et al.~\cite{feppon2024} both
-target coupled flow-transport topology optimisation but do not
-report SUPG stabilisation of the adjoint equation.
-At $\Pe\sim10^3$, omitting adjoint stabilisation produces
-spurious oscillations in the sensitivity field that corrupt the
-gradient direction and degrade optimisation performance
-(Section~\ref{sec:supg_val}, Supplementary~S3).
-\texttt{micrograd} applies the same element-wise stabilisation
-parameter to both the forward and adjoint transport equations.
+\paragraph{SUPG stabilisation.}
+SUPG for adjoint equations is standard~\cite{donea2003,giles2000}.
+We apply it to both equations using the same element-wise parameter,
+which is the correct implementation~\cite{brooks1982}.
+Na et al.~\cite{na2022} and Feppon et al.~\cite{feppon2024}
+do not report transport stabilisation; at $\Pe\sim10^3$
+this may produce spurious sensitivity-field oscillations
+(Section~\ref{sec:supg_val}).
+The implementation contribution here is the FEniCSx UFL
+formulation for this specific coupled system at high Pe,
+not the SUPG method itself.
 
 \paragraph{FEniCSx continuous adjoint vs.\ finite differences.}
 Sensitivity computation via finite differences requires $2N$

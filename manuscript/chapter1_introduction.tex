@@ -31,15 +31,14 @@ The benchmark targets used here (linear, Gaussian peak) are
 chosen for verifiability, not to demonstrate extraordinary performance;
 the linear gradient serves primarily as a sanity check.
 
-\emph{Gap~2 --- SUPG stabilisation in the FEniCSx implementation.}
-At P\'{e}clet numbers relevant to microfluidic transport
-($\Pe \sim 10^2$--$10^5$), both forward and adjoint transport
-equations require stabilisation~\cite{brooks1982,giles2000}.
-While SUPG for adjoint equations is standard in the CFD
-literature~\cite{giles2000}, existing FEniCSx topology optimisation
-implementations~\cite{dokken2023} operate at $\Pe\ll1$ and do not
-include transport stabilisation.
-We document the FEniCSx UFL implementation for both equations.
+\emph{Gap~2 --- High-P\'{e}clet transport in FEniCSx TO.}
+Existing FEniCSx topology optimisation
+implementations~\cite{dokken2023} operate at $\Pe\ll1$
+and do not require transport stabilisation.
+At microfluidic P\'{e}clet numbers ($\Pe\sim10^2$--$10^5$),
+SUPG stabilisation of both forward and adjoint equations
+is required~\cite{brooks1982,donea2003}; we document
+this standard technique in the FEniCSx UFL context.
 
 \emph{Gap~3 --- End-to-end reproducibility.}
 Topology optimisation results are sensitive to implementation choices ---
