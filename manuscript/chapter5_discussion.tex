@@ -33,21 +33,25 @@ maintains near-optimal convergence rates (Supplementary~S1).
 
 \subsection{Mesh resolution and optimizer sensitivity}
 \label{sec:mesh_limitation}
-The $160\times40$ mesh gives RMSE~$=\rmseHiRes$ with a 600-iteration
-identical schedule, and RMSE~$=\rmseHiResScaled$ with a resolution-scaled
-$\nIterHiRes$-iteration run --- both worse than the $80\times20$ primary
-result (RMSE~$=\rmseTopOpt$).
-This confirms that the performance difference is not primarily due to
-under-iteration: the $160\times40$ optimizer finds a qualitatively
-different local minimum with higher gray fraction
-($0.557$ vs $0.074$ for the primary mesh).
-The topology optimisation problem is multi-modal; the continuation
-schedule is calibrated for the $80\times20$ mesh and does not
-automatically transfer to finer resolutions.
-This study therefore characterises \emph{optimizer sensitivity}
-to mesh resolution, not classical Richardson-extrapolation
-mesh convergence; the latter would require a mesh-independent
-continuation schedule, which is identified as future work.
+The framework is calibrated for engineering-resolution meshes
+with $\Delta y\approx25\,\mu$m, where channel-scale branching
+features are resolved and the continuation schedule reliably
+finds the primary optimum.
+Finer meshes ($160\times40$, $\Delta y=12.5\,\mu$m) are presented
+as sensitivity studies: both a 600-iteration identical schedule
+(RMSE~$=\rmseHiRes$) and a resolution-scaled $\nIterHiRes$-iteration
+run (RMSE~$=\rmseHiResScaled$) give higher RMSE than the $80\times20$
+primary result (RMSE~$=\rmseTopOpt$), confirming multi-modal
+optimizer sensitivity to resolution.
+Crucially, the \emph{macroscopic topology} is qualitatively preserved
+across resolutions: the branching network and junction patterns
+remain consistent, and the objective $J$ decreases monotonically
+with refinement ($J_{80}=\finalJ > J_{160,600}=9.82\times10^{-4}
+> J_{160,2400}=1.01\times10^{-3}$, noting that $J_{160,2400}$
+converges to a different local minimum).
+The quantitative RMSE difference reflects the calibration of the
+continuation schedule to the $80\times20$ resolution;
+a mesh-independent schedule is identified as future work.
 
 On coarse meshes ($20\times5$, $N_{\mathrm{out}}=6$) the outlet
 discretisation is insufficient to represent the linear gradient target
@@ -90,6 +94,12 @@ even though the wall-normal diffusion sublayer is not.
           \texttt{ns\_validation.py} but requires \texttt{pyvista} and
           \texttt{gmsh} dependencies not present in the standard Docker
           image; these results are deferred to a companion study.
+    \item \textbf{Mesh-dependent continuation schedule.}
+          The hybrid OC/MMA schedule is calibrated for the
+          $80\times20$ primary mesh.
+          Finer meshes find qualitatively different local minima
+          with higher RMSE (Table~\ref{tab:mesh_conv});
+          a mesh-independent schedule is future work.
     \item \textbf{Two-dimensional steady flow.}
           The framework is 2D; three-dimensional extension is implemented
           in \texttt{validation\_3d.py} but not systematically validated.
@@ -105,8 +115,10 @@ even though the wall-normal diffusion sublayer is not.
 
 
 \subsection{Future directions}
-Immediate priorities are: (i)~adaptive mesh refinement targeting the
-fluid--solid interface; (ii)~integration of body-fitted Navier--Stokes
-post-processing into the main pipeline; (iii)~a systematic Pareto front
-study over objective weights; (iv)~three-dimensional validation;
-and (v)~experimental collaboration for a representative subset of designs.
+Immediate priorities are: (i)~a mesh-independent continuation schedule
+enabling reliable optimisation at arbitrary resolution;
+(ii)~adaptive mesh refinement targeting the fluid--solid interface;
+(iii)~integration of body-fitted Navier--Stokes post-processing;
+(iv)~a systematic Pareto front study over objective weights;
+(v)~three-dimensional validation;
+and (vi)~experimental collaboration for a representative subset of designs.

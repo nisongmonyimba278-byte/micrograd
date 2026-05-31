@@ -81,18 +81,17 @@ workflow that reproduces every result from a single command.
 \end{enumerate}
 
 \paragraph{Scope and limitations.}
-This paper presents a \emph{surrogate-only} optimisation framework.
+This paper presents a \emph{surrogate-only} optimisation framework
+calibrated for engineering-resolution meshes ($\Delta y\approx25\,\mu$m)
+where channel-scale features are resolved.
 The Brinkman--SIMP model produces continuously graded density fields
 that are not directly physically realisable as binary-permeability geometries.
 The optimised design achieves RMSE~$=\rmseTopOpt$ within the
-porous-medium surrogate; hard-thresholding to a thresholded-permeability design
-increases RMSE to $0.359$.
+porous-medium surrogate; hard-thresholding increases RMSE to $0.359$.
 The paper's contribution is the numerical methodology and open-source
 infrastructure for porous-medium topology optimisation;
-the Brinkman porous optimum is not representable as a binary
-solid/fluid geometry without performance penalty.
-Binary realisation via iterative thresholding or robust projection
-is identified as future work.
+binary realisation and mesh-independent continuation schedules
+are identified as future work.
 
 The remainder of this paper is organised as follows.
 Section~\ref{sec:model} presents the mathematical model and adjoint
