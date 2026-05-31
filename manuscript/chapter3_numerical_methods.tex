@@ -146,33 +146,29 @@ Section~\ref{sec:nondim}) and dividing $R$ by $L_z$.
 \label{sec:algorithm}
 Algorithm~\ref{alg:main} summarises the complete optimisation procedure.
 
-\begin{algorithm}[h]
-\caption{Hybrid OC/MMA topology optimisation with $\beta$-continuation}
+\begin{table}[h]
+\centering\small
+\caption{Hybrid OC/MMA topology optimisation loop with $\beta$-continuation.
+         Steps 2--8 repeat for $k=0,\ldots,\nIterPrimary-1$.}
 \label{alg:main}
-\begin{algorithmic}[1]
-\Require{target $c^*(y)$, mesh, $V^*$, $w_f$, $w_c$, $\alpha_{\max,0}=10^3$}
-\State Initialise $\rho\leftarrow V^*$ (uniform), reset MMA state
-\For{step $k = 0,1,\ldots,\nIterPrimary-1$}
-    \State $\beta_k,\,\text{method}_k,\,\alpha_{\max,k}\leftarrow$ schedule($k$)
-    \State $\rho_f \leftarrow $ HelmholtzFilter($\rho$)
-    \Comment{Eq.~\eqref{eq:helmholtz}}
-    \State $\bar\rho \leftarrow $ Heaviside($\rho_f$, $\beta_k$)
-    \Comment{Eq.~\eqref{eq:heaviside}}
-    \State $(\mathbf{u},p,c) \leftarrow $ ForwardSolve($\bar\rho$, $\alpha_{\max,k}$)
-    \Comment{Eqs.~\eqref{eq:brinkman}, \eqref{eq:convdiff}}
-    \State $(\mathbf{v},q,\lambda) \leftarrow $ AdjointSolve($\bar\rho$, $\mathbf{u}$, $c$)
-    \Comment{Section~\ref{sec:adjoint}}
-    \State $s \leftarrow $ Sensitivity($\bar\rho$, $\mathbf{v}$, $\lambda$)
-    \If{method$_k$ = OC}
-        \State $\rho \leftarrow $ OCupdate($\rho$, $s$, $V^*$)
-    \Else
-        \State $\rho \leftarrow $ MMAupdate($\rho$, $s$, $V^*$)
-    \EndIf
-    \State Track best $J$; store $\rho_{\rm best}$
-\EndFor
-\State \Return $\rho_{\rm best}$
-\end{algorithmic}
-\end{algorithm}
+\begin{tabular}{@{}cl@{}}
+\toprule
+\textbf{Step} & \textbf{Operation} \\
+\midrule
+1 & Initialise $\rho\leftarrow V^*$ (uniform); reset MMA state \\
+\multicolumn{2}{@{}l}{\textbf{for} $k=0,1,\ldots,\nIterPrimary-1$:} \\
+2 & Look up schedule: $(\beta_k,\,\text{method}_k,\,\alpha_{\max,k})\leftarrow$schedule$(k)$ \\
+3 & Helmholtz filter: $\rho_f\leftarrow$ filter$(\rho)$ \quad [Eq.~\eqref{eq:helmholtz}] \\
+4 & Heaviside projection: $\bar\rho\leftarrow$ project$(\rho_f,\beta_k)$ \quad [Eq.~\eqref{eq:heaviside}] \\
+5 & Forward solve: $(\mathbf{u},p,c)\leftarrow$ solve$(\bar\rho,\alpha_{\max,k})$ \quad [Eqs.~\eqref{eq:brinkman},\eqref{eq:convdiff}] \\
+6 & Adjoint solve: $(\mathbf{v},q,\lambda)\leftarrow$ adjoint$(\bar\rho,\mathbf{u},c)$ \quad [Section~\ref{sec:adjoint}] \\
+7 & Sensitivity: $s\leftarrow\mathrm{d}J/\mathrm{d}\bar\rho$ \\
+8 & Update: $\rho\leftarrow$OC$(\rho,s,V^*)$ if OC, else MMA$(\rho,s,V^*)$ \\
+9 & Track best $J$; store $\rho_{\rm best}$ \\
+\multicolumn{2}{@{}l}{\textbf{return} $\rho_{\rm best}$} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Reproducibility and open-source release}
 \label{sec:reproducibility}
