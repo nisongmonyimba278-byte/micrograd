@@ -12,7 +12,7 @@ Its application to microfluidics is particularly attractive because the
 small length scales of soft-lithography devices make manual re-design
 expensive and simulation-driven optimisation increasingly accessible~\cite{whitesides2006}.
 
-Despite growing interest, several computational gaps remain in the
+Despite growing interest, several computational gaps remain the
 open-source literature on coupled flow-transport topology optimisation.
 
 \subsection*{Gaps addressed by this work}
@@ -21,21 +21,26 @@ open-source literature on coupled flow-transport topology optimisation.
 Existing open-source topology optimisation codes for fluidic systems
 target pure flow (pressure-drop minimisation~\cite{borrvall2003}) or
 global scalar mixing~\cite{na2022}.
-Simultaneous optimisation of a coupled Brinkman--convection-diffusion
-system with a cost containing both a flow dissipation term and a
-boundary concentration-mismatch term requires a coupled adjoint
-whose derivation is non-trivial, particularly at high P\'{e}clet numbers
-where the transport equation requires stabilisation.
+FEniCSx-based frameworks have been developed for structural
+topology optimisation~\cite{dokken2023} and Stokes
+flow~\cite{lazarov2016}, but none addresses the coupled
+Brinkman--convection-diffusion problem with a boundary
+concentration-mismatch objective.
+The coupled adjoint for this system --- including the
+momentum--concentration coupling term $-\lambda\nabla c$
+and the Dirichlet adjoint outlet condition --- has not been
+previously derived or implemented in FEniCSx.
 
-\emph{Gap~2 --- SUPG-stabilized adjoint implementation.}
+\emph{Gap~2 --- SUPG-consistent adjoint in FEniCSx.}
 At P\'{e}clet numbers relevant to microfluidic transport
-($\Pe \sim 10^2$--$10^5$), both the forward and adjoint
-transport equations require streamline-upwind Petrov-Galerkin (SUPG)
-stabilisation~\cite{brooks1982}.
-SUPG is applied to both the forward and adjoint transport equations
-using the same element-wise stabilisation parameter, ensuring
-numerical consistency; this implementation has not been previously
-reported for coupled Brinkman--convection-diffusion systems in FEniCSx.
+($\Pe \sim 10^2$--$10^5$), both the forward and adjoint transport
+equations require SUPG stabilisation~\cite{brooks1982}.
+While SUPG is standard for forward solvers, its consistent
+application to the adjoint --- using the same element-wise
+parameter --- is non-trivial and has not been reported for
+coupled Brinkman--convection-diffusion systems in FEniCSx.
+Existing FEniCSx topology optimisation work~\cite{dokken2023}
+operates at $\Pe\ll1$ and does not require transport stabilisation.
 
 \emph{Gap~3 --- End-to-end reproducibility.}
 Topology optimisation results are sensitive to implementation choices ---

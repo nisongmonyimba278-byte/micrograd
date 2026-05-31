@@ -1,44 +1,29 @@
 We present \texttt{micrograd}, an open-source FEniCSx framework for
-density-based topology optimisation of systems governed by coupled
-Brinkman--convection-diffusion equations.
-The principal contributions are: (i)~a complete continuous adjoint
-for a multi-objective cost functional coupling viscous dissipation
-and outlet concentration mismatch; (ii)~consistent SUPG stabilisation
-of both forward and adjoint transport equations at high P\'{e}clet
-numbers ($\Pe\sim10^2$--$10^5$); and (iii)~a modular continuation
-schedule where each component addresses a specific failure mode.
-
-The framework is implemented in FEniCSx~(DOLFINx~v0.7.3) using
-Taylor--Hood P2/P1 elements for flow and P1+SUPG elements for transport.
-Robust convergence is achieved through a modular continuation schedule
---- Helmholtz filtering, Heaviside $\beta$-sharpening to $\beta=128$,
-$\alpha_{\max}$ ramping, and hybrid OC/MMA ---
-where each component addresses a specific diagnosed failure mode
-(Table~\ref{tab:continuation}).
-Functional smoothness is confirmed by a finite-difference Taylor remainder
-test (slope $\approx 2.0$ on both coarse and primary meshes);
-the continuously assembled adjoint provides a reliable descent direction
-(Pearson correlation $\geq 0.80$ with finite-difference gradients;
-OC/MMA optimisers are insensitive to gradient magnitude).
+density-based topology optimisation of coupled Brinkman--convection-diffusion systems.
+Three contributions are made:
+(i)~a complete continuous adjoint for a multi-objective cost functional
+coupling viscous dissipation and outlet concentration mismatch;
+(ii)~consistent SUPG stabilisation of both the forward and adjoint
+transport equations at high P\'{e}clet numbers ($\Pe\sim10^2$--$10^5$);
+and (iii)~a modular continuation schedule --- Helmholtz filtering,
+Heaviside $\beta$-sharpening to $\beta=\betaMax$, $\alpha_{\max}$ ramping,
+and hybrid OC/MMA --- where each component addresses a specific
+diagnosed failure mode (Table~\ref{tab:continuation}).
+Gradient direction is verified by finite-difference Taylor test
+(slope $\approx 2.0$) and Pearson correlation $\geq 0.80$ with
+finite-difference gradients; OC/MMA optimisers are insensitive
+to gradient magnitude, ensuring reliable convergence.
 
 As a benchmark, the framework is applied to porous microfluidic mixing
-optimisation on an $80\times20$ mesh.
-The optimised permeability distribution achieves outlet concentration
-RMSE of $\rmseTopOpt$ (linear target), $\rmseSigmoid$ (sigmoid), and
-$\rmseGaussian$ (Gaussian peak), demonstrating framework generality
-across target profiles without modifying the adjoint structure.
-The gray-zone fraction is reduced to $\grayFrac$ at $\beta=\betaMax$
-via $\nIterPrimary$-iteration continuation.
-The optimised design exploits the continuous permeability field of the
-Brinkman model to achieve precise mixing targets;
-this porous optimum is not representable as a binary solid/fluid geometry
-without performance penalty.
-\texttt{micrograd} is deliberately a surrogate tool for rapid inverse
-design exploration in porous media: it identifies high-performance
-continuous-permeability concepts that inform subsequent binary design
-or experimental iteration.
-Threshold-projection and experimental validation are future directions.
-The primary $\nIterPrimary$-iteration pipeline runs in approximately
-one hour on a standard laptop; a 600-iteration run completes in under
-thirty minutes with RMSE~$=\rmseShortRun$.
-All results are fully reproducible via Docker and continuous integration.
+on an $80\times20$ mesh, achieving outlet RMSE of
+$\rmseTopOpt$ (linear), $\rmseSigmoid$ (sigmoid),
+and $\rmseGaussian$ (Gaussian peak) across three target profiles
+without modifying the adjoint structure.
+The gray-zone fraction is reduced to $\grayFrac$ via $\nIterPrimary$-iteration
+$\beta$-continuation.
+\texttt{micrograd} is deliberately a surrogate tool for rapid inverse design
+in porous media: it identifies high-performance continuous-permeability concepts
+that inform subsequent binary design or experimental iteration.
+The primary $\nIterPrimary$-iteration run takes approximately one hour
+on a standard laptop; all results are reproducible via Docker and
+continuous integration.

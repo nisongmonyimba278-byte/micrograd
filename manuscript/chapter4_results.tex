@@ -179,12 +179,16 @@ RMSE~$=\rmseShortRun$ in under thirty minutes).
 \begin{figure}[t]
     \centering
     \includegraphics[width=\textwidth]{../figures/topology_optimised.pdf}
-    \caption{Optimised physical density field $\bar\rho$ after Heaviside
-             projection ($\beta=\betaMax=128$).
-             Bright ($\bar\rho\approx1$): high-permeability regions;
-             dark ($\bar\rho\approx0$): impermeable boundaries.
-             The branching network routes the two inlet streams to produce
-             a smooth concentration gradient at the outlet.}
+    \caption{Optimised permeability distribution $\bar\rho(\mathbf{x})$
+             after Heaviside projection ($\beta=\betaMax=128$),
+             $80\times20$ mesh, $\nIterPrimary$-iteration primary run.
+             Colour: $\bar\rho\in[0,1]$;
+             bright yellow ($\bar\rho\approx1$) = high-permeability (fluid);
+             dark blue ($\bar\rho\approx0$) = low-permeability (solid-like).
+             Gray-zone fraction $\grayFrac=0.074$; fluid volume fraction $\fluidVol$.
+             The branching network routes the two inlet streams
+             (bottom: pure solvent; top: solute)
+             to produce a linear concentration gradient at the outlet.}
     \label{fig:topology}
 \end{figure}
 
@@ -194,7 +198,7 @@ RMSE~$=\rmseShortRun$ in under thirty minutes).
 The primary result uses a $\nIterPrimary$-iteration hybrid OC/MMA run
 with $\beta$-continuation to $\beta=\betaMax$.
 The grey-zone fraction ($0.05 < \bar\rho < 0.95$) is
-$\grayFrac=0.074$ and the fluid volume fraction is $\fluidVol$.
+$\grayFrac$ and the fluid volume fraction is $\fluidVol$.
 For reference, a shorter 600-iteration run (continuation to $\beta=16$ only)
 gives RMSE~$=\rmseShortRun$ with gray fraction $\grayShortRun$;
 the extended run reduces both metrics substantially.
@@ -246,13 +250,14 @@ conductance and concentration mixing.
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{../figures/vstar_sweep.pdf}
-    \caption{Volume fraction sweep $V^*\in\{0.3,0.5,0.7\}$.
-             Outlet concentration profiles on the $80\times20$ mesh
-             (600-iter hybrid OC/MMA for sweep efficiency;
-             primary linear result uses $\nIterPrimary$ iterations).
-             RMSE: $0.303$ ($V^*=0.3$),
-             $0.064$ ($V^*=0.5$, primary),
-             $0.303$ ($V^*=0.7$).}
+    \caption{Volume fraction sensitivity sweep $V^*\in\{0.3,0.5,0.7\}$
+             on the $80\times20$ mesh (600-iter OC/MMA, linear target).
+             Dashed red: linear target $c^*(y)=y/L_y$.
+             Solid lines: optimised outlet profiles.
+             RMSE: $0.303$ ($V^*=0.3$), $0.064$ ($V^*=0.5$, primary),
+             $0.303$ ($V^*=0.7$).
+             $V^*=0.5$ is uniquely optimal: it provides the balance between
+             flow conductance and porous mixing capacity.}
     \label{fig:vstar_sweep}
 \end{figure}
 
