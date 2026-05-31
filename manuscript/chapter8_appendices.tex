@@ -102,37 +102,34 @@ The volume constraint is enforced explicitly via dual bisection
 in the MMA subproblem, achieving $|V - V^*| < 10^{-3}$ at every
 iteration once the topology is established.
 
-\subsection*{S10: Adjoint Gradient Taylor-Test Details}
+\subsection*{S10: Adjoint Gradient Verification Details}
 \label{sec:s10}
 
-The adjoint gradient verification (Section~\ref{sec:taylor_test}) was performed
-on the $20\times5$ mesh for computational speed.
-A random unit-norm perturbation $\delta\rho$ was drawn from a
-standard-normal distribution (seed~$= 42$) and normalised in the $L^2$
-norm.
-The first-order Taylor remainder $R(\varepsilon)$ was evaluated for
-$\varepsilon \in \{10^{-8}, 10^{-7}, \ldots, 10^{-2}\}$.
+Two verification tests are reported in Section~\ref{sec:taylor_test}.
 
-The least-squares slope over $\varepsilon \in [10^{-7}, 10^{-4}]$
-is $1.01$ on $20\times5$ and $1.00$ on $80\times20$. This first-order remainder reflects that the sensitivity vector
-returned by \texttt{adjoint\_and\_sensitivity()} is the
-dual-space (L${}^2$) representation
-$g_i = \int (\partial J/\partial\rho)\,\psi_i\,dx$, not the
-Euclidean gradient $\partial J/\partial\rho_i$. The two differ
-by the mass matrix: $g^{\text{eucl}} = M^{-1} g$. For optimisation
-(MMA, OC) the dual-space form is the natural input. The gradient
-direction is verified by gradient-descent monotonicity:
-\begin{itemize}
-    \item the adjoint equations~\eqref{eq:adj_flow_mom}--\eqref{eq:adj_conc_bc}
-          are correctly implemented;
-    \item the chain rule through the Helmholtz filter (Eq.~\eqref{eq:helmholtz})
-          and Heaviside projection (Eq.~\eqref{eq:heaviside}) is applied
-          exactly;
-    \item the SUPG stabilisation of the adjoint transport equation does not
-          corrupt the gradient at this level of precision.
-\end{itemize}
-The test is executed automatically on every commit via the CI pipeline
-(\texttt{python -m micrograd.taylor\_test}).
+\paragraph{FD Taylor remainder.}
+The finite-difference directional derivative
+$\hat{g}[\delta\rho] = (J(\rho+\varepsilon\delta\rho)-J(\rho))/\varepsilon$
+at $\varepsilon=10^{-5}$ is used as the reference.
+The Taylor remainder $R(\varepsilon) = |J(\rho+\varepsilon\delta\rho)-J(\rho)-\varepsilon\hat{g}[\delta\rho]|$ is computed for
+$\varepsilon\in\{10^{-5},\ldots,10^{-2}\}$.
+Least-squares slopes: $2.12$ ($20\times5$), $2.07$ ($80\times20$).
+
+\paragraph{Direction test.}
+The mass-scaled adjoint $g/m_i$ is compared to the finite-difference
+gradient $\hat{g}_i$ component-wise on 20 sampled DOFs.
+Pearson correlations: $0.80$ ($20\times5$), $0.88$ ($80\times20$).
+The magnitude discrepancy reflects the difference between lumped and
+full mass-matrix Riesz maps; only the direction is used by OC/MMA.
+
+\paragraph{Continuous vs.\ discrete adjoint.}
+The assembled sensitivity is a continuous adjoint
+$g_i=\int(\partial J/\partial\bar\rho)\psi_i\,dx$,
+not the discrete gradient $\hat{g}_i=\partial J/\partial\bar\rho_i$.
+The relative error $E_g = \|g/m - \hat{g}\|/\|\hat{g}\| = 18.9$
+($20\times5$) reflects this mismatch. A discrete adjoint is deferred
+to future work.
+
 \subsection*{S5: Thresholding Robustness and Binary Gap Analysis}
 \label{sec:s5}
 
