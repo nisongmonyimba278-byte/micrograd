@@ -107,8 +107,10 @@ Table~\ref{tab:mesh_conv} summarises outlet RMSE and final objective.
          shows optimizer sensitivity rather than mesh convergence
          (the objective plateaus after iteration~100, indicating
          insufficient resolution for the continuation schedule).
-         Mesh sensitivity results for $160\times40$ are reported
-         in Supplementary~S1.}
+         $\dagger$: resolution-scaled $\nIterHiRes$-iteration run;
+         both $160\times40$ results give higher RMSE than $80\times20$,
+         confirming multi-modal optimizer sensitivity
+         (see Section~\ref{sec:mesh_limitation}).}
 \label{tab:mesh_conv}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
@@ -118,7 +120,8 @@ $20\times5$   & 100  & 6  & --- & --- & too coarse; excluded \\
 $40\times10$  & 400  & 11 & 0.414 & $\ensuremath{4.24\times10^{-3}}$
               & optimizer not converged \\
 $80\times20$  & 1600 & 21 & $\rmseTopOpt$ & $\finalJ$ & primary ($\nIterPrimary$ iter, $\beta=\betaMax$) \\
-$160\times40$ & 6400 & 41 & $\rmseHiRes$ & $\ensuremath{9.82\times10^{-4}}$ & 600 iter, identical \\
+$160\times40$ & 6400 & 41 & $\rmseHiRes$ & $\ensuremath{9.82\times10^{-4}}$ & 600 iter \\
+$160\times40^\dagger$ & 6400 & 41 & $\rmseHiResScaled$ & $\ensuremath{1.01\times10^{-3}}$ & $\nIterHiRes$ iter (4$\times$ scaled) \\
 \bottomrule
 \end{tabular}
 \end{table}

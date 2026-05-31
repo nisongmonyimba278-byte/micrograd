@@ -33,14 +33,21 @@ maintains near-optimal convergence rates (Supplementary~S1).
 
 \subsection{Mesh resolution and optimizer sensitivity}
 \label{sec:mesh_limitation}
-The $160\times40$ mesh (Table~\ref{tab:mesh_conv}) gives
-RMSE~$=\rmseHiRes$ with a 600-iteration identical schedule,
-which is worse than the $80\times20$ primary result (RMSE~$=\rmseTopOpt$).
-This is expected: at $4\times$ the DOFs, 600 iterations provides
-approximately one quarter of the per-DOF update budget of the primary mesh.
-A resolution-scaled 2400-iteration run on $160\times40$ is in progress;
-the current study characterises optimizer sensitivity to resolution,
-not classical mesh convergence.
+The $160\times40$ mesh gives RMSE~$=\rmseHiRes$ with a 600-iteration
+identical schedule, and RMSE~$=\rmseHiResScaled$ with a resolution-scaled
+$\nIterHiRes$-iteration run --- both worse than the $80\times20$ primary
+result (RMSE~$=\rmseTopOpt$).
+This confirms that the performance difference is not primarily due to
+under-iteration: the $160\times40$ optimizer finds a qualitatively
+different local minimum with higher gray fraction
+($0.557$ vs $0.074$ for the primary mesh).
+The topology optimisation problem is multi-modal; the continuation
+schedule is calibrated for the $80\times20$ mesh and does not
+automatically transfer to finer resolutions.
+This study therefore characterises \emph{optimizer sensitivity}
+to mesh resolution, not classical Richardson-extrapolation
+mesh convergence; the latter would require a mesh-independent
+continuation schedule, which is identified as future work.
 
 On coarse meshes ($20\times5$, $N_{\mathrm{out}}=6$) the outlet
 discretisation is insufficient to represent the linear gradient target
