@@ -5,12 +5,16 @@
 This paper presents a surrogate-based optimisation framework;
 the contribution is the continuous adjoint derivation, SUPG-stabilised
 implementation, continuation strategies, and reproducibility infrastructure,
-not a directly manufacturable device design.
-The Brinkman--SIMP model produces continuously graded density fields
-that exploit diffusive mixing through intermediate-density regions;
-this is a well-established modelling choice in topology optimisation
-literature~\cite{borrvall2003,lazarov2016} and is explicitly acknowledged
-as a surrogate.
+not a directly physically realisable device design.
+The Brinkman--SIMP model produces continuously graded permeability
+distributions that exploit diffusive mixing through intermediate-density
+porous regions; this is a well-established modelling choice in
+porous-media topology optimisation~\cite{borrvall2003,lazarov2016}
+and is the intended physical model for this class of problems.
+The design variable $\rho$ represents local permeability, not a
+binary fluid/solid indicator; the framework optimises within the
+Brinkman--SIMP design space, which is the appropriate setting for
+surrogate-based porous microfluidic optimisation.
 Binary realisation, experimental validation, and discrete adjoint
 derivation are the principal open directions (Section~\ref{sec:known_limitations}).
 
@@ -50,7 +54,7 @@ even though the wall-normal diffusion sublayer is not.
           (Section~\ref{sec:thresholding}), confirming that the surrogate
           exploits gray pathways with no direct binary physical analogue.
           \emph{The Brinkman surrogate RMSE~$=\rmseTopOpt$ is therefore
-          not the performance of a physically realisable chip};
+          not the performance of a physically realisable porous medium};
           it is the optimum within the porous-medium model.
           Systematic binarisation --- through iterative thresholding,
           robust projection~\cite{wang2011}, or post-optimisation
@@ -95,17 +99,18 @@ even though the wall-normal diffusion sublayer is not.
 For transparency, the following limitations of the current version
 are explicitly acknowledged:
 \begin{itemize}\itemsep2pt
-    \item \textbf{Gray fraction}: $\grayFrac=0.074$ at $\beta=128$;
-          the $<5\%$ threshold commonly required for binary manufacturability
-          without post-processing has not been achieved.
+    \item \textbf{Gray fraction}: $\grayFrac=0.074$ at $\beta=128$.
+          Further reduction toward a near-binary permeability distribution
+          is achievable via robust projection~\cite{wang2011} or
+          perimeter penalisation, and is deferred to future work.
     \item \textbf{Gradient magnitude}: the continuous adjoint provides
           correct descent direction (correlation $\geq 0.80$) but not
           the exact gradient magnitude; a discrete adjoint is future work.
     \item \textbf{Mesh convergence}: RMSE is not monotone under
           identical-schedule refinement; the study characterises optimizer
           sensitivity, not classical Richardson-extrapolation convergence.
-    \item \textbf{Binary performance}: binary-thresholded RMSE ($0.359$)
-          matches the Christmas-tree baseline ($0.329$); no manufacturable
+    \item \textbf{Binary performance}: threshold-projected RMSE ($0.359$)
+          matches the Christmas-tree baseline ($0.329$); no physically realisable
           improvement over existing designs is demonstrated.
     \item \textbf{2D steady flow only}: 3D extension and unsteady
           flows are implemented but not systematically validated.

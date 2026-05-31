@@ -18,14 +18,14 @@ test (slope $\approx 2.0$ on both coarse and primary meshes);
 the continuously assembled adjoint captures the correct descent direction
 (Pearson correlation $\geq 0.80$ with finite-difference gradients).
 
-As a benchmark application, the framework is applied to the inverse design
-of a microfluidic concentration gradient generator on an $80\times20$
-finite-element mesh.
-The Brinkman surrogate optimum achieves an outlet RMSE of $\rmseTopOpt$
-for a linear target profile and reduces hydraulic resistance by $\reduction\%$
-relative to the classic Christmas-tree network~\cite{jeon2000}.
-The gray-zone fraction is reduced to $\grayFrac$ via extended
-$\beta$-continuation; binary realisability and experimental validation
-are identified as directions for future work.
+As a benchmark, the framework is applied to porous microfluidic mixing
+optimisation on an $80\times20$ mesh.
+The optimised permeability distribution achieves an outlet concentration
+RMSE of $\rmseTopOpt$ for a linear target profile, with gray-zone
+fraction $\grayFrac$, and reduces hydraulic resistance by $\reduction\%$
+relative to the parametric Christmas-tree network~\cite{jeon2000}.
+The framework is surrogate-based: the Brinkman--SIMP model produces
+continuously graded permeability fields; threshold-projection to
+binary-permeability and experimental validation are future directions.
 The complete pipeline runs on a standard laptop in under thirty minutes
 and is fully reproducible via Docker and continuous integration.

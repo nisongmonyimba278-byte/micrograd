@@ -186,7 +186,7 @@ These results are obtained in approximately thirty minutes on a standard laptop.
     \centering
     \includegraphics[width=0.85\textwidth]{../figures/comparison.pdf}
     \caption{Performance comparison on the $80\times20$ Brinkman mesh.
-             Red circles: Christmas-tree designs across eight channel widths
+             Red circles: Christmas-tree designs across eight permeability widths
              ($5$--$70\,\mu$m); the best achieves RMSE~$=0.329$
              at $R=7.8\times10^{11}\,\text{Pa}\cdot\text{s}\,\text{m}^{-2}$.
              Blue square: topology-optimised design
@@ -218,7 +218,7 @@ These results are obtained in approximately thirty minutes on a standard laptop.
     \caption{Optimised physical density field $\bar\rho$ after Heaviside
              projection ($\beta=64$).
              Bright ($\bar\rho\approx1$): fluid channels;
-             dark ($\bar\rho\approx0$): solid walls.
+             dark ($\bar\rho\approx0$): impermeable boundaries.
              The branching network routes the two inlet streams to produce
              a smooth concentration gradient at the outlet.}
     \label{fig:topology}
@@ -311,8 +311,8 @@ Note that all Christmas-tree configurations produce RMSE~$\geq 0.329$
 because the binomial branching topology is structurally constrained
 to produce specific concentration profiles regardless of channel width;
 this is a \emph{capability gap}, not a tuning gap.
-Importantly, the binary-thresholded optimised design (RMSE~$=\rmseBinaryBrinkman=0.359$)
-performs comparably to the best manufacturable Christmas-tree configuration
+Importantly, the threshold-projected optimised design (RMSE~$=\rmseBinaryBrinkman=0.359$)
+performs comparably to the best physically realisable Christmas-tree configuration
 (RMSE~$=\treeRMSE=0.329$): the surrogate advantage
 (RMSE~$=\rmseTopOpt=0.058$) represents the theoretical gain available
 from a continuously graded porous medium, not a practically realisable

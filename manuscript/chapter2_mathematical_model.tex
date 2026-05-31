@@ -5,14 +5,20 @@
 We consider a two-dimensional rectangular domain \(\Omega = (0,L_x) \times (0,L_y)\) with \(L_x = 2000\ \mu\text{m}\) and \(L_y = 500\ \mu\text{m}\).
 The left boundary is split into two inlets of equal height:
 \begin{itemize}
-    \item \textbf{Inlet~1} (\(\Gamma_{\text{in},1}\), \(y\in[0,\,L_y/2]\)): pressure \(p = p_{\text{in}}\), concentration \(c = 0\) (pure solvent).
-    \item \textbf{Inlet~2} (\(\Gamma_{\text{in},2}\), \(y\in[L_y/2,\,L_y]\)): pressure \(p = p_{\text{in}}\), concentration \(c = 1\) (solute).
+    \item \textbf{Inlet~1} (\(\Gamma_{\text{in},1}\), \(y\in[0,\,L_y/2]\)): pressure \(p = p_{\text{in}}\), concentration \(c = 0\) (low-concentration stream).
+    \item \textbf{Inlet~2} (\(\Gamma_{\text{in},2}\), \(y\in[L_y/2,\,L_y]\)): pressure \(p = p_{\text{in}}\), concentration \(c = 1\) (high-concentration stream).
 \end{itemize}
 The right boundary is the outlet (\(\Gamma_{\text{out}}\), \(x = L_x\)): pressure \(p = 0\), zero diffusive flux \(\mathbf{n}\cdot D\nabla c = 0\).
-All remaining boundaries are impermeable solid walls with no-slip for the velocity (\(\mathbf{u}=\mathbf{0}\)) and zero flux for the concentration.
+All remaining boundaries are impermeable impermeable boundaries with no-slip for the velocity (\(\mathbf{u}=\mathbf{0}\)) and zero flux for the concentration.
 
 The two inlets supply fluids of different concentrations; the mixing pattern inside \(\Omega\) determines the concentration profile at the outlet.
-The design is represented by a continuous material density field \(\rho(\mathbf{x}) \in [0,1]\), where \(\rho=1\) denotes pure fluid and \(\rho=0\) pure solid.
+The design is represented by a continuous material density field
+\(\rho(\mathbf{x}) \in [0,1]\), where \(\rho=1\) denotes
+a fully permeable (fluid) region and \(\rho=0\) a fully
+impermeable (solid-like) region.
+Intermediate values $\rho\in(0,1)$ represent porous material
+with intermediate permeability and diffusivity, consistent with
+the Brinkman--SIMP modelling framework~\cite{borrvall2003}.
 
 \subsection{Brinkman--Darcy flow}
 \label{sec:brinkman}
@@ -76,7 +82,7 @@ confirms that diffusive leakage through solid regions is negligible in
 steady state, even for intermediate grey densities.
 
 This conclusion is verified quantitatively: re-solving the forward
-problem on the hard-thresholded binary design ($\rho \in \{0,1\}$,
+problem on the hard-thresholded thresholded-permeability design ($\rho \in \{0,1\}$,
 $D = 0$ in solid) produces an RMSE change of $+\binaryGapPct\%$
 relative to the grey design (Supplementary~S5, Table~S5.1).
 This large gap is mechanistically expected for a mixing objective
@@ -105,7 +111,7 @@ No-flux conditions are imposed on the remaining walls.
 
 Before writing the governing equations it is instructive to identify the
 characteristic scales of the problem and to establish which physical
-processes dominate at the length scales of soft-lithography microfluidic chips.
+processes dominate at the length scales of soft-lithography porous microfluidic domains.
 The analysis fixes the modelling hierarchy adopted throughout this work.
 
 \paragraph{Characteristic scales.}
@@ -199,7 +205,7 @@ accuracy, and the target profiles prescribed in this work (linear,
 sigmoid, stair-step) vary on the scale of $L_y = 500\,\mu\text{m}$,
 well above the diffusion layer.
 The channel-scale topology (branching pattern, junction locations,
-channel widths) is therefore resolved by the mesh, even though
+permeability widths) is therefore resolved by the mesh, even though
 the wall-normal diffusion sublayer is not.
 A mesh convergence study (Supplementary Information~S1) confirms
 that the optimised topology and outlet RMSE are stable from the
@@ -291,7 +297,7 @@ The filtered density \(\tilde{\rho}\) is then projected towards 0 or 1 using a s
     \qquad \eta = 0.5.
     \label{eq:heaviside}
 \end{equation}
-The sharpness parameter \(\beta\) is increased during the optimisation (from 1 to $\betaMax$) to gradually drive the design from a grey intermediate state to a near-binary fluid/solid distribution.
+The sharpness parameter \(\beta\) is increased during the optimisation (from 1 to $\betaMax$) to gradually drive the design from a grey intermediate state to a near-binary-permeability distribution.
 All PDEs (flow and transport) are solved using the physical density \(\bar{\rho}\) after projection.
 
 \subsection{Adjoint sensitivity analysis}
