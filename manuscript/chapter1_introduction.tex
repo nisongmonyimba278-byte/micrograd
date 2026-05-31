@@ -125,15 +125,18 @@ Open source & partial & --- & --- & \checkmark & \checkmark \\
           (Section~\ref{sec:reproducibility}).
 \end{enumerate}
 
-\paragraph{Scope.}
-\texttt{micrograd} is a surrogate-based optimisation tool
-calibrated for engineering-resolution meshes ($\Delta y\approx25\,\mu$m).
-It produces Brinkman--SIMP porous optima that serve as starting
-points for binary realisation or experimental iteration~\cite{borrvall2003,wang2011}.
+\paragraph{Scope and limitations.}
+\texttt{micrograd} optimises within the Brinkman--SIMP porous-medium
+model on engineering-resolution meshes ($\Delta y\approx25\,\mu$m).
+The optimised permeability distribution is \emph{not} a manufacturable
+design: hard-thresholding to binary permeability increases RMSE
+by $+356\%$ (Section~\ref{sec:thresholding}), because the optimiser
+exploits diffusive transport through intermediate-density regions
+that have no physical analogue.
 The paper's contribution is a documented, tested, and reproducible
-open-source implementation of the complete pipeline;
-the individual algorithmic components are drawn from
-established literature.
+open-source implementation; users requiring binary designs should
+apply robust projection~\cite{wang2011} during optimisation,
+which is identified as the principal future direction.
 
 The remainder of this paper is organised as follows.
 Section~\ref{sec:model} presents the mathematical model and adjoint

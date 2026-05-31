@@ -273,17 +273,16 @@ re-solve the forward problem in two configurations
     \item \textbf{Binary Stokes}: hard-threshold $\bar\rho$,
           set $\alpha=0$ in fluid regions for pure free-flow
 \end{enumerate}
-Both configurations show RMSE changes of $+356\%$ (binary Brinkman and Stokes, identical). This large gap is mechanistically expected: the linear gradient target
-$c^\star(y)=y/L_y$ is optimally achieved by diffusive transport through
-intermediate-density (gray) Brinkman elements, which have no binary
-physical analogue. Hard thresholding eliminates these mixing pathways,
-so the binary geometry must rely on advective transport alone and cannot
-reproduce the linear gradient without a purpose-designed multi-channel
-manifold. This constitutes a known limitation of density-based surrogate
-optimisation for mixing objectives
-(Section~\ref{sec:limitations}), and body-fitted Navier--Stokes
-validation on a topologically connected binary geometry is deferred to
-future work.
+Both configurations show RMSE increases of $+\binaryGapPct\%$.
+This large gap confirms that the optimised design is \emph{not}
+a manufacturable geometry: the optimiser exploits diffusive transport
+through intermediate-density Brinkman elements that have no binary
+physical counterpart.
+The surrogate RMSE~$=\rmseTopOpt$ therefore represents the
+porous-medium model optimum, not an achievable engineering performance.
+Robust projection~\cite{wang2011} enforcing near-binary designs
+during optimisation is the standard remedy and is identified as
+the primary future direction (Section~\ref{sec:limitations}).
 
 \subsection{Volume fraction sensitivity}
 \label{sec:vstar_sweep}

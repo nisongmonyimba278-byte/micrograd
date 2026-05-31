@@ -17,20 +17,19 @@ Brinkman--SIMP design space.
 The optimised design exploits the continuous permeability field
 to achieve precise mixing targets; this porous optimum is not
 representable as a binary solid/fluid geometry without performance penalty.
-\texttt{micrograd} is deliberately a surrogate tool for rapid
-inverse design exploration in porous media.
-It identifies high-performance continuous-permeability concepts
-that can inform subsequent binary design or experimental iteration:
-the optimised permeability distribution reveals \emph{where} mixing
-should occur and \emph{how} flow should be routed, providing a
-physically motivated starting point for a designer who then
-realises the topology in a manufacturable geometry.
-This two-stage workflow --- surrogate exploration followed by
-binary realisation --- is standard in Brinkman topology optimisation
-literature~\cite{borrvall2003,lazarov2016,wang2011} and is the
-intended use case for \texttt{micrograd}.
-Binary realisation, experimental validation, and a discrete adjoint
-are the principal open directions (Section~\ref{sec:limitations}).
+\texttt{micrograd} optimises within the Brinkman--SIMP
+porous-medium model and produces continuously graded permeability
+distributions that are \emph{not} directly realisable as
+manufacturable geometries.
+The framework is therefore a tool for studying the behaviour of
+porous-medium flow-transport topology optimisation --- the
+achievable RMSE within the surrogate model, the effect of
+continuation strategies, and the sensitivity to mesh resolution
+and volume fraction.
+Users requiring binary manufacturable designs should apply
+robust projection~\cite{wang2011} or iterative thresholding
+during optimisation; both are identified as future work
+(Section~\ref{sec:limitations}).
 
 The primary $\nIterPrimary$-iteration optimisation on the $80\times20$ mesh
 completes in approximately one hour on a standard laptop

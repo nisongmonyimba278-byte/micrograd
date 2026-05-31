@@ -44,21 +44,21 @@ The optimised design exploits the continuous permeability field of the
 Brinkman model to achieve precise mixing targets;
 this porous optimum is not representable as a binary solid/fluid
 geometry without performance penalty.
-\texttt{micrograd} is deliberately a surrogate tool for rapid
-inverse design exploration in porous media: it identifies
-high-performance continuous-permeability concepts that inform
-subsequent binary design or experimental iteration.
-This two-stage workflow is standard in Brinkman topology
-optimisation~\cite{borrvall2003} and is the intended use case.
+\texttt{micrograd} optimises within the Brinkman--SIMP
+porous-medium model; the optimised design is not manufacturable
+without robust projection~\cite{wang2011}.
+The $+\binaryGapPct\%$ binary gap quantifies this limitation
+explicitly.
 
 \paragraph{Future work.}
 The principal open directions are:
-(i)~binary realisation via robust projection~\cite{wang2011} or
-iterative thresholding;
+(i)~robust projection~\cite{wang2011} enforcing near-binary designs
+during optimisation --- the primary open direction;
 (ii)~a discrete adjoint for exact gradient magnitude;
-(iii)~three-dimensional extension and experimental fabrication;
+(iii)~three-dimensional extension;
 (iv)~adaptive mesh refinement targeting the diffusion sublayer
-($\delta\approx 4\,\mu$m).
+($\delta\approx 4\,\mu$m);
+(v)~experimental validation on a binary-projected design.
 
 The framework is designed to be general: any differentiable functional
 of velocity and concentration fields can be incorporated by modifying
