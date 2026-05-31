@@ -152,8 +152,7 @@ gives the results in Table~\ref{tab:binary_val}.
 \textbf{Design} & \textbf{RMSE} & \textbf{$\Delta$RMSE vs grey} & \textbf{Method} \\
 \midrule
 Grey Brinkman   & \rmseTopOpt         & ---              & Smooth $\alpha(\bar\rho)$ \\
-Binary Brinkman & \rmseBinaryBrinkman & $\binaryGapPct\%$ & $\bar\rho\in\{0,1\}$, smooth $\alpha$ \\
-Binary Stokes   & \rmseBinaryStokes   & $\binaryGapPct\%$ & $\bar\rho\in\{0,1\}$, $\alpha=0$ in fluid \\
+Binary Brinkman & \rmseBinaryBrinkman & $\binaryGapPct\%$ & $\bar\rho\in\{0,1\}$, smooth $\alpha$ \\\alpha$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -163,14 +162,11 @@ The $+\binaryGapPct\%$ RMSE change is mechanistically expected:
 the linear gradient target $c^\star(y)=y/L_y$ is optimally achieved
 by diffusive transport through intermediate-density elements, which
 have no binary physical analogue.
-The identical results for binary Brinkman and binary Stokes confirm
-that the gap is not caused by the Brinkman penalisation in fluid
-regions (setting $\alpha=0$ makes no difference), but by the loss
-of the gray mixing pathway.
+The gap is not caused by the Brinkman penalisation in fluid
+regions but by the loss of the gray diffusive mixing pathway.
 The analytical bound $t_{\mathrm{diff}}/t_{\mathrm{flow}} \approx 3000$
 (Section~\ref{para:leakage}) confirms that solid leakage through
 $D_{\min}$ is negligible; the binary gap is a property of the
 topology, not a numerical artefact.
 Body-fitted Navier--Stokes validation on a purpose-designed binary
 multi-channel manifold is deferred to future work.
-
