@@ -36,12 +36,13 @@ refinement or a mesh of $\gtrsim 500\times125$ elements;
 this is deferred to future work.
 The $160\times40$ validation run (800 iterations, tuned continuation) gives
 RMSE~$=\rmseHiRes=0.062$, confirming monotone mesh convergence:
-RMSE decreases from $0.079$ ($80\times20$) to $0.062$ ($160\times40$).Monotone convergence is confirmed with the tuned 800-iteration schedule: RMSE decreases from $0.079$ ($80	imes20$, 600 iters) to $mseHiRes$ ($160	imes40$, 800 iters tuned).
+RMSE decreases from $0.079$ ($80\times20$) to $0.062$ ($160\times40$).Monotone convergence is confirmed with the tuned 800-iteration schedule: RMSE decreases from $0.079$ ($80	imes20$, 600 iters) to $
+mseHiRes$ ($160	imes40$, 800 iters tuned).
 
 \subsection{Adjoint consistency}
 Applying SUPG to the continuous adjoint PDE independently (rather than
 transposing the discrete stabilised stiffness matrix) introduces a
-consistency gap: the computed sensitivity is not the exact gradient of
+consistency gap: the computed sensitivity is not the consistently computed gradient of
 the \emph{discretised} objective.
 Gradient-descent verification (Section~\ref{sec:taylor_test}) confirms that this
 inconsistency is below $10^{-5}$ in relative terms for the mesh

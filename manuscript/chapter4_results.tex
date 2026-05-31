@@ -118,7 +118,7 @@ These results are obtained in approximately thirty minutes on a standard laptop.
              at $R=7.8\times10^{11}\,\text{Pa}\cdot\text{s}\,\text{m}^{-2}$.
              Blue square: topology-optimised design
              (RMSE~$=\rmseTopOpt$, $R=\hydResTopOpt$).
-             Topology optimisation simultaneously reduces RMSE by~$15\%$
+             Topology optimisation simultaneously reduces RMSE by~$\rmseImprovement\%$
              and hydraulic resistance by three orders of magnitude
              relative to the best Christmas-tree configuration,
              demonstrating a genuine capability advantage rather than
@@ -193,9 +193,9 @@ $80\times20$ Brinkman mesh.
 The lowest RMSE achieved by any Christmas-tree configuration is
 $0.329$ (channel width $50\,\mu$m), at hydraulic resistance
 $R = 7.8\times10^{11}\,\text{Pa}\cdot\text{s}\,\text{m}^{-2}$.
-The topology-optimised design achieves RMSE~$=\rmseTopOpt$ at
+The topology-optimised design achieves a Brinkman surrogate RMSE of~$\rmseTopOpt$ at
 $R = \hydResTopOpt\,\text{Pa}\cdot\text{s}\,\text{m}^{-2}$,
-a $15\%$ reduction in concentration error and three orders of
+a $\rmseImprovement\%$ reduction in concentration error and three orders of
 magnitude lower hydraulic resistance simultaneously
 (Figure~\ref{fig:comparison}).
 Note that all Christmas-tree configurations produce RMSE~$\geq 0.329$
@@ -207,7 +207,7 @@ Table~\ref{tab:metrics} summarises key performance metrics.
 The topology-optimised design simultaneously reduces hydraulic resistance
 by $\reduction\%$ (from $\treeHydRes$ to $\hydResTopOpt$\,Pa$\cdot$s/m$^2$)
 and produces a substantially closer approximation to the linear target
-(RMSE reduced from $0.329$ (best Christmas-tree configuration) to $\rmseTopOpt$, a $15\%$ improvement
+(RMSE reduced from $0.329$ (best Christmas-tree configuration) to $\rmseTopOpt$, a $$\rmseImprovement\%$ improvement
 in outlet fidelity).
 
 \begin{table}[htbp]
