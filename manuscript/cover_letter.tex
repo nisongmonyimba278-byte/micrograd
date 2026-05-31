@@ -1,0 +1,114 @@
+\documentclass[12pt,a4paper]{letter}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+
+\signature{[Author Names]}
+\address{[Institution]\\[Department]\\[City, Country]\\[Email]}
+\date{\today}
+
+\begin{document}
+
+\begin{letter}{
+    The Editorial Board\\
+    International Journal for Numerical Methods in Fluids\\
+    Wiley
+}
+
+\opening{Dear Editors,}
+
+We submit for your consideration the manuscript:
+
+\begin{center}
+\textbf{Topology optimisation of Brinkman--convection-diffusion systems
+for porous microfluidic mixing: continuous adjoint, SUPG stabilisation,
+and open-source FEniCSx implementation}
+\end{center}
+
+\textbf{Summary of contributions.}
+This paper presents \texttt{micrograd}, an open-source FEniCSx framework
+for density-based topology optimisation of coupled
+Brinkman--convection-diffusion systems.
+The principal contributions are:
+
+\begin{enumerate}
+\item \textbf{Coupled continuous adjoint derivation.}
+We derive the continuous adjoint for the fully coupled
+Brinkman--convection-diffusion system, including the momentum--concentration
+coupling term $-\lambda\nabla c$ and the Dirichlet outlet condition for the
+concentration adjoint derived from the misfit functional.
+This derivation is not available in the open-source FEniCSx literature for
+this class of problems.
+
+\item \textbf{SUPG-stabilised adjoint implementation.}
+At the P\'{e}clet numbers relevant to microfluidic transport
+($Pe \sim 10^2$--$10^5$), both the forward and adjoint transport equations
+require stabilisation.
+We apply SUPG consistently to both equations and verify gradient accuracy
+via finite-difference Taylor test (slope $\approx 2.0$) and direction test
+(Pearson correlation $\geq 0.80$ with finite-difference gradients).
+
+\item \textbf{Continuation strategies for robust convergence.}
+Five nested continuation strategies --- Helmholtz PDE filtering,
+Heaviside $\beta$-continuation to $\beta=128$, logarithmic
+$\alpha_{\max}$ ramping, hybrid OC/MMA scheduling, and volume-fraction
+targeting --- reduce the gray-zone fraction from $0.443$ (at $\beta=16$)
+to $0.074$ (at $\beta=128$).
+
+\item \textbf{Framework generality.}
+Volume-fraction sweep ($V^*\in\{0.3, 0.5, 0.7\}$) and three target
+profiles (linear RMSE~$=0.058$, sigmoid RMSE~$=0.639$, Gaussian peak
+RMSE~$=0.318$) demonstrate that the framework adapts to arbitrary
+concentration targets without modifying the adjoint structure.
+
+\item \textbf{End-to-end reproducibility.}
+The complete pipeline is released under the MIT licence with Docker,
+GitHub Actions CI, and Zenodo archival.
+All results in the paper are recoverable from a single command.
+\end{enumerate}
+
+\textbf{Scope and honest limitations.}
+This paper presents a \emph{surrogate-based} methodology.
+The Brinkman--SIMP model produces continuously graded permeability
+distributions; threshold-projection to a binary-permeability field
+increases RMSE from $0.058$ to $0.359$, confirming that the optimised
+design exploits gray diffusive mixing pathways that have no direct
+binary physical analogue.
+The paper's contribution is the numerical methodology and open-source
+infrastructure.
+Binary realisation, experimental validation, and a discrete adjoint
+(providing exact gradient magnitude) are identified as future work.
+We include a dedicated ``Known Limitations'' subsection and are committed
+to transparent reporting of all negative results, including the
+gradient magnitude mismatch and non-monotone mesh sensitivity.
+
+\textbf{Suitability for IJNMF.}
+This manuscript is directly suited to IJNMF's scope, which includes:
+numerical methods for fluid mechanics, FEniCSx/FEniCS implementations,
+PDE-constrained optimisation, and stabilised finite element methods.
+The paper builds on the Borrvall--Petersson~(2003) framework published in
+IJNMF and extends it to coupled flow-transport systems with a consistent
+SUPG-stabilised adjoint --- a natural progression for this journal.
+
+\textbf{Suggested reviewers.}
+We suggest the following potential reviewers based on their expertise
+in topology optimisation, adjoint methods, and FEniCSx:
+\begin{itemize}
+\item Prof.\ Ole Sigmund (DTU) --- topology optimisation methodology
+\item Prof.\ Boyan Lazarov (DTU/LLNL) --- Helmholtz filtering, FEniCS
+\item Prof.\ Thomas Borrvall --- Brinkman topology optimisation
+\item Dr.\ Florian Wechsung (NYU) --- FEniCSx adjoint methods
+\end{itemize}
+
+\textbf{Declarations.}
+This manuscript has not been published elsewhere and is not under
+consideration by any other journal.
+All authors have approved the submission.
+The code and data are publicly available at:
+\url{https://github.com/nisongmonyimba278-byte/micrograd}
+(Zenodo DOI to be registered upon acceptance).
+
+\closing{Yours sincerely,}
+
+\end{letter}
+\end{document}
