@@ -269,6 +269,11 @@ The optimisation problem reads
     \label{eq:opt}
 \end{equation}
 where \(V^* = 0.5\) is the target fluid volume fraction.
+Note that the projected fluid volume fraction
+$|\{x : \bar{\rho}(x) < 0.5\}|/|\Omega| = \fluidVol$
+differs from $1 - V^* = 0.5$ because the Heaviside projection
+compresses intermediate densities; the constraint is enforced
+on the raw design field~$\rho$, not the projected field~$\bar\rho$.
 
 \subsection{Design regularisation}
 To avoid mesh-dependent solutions and promote black-and-white designs, we apply two regularisation steps.
