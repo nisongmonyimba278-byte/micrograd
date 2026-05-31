@@ -152,16 +152,17 @@ Table~\ref{tab:mesh_conv} summarises outlet RMSE and final objective.
 
 \begin{table}[htbp]
 \centering
-\caption{Mesh sensitivity study for the linear gradient target.
-         The $80\times20$ mesh is the primary engineering-resolution setting
-         ($\Delta y\approx25\,\mu$m, channel-scale features resolved);
-         finer meshes are sensitivity studies.
-         $\dagger$: resolution-scaled $\nIterHiRes$-iteration run.
-         Both $160\times40$ cases give higher RMSE, confirming
-         multi-modal optimizer sensitivity to resolution
-         (Section~\ref{sec:mesh_limitation});
-         macroscopic topology features (branching, junctions)
-         are qualitatively consistent across all resolved meshes.}
+\caption{Optimizer performance across mesh resolutions
+         (linear gradient target, hybrid OC/MMA).
+         The method is \emph{not mesh-convergent}:
+         the $160\times40$ mesh produces higher RMSE than $80\times20$
+         at both 600 and $\nIterHiRes$ iterations,
+         because the non-convex optimisation landscape yields
+         different local minima at each resolution.
+         Results are reported for the $80\times20$ mesh as a
+         proof-of-concept; finer-mesh results are included
+         to document this limitation.
+         $\dagger$: resolution-scaled $\nIterHiRes$-iteration run.}
 \label{tab:mesh_conv}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
@@ -408,15 +409,15 @@ topology (Figure~\ref{fig:topology}) are consistent across all runs
 from different random seeds, indicating that the continuation strategy
 reliably finds a qualitatively similar local minimum.
 
-\paragraph{Topology consistency across mesh resolutions.}
-Although RMSE varies with mesh resolution (Table~\ref{tab:mesh_conv}),
-the macroscopic topology features are qualitatively preserved:
-the branching network pattern, inlet-stream separation junctions,
-and high-permeability routing channels appear consistently across
-the $80\times20$ and $160\times40$ designs.
-This confirms that the $80\times20$ mesh captures the essential
-design features at engineering resolution ($\Delta y\approx25\,\mu$m),
-even though the diffusion sublayer ($\delta\approx4\,\mu$m) remains
-underresolved.
-Side-by-side topology comparison across meshes is provided
-in Supplementary~S1.
+\paragraph{Mesh dependence of the optimised design.}
+The optimised topology and RMSE are mesh-dependent:
+the $160\times40$ mesh finds a qualitatively different local minimum
+with higher RMSE and higher gray fraction ($0.557$ vs $0.074$),
+even with a resolution-scaled iteration budget
+(Table~\ref{tab:mesh_conv}).
+The macroscopic branching pattern is qualitatively similar
+across meshes, but this does not constitute mesh convergence
+of the optimisation objective.
+All quantitative results in this paper are reported for the
+$80\times20$ mesh only and should be interpreted as
+proof-of-concept results for this resolution.

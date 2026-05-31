@@ -11,10 +11,15 @@ and Pearson correlation $\geq 0.80$ with finite-difference gradients;
 the OC and MMA optimisers depend only on gradient sign, confirmed numerically
 across six orders of magnitude of gradient scaling (Table~\ref{tab:scaling}).
 
-As a benchmark, the implementation achieves outlet RMSE~$=\rmseTopOpt$
-for a linear concentration gradient on an $80\times20$ mesh,
-with framework generality demonstrated on sigmoid (RMSE~$=\rmseSigmoid$)
-and Gaussian peak (RMSE~$=\rmseGaussian$) targets.
+As a proof-of-concept benchmark on an $80\times20$ mesh,
+the implementation achieves outlet RMSE~$=\rmseTopOpt$
+for a linear concentration gradient.
+The optimisation is not mesh-convergent: finer meshes find
+different local minima (RMSE~$=\rmseHiRes$--$\rmseHiResScaled$),
+a known limitation of non-convex topology optimisation
+that is documented and quantified.
+Framework generality is demonstrated on sigmoid
+(RMSE~$=\rmseSigmoid$) and Gaussian peak (RMSE~$=\rmseGaussian$) targets.
 \texttt{micrograd} optimises within the Brinkman--SIMP porous-medium model;
 the optimised permeability field is \emph{not} a manufacturable design.
 Hard-thresholding to binary permeability increases RMSE by $\binaryGapPct\%$,

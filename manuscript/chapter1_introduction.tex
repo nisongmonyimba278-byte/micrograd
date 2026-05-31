@@ -126,17 +126,17 @@ Open source & partial & --- & --- & \checkmark & \checkmark \\
 \end{enumerate}
 
 \paragraph{Scope and limitations.}
-\texttt{micrograd} optimises within the Brinkman--SIMP porous-medium
-model on engineering-resolution meshes ($\Delta y\approx25\,\mu$m).
-The optimised permeability distribution is \emph{not} a manufacturable
-design: hard-thresholding to binary permeability increases RMSE
-by $+356\%$ (Section~\ref{sec:thresholding}), because the optimiser
-exploits diffusive transport through intermediate-density regions
-that have no physical analogue.
-The paper's contribution is a documented, tested, and reproducible
-open-source implementation; users requiring binary designs should
-apply robust projection~\cite{wang2011} during optimisation,
-which is identified as the principal future direction.
+\texttt{micrograd} is a proof-of-concept implementation of
+topology optimisation for coupled Brinkman--convection-diffusion
+systems on the $80\times20$ mesh.
+Two fundamental limitations apply:
+(i)~the optimised design is not manufacturable --- hard-thresholding
+to binary permeability increases RMSE by $+356\%$; and
+(ii)~the optimisation is not mesh-convergent --- finer meshes
+find different local minima with higher RMSE.
+Both limitations are quantified and documented;
+robust projection~\cite{wang2011} and mesh-independent continuation
+are identified as the primary future directions.
 
 The remainder of this paper is organised as follows.
 Section~\ref{sec:model} presents the mathematical model and adjoint

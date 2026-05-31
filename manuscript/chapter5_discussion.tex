@@ -84,25 +84,22 @@ parameter to its trivial value.
 
 \subsection{Mesh resolution and optimizer sensitivity}
 \label{sec:mesh_limitation}
-The framework is calibrated for engineering-resolution meshes
-with $\Delta y\approx25\,\mu$m, where channel-scale branching
-features are resolved and the continuation schedule reliably
-finds the primary optimum.
-Finer meshes ($160\times40$, $\Delta y=12.5\,\mu$m) are presented
-as sensitivity studies: both a 600-iteration identical schedule
-(RMSE~$=\rmseHiRes$) and a resolution-scaled $\nIterHiRes$-iteration
-run (RMSE~$=\rmseHiResScaled$) give higher RMSE than the $80\times20$
-primary result (RMSE~$=\rmseTopOpt$), confirming multi-modal
-optimizer sensitivity to resolution.
-Crucially, the \emph{macroscopic topology} is qualitatively preserved
-across resolutions: the branching network and junction patterns
-remain consistent, and the objective $J$ decreases monotonically
-with refinement ($J_{80}=\finalJ > J_{160,600}=9.82\times10^{-4}
-> J_{160,2400}=1.01\times10^{-3}$, noting that $J_{160,2400}$
-converges to a different local minimum).
-The quantitative RMSE difference reflects the calibration of the
-continuation schedule to the $80\times20$ resolution;
-a mesh-independent schedule is identified as future work.
+The optimisation is \emph{not mesh-convergent} for the
+concentration RMSE objective.
+The $160\times40$ mesh yields RMSE~$=\rmseHiRes$ (600 iterations)
+and RMSE~$=\rmseHiResScaled$ ($\nIterHiRes$ iterations, resolution-scaled)
+--- both worse than the $80\times20$ result (RMSE~$=\rmseTopOpt$).
+The non-convex optimisation landscape produces different local minima
+at each resolution; increasing the iteration budget does not recover
+the $80\times20$ result at $160\times40$.
+This is a fundamental limitation of density-based topology optimisation
+applied to mixing objectives on non-uniform meshes: the continuation
+schedule is not mesh-independent~\cite{lazarov2016}.
+All quantitative results are therefore reported for the
+$80\times20$ mesh as a \emph{proof-of-concept}.
+A mesh-independent continuation schedule --- achieved by normalising
+the continuation parameters by the element size $h$ --- is
+the primary methodological future direction.
 
 On coarse meshes ($20\times5$, $N_{\mathrm{out}}=6$) the outlet
 discretisation is insufficient to represent the linear gradient target
@@ -203,12 +200,16 @@ on every commit.
           \texttt{ns\_validation.py} but requires \texttt{pyvista} and
           \texttt{gmsh} dependencies not present in the standard Docker
           image; these results are deferred to a companion study.
-    \item \textbf{Mesh-dependent continuation schedule.}
-          The hybrid OC/MMA schedule is calibrated for the
-          $80\times20$ primary mesh.
-          Finer meshes find qualitatively different local minima
-          with higher RMSE (Table~\ref{tab:mesh_conv});
-          a mesh-independent schedule is future work.
+    \item \textbf{L2: The optimisation is not mesh-convergent.}
+          The concentration RMSE objective does not converge
+          with mesh refinement: the $160\times40$ mesh finds
+          different local minima with higher RMSE at both
+          600 and $\nIterHiRes$ iterations
+          (Table~\ref{tab:mesh_conv}).
+          All quantitative results are for the $80\times20$ mesh
+          and should be treated as proof-of-concept.
+          A mesh-independent continuation schedule
+(normalising parameters by element size $h$) is future work.
     \item \textbf{Two-dimensional steady flow.}
           The framework is 2D; three-dimensional extension is implemented
           in \texttt{validation\_3d.py} but not systematically validated.
