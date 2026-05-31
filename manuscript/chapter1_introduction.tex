@@ -31,16 +31,15 @@ momentum--concentration coupling term $-\lambda\nabla c$
 and the Dirichlet adjoint outlet condition --- has not been
 previously derived or implemented in FEniCSx.
 
-\emph{Gap~2 --- SUPG-consistent adjoint in FEniCSx.}
+\emph{Gap~2 --- SUPG stabilisation in the FEniCSx implementation.}
 At P\'{e}clet numbers relevant to microfluidic transport
-($\Pe \sim 10^2$--$10^5$), both the forward and adjoint transport
-equations require SUPG stabilisation~\cite{brooks1982}.
-While SUPG is standard for forward solvers, its consistent
-application to the adjoint --- using the same element-wise
-parameter --- is non-trivial and has not been reported for
-coupled Brinkman--convection-diffusion systems in FEniCSx.
-Existing FEniCSx topology optimisation work~\cite{dokken2023}
-operates at $\Pe\ll1$ and does not require transport stabilisation.
+($\Pe \sim 10^2$--$10^5$), both forward and adjoint transport
+equations require stabilisation~\cite{brooks1982,giles2000}.
+While SUPG for adjoint equations is standard in the CFD
+literature~\cite{giles2000}, existing FEniCSx topology optimisation
+implementations~\cite{dokken2023} operate at $\Pe\ll1$ and do not
+include transport stabilisation.
+We document the FEniCSx UFL implementation for both equations.
 
 \emph{Gap~3 --- End-to-end reproducibility.}
 Topology optimisation results are sensitive to implementation choices ---
@@ -85,18 +84,17 @@ Open source & partial & --- & --- & \checkmark & \checkmark \\
 \subsection*{Contributions}
 
 \begin{enumerate}
-    \item \textbf{Continuous adjoint for coupled Brinkman--convection-diffusion.}
-          We derive the complete continuous adjoint system for the
-          coupled Brinkman--convection-diffusion equations with a
-          multi-objective cost functional.
-          The derivation identifies two non-trivial terms:
-          (a) the momentum--concentration coupling $-\lambda\nabla c$
-          in the flow adjoint, which arises from the concentration
-          dependence of the objective; and
-          (b) a Dirichlet outlet condition for the concentration adjoint
-          derived directly from the misfit functional.
-          Neither term appears in pure-flow or global-mixing adjoint
-          formulations~\cite{borrvall2003,na2022}
+    \item \textbf{Continuous adjoint implementation for coupled
+          Brinkman--convection-diffusion.}
+          We derive and implement the continuous adjoint for the
+          coupled system with a multi-objective cost functional,
+          including the momentum--concentration coupling term
+          $-\lambda\nabla c$ and a Dirichlet outlet condition
+          derived from the misfit functional.
+          While the adjoint structure follows standard Lagrangian
+          methodology~\cite{borrvall2003,othmer2008}, a complete
+          open-source FEniCSx implementation for this coupled system
+          has not been previously published
           (Section~\ref{sec:adjoint}).
 
     \item \textbf{SUPG-stabilized adjoint implementation in FEniCSx.}
@@ -108,44 +106,34 @@ Open source & partial & --- & --- & \checkmark & \checkmark \\
           Heaviside projection
           (Section~\ref{sec:verification}).
 
-    \item \textbf{Modular continuation schedule for robust convergence.}
-          Five continuation strategies are presented, each addressing
-          a specific diagnosed failure mode (Table~\ref{tab:continuation}):
-          Helmholtz filtering, Heaviside $\beta$-sharpening,
-          $\alpha_{\max}$ ramping, hybrid OC/MMA scheduling,
-          and sinusoidal initialisation.
-          Volume-fraction sweep ($V^*\in\{0.3,0.5,0.7\}$) and
-          three target profiles demonstrate generality
+    \item \textbf{Modular continuation schedule and parametric study.}
+          A five-component continuation schedule (Helmholtz filtering,
+          Heaviside $\beta$-sharpening, $\alpha_{\max}$ ramping,
+          hybrid OC/MMA, sinusoidal initialisation) is documented
+          with the failure mode each component addresses
+          (Table~\ref{tab:continuation}).
+          A volume-fraction sweep ($V^*\in\{0.3,0.5,0.7\}$) and
+          three target profiles quantify framework behaviour
           (Section~\ref{sec:results}).
 
-    \item \textbf{End-to-end reproducibility at laptop scale.}
-          \texttt{micrograd} is released under the MIT licence.
-          The complete pipeline --- including all figures in this paper ---
-          runs in approximately one hour on a standard laptop
-          from a single Docker command.
-          GitHub Actions CI verifies every commit inside the
-          official \texttt{dolfinx:v0.7.3} container;
-          results are archived with a Zenodo DOI~\cite{micrograd2025zenodo}.
-          To our knowledge this is the first fully reproducible
-          open-source implementation of coupled
-          Brinkman--convection-diffusion topology optimisation
+    \item \textbf{Open-source reproducible implementation.}
+          \texttt{micrograd} is released under the MIT licence
+          with Docker, GitHub Actions CI, and Zenodo archival.
+          All figures and results in this paper are recoverable
+          from a single command in approximately one hour
+          on a standard laptop
           (Section~\ref{sec:reproducibility}).
 \end{enumerate}
 
 \paragraph{Scope.}
-\texttt{micrograd} is deliberately a surrogate tool for rapid
-inverse design exploration in porous media, calibrated for
-engineering-resolution meshes ($\Delta y\approx25\,\mu$m).
-It identifies high-performance continuous-permeability concepts
-that inform subsequent binary design or experimental iteration ---
-the standard two-stage workflow in Brinkman topology
-optimisation~\cite{borrvall2003,wang2011}.
-The Brinkman--SIMP porous optimum (RMSE~$=\rmseTopOpt$) represents
-the thermodynamic limit achievable with a graded-permeability medium;
-threshold-projection to binary geometry increases RMSE to $0.359$
-and is deferred as future work.
-The paper's contribution is the numerical methodology, adjoint
-derivation, and open-source infrastructure.
+\texttt{micrograd} is a surrogate-based optimisation tool
+calibrated for engineering-resolution meshes ($\Delta y\approx25\,\mu$m).
+It produces Brinkman--SIMP porous optima that serve as starting
+points for binary realisation or experimental iteration~\cite{borrvall2003,wang2011}.
+The paper's contribution is a documented, tested, and reproducible
+open-source implementation of the complete pipeline;
+the individual algorithmic components are drawn from
+established literature.
 
 The remainder of this paper is organised as follows.
 Section~\ref{sec:model} presents the mathematical model and adjoint

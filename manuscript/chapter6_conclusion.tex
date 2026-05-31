@@ -4,37 +4,33 @@
 We have presented \texttt{micrograd}, an open-source FEniCSx framework
 for density-based topology optimisation of coupled
 Brinkman--convection-diffusion systems.
-Four contributions advance the state of the art:
+The implementation makes four documented contributions:
 
 \begin{enumerate}
-    \item \textbf{Continuous adjoint for coupled
-          Brinkman--convection-diffusion.}
-          The complete adjoint system includes the
-          momentum--concentration coupling term $-\lambda\nabla c$
-          and a Dirichlet outlet condition derived from the misfit
-          functional --- terms absent from pure-flow and
-          global-mixing adjoints in the existing literature.
+    \item \textbf{Continuous adjoint implementation.}
+          A complete FEniCSx implementation of the continuous adjoint
+          for coupled Brinkman--convection-diffusion, following
+          standard Lagrangian methodology~\cite{borrvall2003},
+          with the momentum--concentration coupling $-\lambda\nabla c$
+          and misfit-derived Dirichlet outlet condition.
 
-    \item \textbf{SUPG-stabilised adjoint at high P\'{e}clet numbers.}
-          The same element-wise SUPG parameter is applied to both
-          forward and adjoint transport equations, reducing
-          sensitivity-field oscillations from amplitude $\sim0.4$
-          to below $10^{-3}$ and enabling reliable gradient descent
+    \item \textbf{SUPG stabilisation of forward and adjoint equations.}
+          Standard SUPG~\cite{brooks1982} applied consistently
+          to both equations in FEniCSx UFL, reducing sensitivity-field
+          oscillations from $\sim0.4$ to below $10^{-3}$
           at $\Pe\sim10^2$--$10^5$.
 
-    \item \textbf{Modular continuation schedule.}
+    \item \textbf{Documented continuation schedule.}
           Five components (Helmholtz filtering, Heaviside
           $\beta$-sharpening, $\alpha_{\max}$ ramping, hybrid OC/MMA,
-          sinusoidal initialisation) --- each addressing a diagnosed
-          failure mode --- reduce gray fraction from $\grayShortRun$
-          to $\grayFrac$ and RMSE from $\rmseShortRun$ to
-          $\rmseTopOpt$ relative to the 600-iteration baseline.
+          sinusoidal initialisation) with each component's
+          failure mode documented (Table~\ref{tab:continuation});
+          reduces gray fraction from $\grayShortRun$ to $\grayFrac$.
 
-    \item \textbf{End-to-end reproducibility at laptop scale.}
-          All results reproduce in approximately one hour on a
-          standard laptop from a single Docker command;
-          CI verifies every commit and Zenodo archives
-          a versioned snapshot~\cite{micrograd2025zenodo}.
+    \item \textbf{Open-source reproducible release.}
+          MIT licence, Docker, CI, and Zenodo archival;
+          all results reproducible from a single command
+          in approximately one hour on a standard laptop.
 \end{enumerate}
 
 As a benchmark application, the framework is demonstrated on microfluidic
