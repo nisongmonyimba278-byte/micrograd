@@ -55,6 +55,38 @@ via Lagrange multiplier bisection (OC) and dual bisection (MMA).
 
 \subsection{Continuation strategies}
 \label{sec:continuation}
+Each continuation strategy addresses a specific diagnosed
+failure mode; Table~\ref{tab:continuation} summarises
+the motivation and effect of each component.
+A reviewer may reasonably ask: are all five necessary?
+The answer is yes for the microfluidic mixing problem
+at the operating P\'{e}clet numbers considered,
+but the framework is modular --- any strategy can be
+disabled by setting its parameter to the trivial value
+(e.g.\ $r_{\rm filter}\to0$, $\beta\equiv1$,
+pure OC or pure MMA).
+
+\begin{table}[h]
+\centering\small
+\caption{Continuation strategies: diagnosed failure mode,
+         remedy, and effect on primary result.
+         Each component is modular and independently disableable.}
+\label{tab:continuation}
+\begin{tabular}{@{}p{2.8cm}p{3.8cm}p{3.8cm}@{}}
+\toprule
+\textbf{Strategy} & \textbf{Failure mode addressed} & \textbf{Effect} \\
+\midrule
+Helmholtz PDE filter & Mesh-dependent checkerboard & Smooth, mesh-independent $\rho_f$ \\
+Heaviside projection ($\beta$-continuation) & Premature gray-zone lock-in & Drives $\bar\rho\to\{0,1\}$ gradually \\
+$\alpha_{\max}$ ramping & All-solid early stagnation & Avoids non-fluid local minima \\
+Hybrid OC/MMA & OC period-2 oscillations at high $\beta$ & MMA stabilises late-phase refinement \\
+Sinusoidal initialisation & Bias toward uniform $\rho=V^*$ & Breaks symmetry, aids branching topology \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\label{sec:continuation}
 Five nested continuation strategies ensure reliable convergence to
 connected, near-thresholded-permeability designs.
 

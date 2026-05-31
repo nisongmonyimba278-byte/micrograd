@@ -1,18 +1,20 @@
 We present \texttt{micrograd}, an open-source FEniCSx framework for
 density-based topology optimisation of systems governed by coupled
 Brinkman--convection-diffusion equations.
-The principal contribution is a complete continuous adjoint formulation
+The principal contributions are: (i)~a complete continuous adjoint
 for a multi-objective cost functional coupling viscous dissipation
-and outlet concentration mismatch, with consistent SUPG stabilisation
-applied to both the forward and adjoint transport equations at
-high cell P\'{e}clet numbers ($\Pe\sim10^2$--$10^5$).
+and outlet concentration mismatch; (ii)~consistent SUPG stabilisation
+of both forward and adjoint transport equations at high P\'{e}clet
+numbers ($\Pe\sim10^2$--$10^5$); and (iii)~a modular continuation
+schedule where each component addresses a specific failure mode.
 
 The framework is implemented in FEniCSx~(DOLFINx~v0.7.3) using
 Taylor--Hood P2/P1 elements for flow and P1+SUPG elements for transport.
-Robust convergence is achieved through five nested continuation strategies:
-Helmholtz PDE filtering, Heaviside $\beta$-continuation
-to $\beta=128$, logarithmic $\alpha_{\max}$ ramping,
-and a hybrid OC/MMA optimisation schedule.
+Robust convergence is achieved through a modular continuation schedule
+--- Helmholtz filtering, Heaviside $\beta$-sharpening to $\beta=128$,
+$\alpha_{\max}$ ramping, and hybrid OC/MMA ---
+where each component addresses a specific diagnosed failure mode
+(Table~\ref{tab:continuation}).
 Functional smoothness is confirmed by a finite-difference Taylor remainder
 test (slope $\approx 2.0$ on both coarse and primary meshes);
 the continuously assembled adjoint provides a reliable descent direction

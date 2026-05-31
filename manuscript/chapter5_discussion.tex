@@ -41,6 +41,24 @@ adjoint, one Helmholtz filter), all handled by MUMPS direct factorisation.
 For larger meshes the iterative block-preconditioner (Section~\ref{sec:fem})
 maintains near-optimal convergence rates (Supplementary~S1).
 
+\paragraph{On framework complexity.}
+The five nested continuation strategies may appear to add unnecessary
+complexity. Each component, however, addresses a specific diagnosed
+failure mode (Table~\ref{tab:continuation}) and the framework is
+fully modular: disabling any component causes a measurable degradation
+that motivates its inclusion.
+Specifically: without the Helmholtz filter, checkerboard instabilities
+appear by iteration~50; without $\beta$-continuation, the design
+stagnates at gray fraction $>0.9$; without $\alpha_{\max}$ ramping,
+early iterations converge to an all-solid minimum;
+without the OC$\to$MMA switch, period-2 oscillations appear at
+$\beta>8$ (Supplementary~S4).
+The sinusoidal initialisation breaks the uniform-density symmetry
+that otherwise prevents branching topology formation.
+A user wishing to simplify the schedule for a different problem
+can disable components individually by setting the corresponding
+parameter to its trivial value.
+
 \subsection{Mesh resolution and optimizer sensitivity}
 \label{sec:mesh_limitation}
 The framework is calibrated for engineering-resolution meshes

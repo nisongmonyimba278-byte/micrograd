@@ -65,14 +65,15 @@ workflow that reproduces every result from a single command.
           Heaviside projection
           (Section~\ref{sec:verification}).
 
-    \item \textbf{Continuation strategies for robust convergence.}
-          Five nested continuation strategies are presented:
-          Helmholtz PDE filtering, Heaviside $\beta$-sharpening
-          to $\beta=128$, logarithmic $\alpha_{\max}$ ramping,
-          hybrid OC/MMA scheduling, and volume-fraction targeting.
-          A volume-fraction sweep ($V^*\in\{0.3,0.5,0.7\}$) and
-          additional target profiles (sigmoid, Gaussian peak) demonstrate
-          framework generality (Section~\ref{sec:results}).
+    \item \textbf{Modular continuation schedule for robust convergence.}
+          Five continuation strategies are presented, each addressing
+          a specific diagnosed failure mode (Table~\ref{tab:continuation}):
+          Helmholtz filtering, Heaviside $\beta$-sharpening,
+          $\alpha_{\max}$ ramping, hybrid OC/MMA scheduling,
+          and sinusoidal initialisation.
+          Volume-fraction sweep ($V^*\in\{0.3,0.5,0.7\}$) and
+          three target profiles demonstrate generality
+          (Section~\ref{sec:results}).
 
     \item \textbf{Open-source reproducible package.}
           \texttt{micrograd} is released under the MIT licence with
