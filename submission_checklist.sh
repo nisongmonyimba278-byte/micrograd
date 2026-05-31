@@ -126,11 +126,10 @@ else
 fi
 
 # Check 3: ORCID
-if grep -q "0000-0000-0000-0000" manuscript/main.tex 2>/dev/null; then
-    warn "[ITEM 3] ORCID placeholder not replaced — register at https://orcid.org"
-    info "  Then update manuscript/main.tex with real ORCID"
+if grep -q "0009-0000-7558-8580" manuscript/main.tex 2>/dev/null; then
+    ok   "[ITEM 3] ORCID set: 0009-0000-7558-8580"
 else
-    ok   "[ITEM 3] ORCID set"
+    warn "[ITEM 3] ORCID missing from main.tex"
 fi
 
 # Check 4: pwd portability

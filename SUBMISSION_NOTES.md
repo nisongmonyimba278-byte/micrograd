@@ -70,7 +70,7 @@ git push origin main
 ### ITEM 3: ORCID and real affiliation
 Add to main.tex author block:
 ```latex
-\author{Nisong Monyimba\textsuperscript{1}\thanks{ORCID: 0000-0000-0000-0000}}
+\author{Nisong Monyimba\textsuperscript{1}\thanks{ORCID: 0009-0000-7558-8580}}
 \affil{\textsuperscript{1}Department of Mathematics,
        University of Ghana, Accra, Ghana}
 ```
