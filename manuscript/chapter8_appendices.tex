@@ -14,7 +14,7 @@ $20\times5$, $40\times10$, $80\times20$ (primary), and $160\times40$
          The $20\times5$ mesh is excluded (too coarse; reversed-flow
          local minima). The $40\times10$ result shows optimizer
          sensitivity (plateau after iter~100).
-         The $80\times20$ primary result uses 600 iterations;
+         The $80\times20$ primary result uses $\nIterPrimary$ iterations (extended $\beta$-continuation to $\betaMax$);
          the $160\times40$ validation uses 800 iterations (tuned schedule)
          (600 iter identical schedule; $J$ monotone, RMSE non-monotone).
          RMSE measures the global outlet profile error.}
@@ -83,7 +83,7 @@ linear gradient target ($80\times20$ mesh, identical initialisation and
 continuation schedules).
 The hybrid OC/MMA strategy (OC for topology formation at $\beta=1$--$2$,
 MMA for sharpening at $\beta=4$--$16$) converges to
-$J = \finalJ$ with outlet RMSE~$=\rmseTopOpt$ in 600 iterations.
+$J = \finalJ$ with outlet RMSE~$=\rmseTopOpt$ in $\nIterPrimary$ iterations.
 
 Pure OC was tested independently and exhibits a period-2 oscillation
 at $\beta \geq 4$: the objective alternates between
