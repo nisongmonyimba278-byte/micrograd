@@ -61,8 +61,9 @@ iterative thresholding;
 The framework is designed to be general: any differentiable functional
 of velocity and concentration fields can be incorporated by modifying
 the objective and adjoint boundary conditions in the UFL description.
-This generality, combined with a computational cost of under thirty
-minutes on a standard laptop and full end-to-end reproducibility,
+This generality, combined with a computational cost of under one hour on a standard laptop
+(or under thirty minutes for the 600-iteration quick run)
+and full end-to-end reproducibility,
 makes \texttt{micrograd} a practical foundation for surrogate-based
 computational microfluidic optimisation and a reference implementation
 for coupled flow-transport adjoint methods in FEniCSx.

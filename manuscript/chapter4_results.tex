@@ -118,7 +118,7 @@ $20\times5$   & 100  & 6  & --- & --- & too coarse; excluded \\
 $40\times10$  & 400  & 11 & 0.414 & $\ensuremath{4.24\times10^{-3}}$
               & optimizer not converged \\
 $80\times20$  & 1600 & 21 & $\rmseTopOpt$ & $\finalJ$ & primary ($\nIterPrimary$ iter, $\beta=\betaMax$) \\
-$160\times40$ & 6400 & 41 & $\rmseHiRes$ & $\ensuremath{9.82\times10^{-4}}$ & 600 iter, identical \\entical \\
+$160\times40$ & 6400 & 41 & $\rmseHiRes$ & $\ensuremath{9.82\times10^{-4}}$ & 600 iter, identical \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -148,7 +148,9 @@ achieves an outlet RMSE of $\rmseTopOpt$
 ($\rmseTopOptPP$\,pp of the $[0,1]$ range; Eq.~\eqref{eq:rmse})
 and a hydraulic resistance of $\hydResTopOpt$\,Pa$\cdot$s/m$^2$
 (per unit depth; Section~\ref{sec:dimensional}).
-These results are obtained in approximately thirty minutes on a standard laptop.
+These results are obtained in approximately one hour on a standard laptop
+($\nIterPrimary$ iterations; a 600-iteration run yields
+RMSE~$=\rmseShortRun$ in under thirty minutes).
 
 \begin{figure}[t]
     \centering
@@ -232,10 +234,11 @@ conductance and concentration mixing.
     \includegraphics[width=\textwidth]{../figures/vstar_sweep.pdf}
     \caption{Volume fraction sweep $V^*\in\{0.3,0.5,0.7\}$.
              Outlet concentration profiles on the $80\times20$ mesh
-             (600-iter hybrid OC/MMA, linear gradient target).
-             RMSE: 0.303 ($V^*=0.3$),
-             0.064 ($V^*=0.5$, primary),
-             0.303 ($V^*=0.7$).}
+             (600-iter hybrid OC/MMA for sweep efficiency;
+             primary linear result uses $\nIterPrimary$ iterations).
+             RMSE: $0.303$ ($V^*=0.3$),
+             $0.064$ ($V^*=0.5$, primary),
+             $0.303$ ($V^*=0.7$).}
     \label{fig:vstar_sweep}
 \end{figure}
 
@@ -267,12 +270,14 @@ reproduced by concentrating porous mixing pathways near the centreline.
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{../figures/profile_gallery.pdf}
-    \caption{Outlet concentration profiles for three target functions
-             ($80\times20$ mesh, 600-iter hybrid OC/MMA).
-             Left: sigmoid (RMSE~$=\rmseSigmoid$);
-             right: Gaussian peak (RMSE~$=\rmseGaussian$).
-             Linear target result is shown in Figure~\ref{fig:topology}.
-             All three cases use the same adjoint structure.}
+    \caption{Outlet concentration profiles for sigmoid and Gaussian peak
+             targets ($80\times20$ mesh, 600-iter hybrid OC/MMA).
+             Left panel: sigmoid (RMSE~$=\rmseSigmoid$);
+             right panel: Gaussian peak (RMSE~$=\rmseGaussian$).
+             Linear gradient result (RMSE~$=\rmseLinear$) is shown
+             in Figures~\ref{fig:convergence}--\ref{fig:topology}.
+             All three use the same adjoint structure;
+             only the target function $c^*(y)$ differs.}
     \label{fig:profiles}
 \end{figure}
 

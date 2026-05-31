@@ -158,7 +158,7 @@ Algorithm~\ref{alg:main} summarises the complete optimisation procedure.
 \textbf{Step} & \textbf{Operation} \\
 \midrule
 1 & Initialise $\rho\leftarrow V^*$ (uniform); reset MMA state \\
-\multicolumn{2}{@{}l}{\textbf{for} $k=0,1,\ldots,\nIterPrimary-1$:} \\
+\multicolumn{2}{@{}l}{\textbf{for} $k=0,1,\ldots,N-1$ \quad ($N=\nIterPrimary$ primary; configurable):} \\
 2 & Look up schedule: $(\beta_k,\,\text{method}_k,\,\alpha_{\max,k})\leftarrow$schedule$(k)$ \\
 3 & Helmholtz filter: $\rho_f\leftarrow$ filter$(\rho)$ \quad [Eq.~\eqref{eq:helmholtz}] \\
 4 & Heaviside projection: $\bar\rho\leftarrow$ project$(\rho_f,\beta_k)$ \quad [Eq.~\eqref{eq:heaviside}] \\
