@@ -17,19 +17,19 @@ open-source literature on coupled flow-transport topology optimisation.
 
 \subsection*{Gaps addressed by this work}
 
-\emph{Gap~1 --- Coupled flow-transport adjoint.}
+\emph{Gap~1 --- Open-source implementation of coupled
+flow-transport topology optimisation.}
 Existing open-source topology optimisation codes for fluidic systems
-target pure flow (pressure-drop minimisation~\cite{borrvall2003}) or
-global scalar mixing~\cite{na2022}.
-FEniCSx-based frameworks have been developed for structural
-topology optimisation~\cite{dokken2023} and Stokes
-flow~\cite{lazarov2016}, but none addresses the coupled
-Brinkman--convection-diffusion problem with a boundary
-concentration-mismatch objective.
-The coupled adjoint for this system --- including the
-momentum--concentration coupling term $-\lambda\nabla c$
-and the Dirichlet adjoint outlet condition --- has not been
-previously derived or implemented in FEniCSx.
+target pure flow~\cite{borrvall2003} or global scalar
+mixing~\cite{na2022}.
+FEniCSx-based frameworks exist for structural problems~\cite{dokken2023}
+and Stokes flow~\cite{lazarov2016}, but a documented, tested,
+and reproducible open-source implementation for the coupled
+Brinkman--convection-diffusion system with a boundary
+concentration-mismatch objective has not been published.
+The benchmark targets used here (linear, Gaussian peak) are
+chosen for verifiability, not to demonstrate extraordinary performance;
+the linear gradient serves primarily as a sanity check.
 
 \emph{Gap~2 --- SUPG stabilisation in the FEniCSx implementation.}
 At P\'{e}clet numbers relevant to microfluidic transport

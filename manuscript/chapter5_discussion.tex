@@ -1,6 +1,29 @@
 \section{Discussion}
 \label{sec:discussion}
 
+\subsection{On the choice of benchmark targets}
+\label{sec:target_choice}
+The linear gradient target $c^*(y)=y/L_y$ is a natural first
+benchmark but is acknowledged to be relatively easy:
+any geometry that partially mixes two inlet streams will
+produce an approximately linear profile by diffusion.
+The RMSE~$=\rmseTopOpt$ result on this target should therefore
+be interpreted as a verification that the implementation
+is functioning correctly, not as a demonstration of
+optimisation power.
+
+The Gaussian peak target (RMSE~$=\rmseGaussian$) is more demanding:
+it requires the optimiser to route flow asymmetrically to
+concentrate species near the centreline, a task that cannot
+be achieved by uniform diffusion.
+The sigmoid target (RMSE~$=\rmseSigmoid$) is not well-approximated
+at this resolution; the result documents a limitation rather
+than a capability.
+
+More demanding benchmarks --- non-monotonic profiles, multi-peak
+targets, or geometries with obstacles --- are natural extensions
+but are outside the scope of this implementation paper.
+
 \subsection{Scope and computational cost}
 This paper presents a surrogate-based optimisation framework;
 the contribution is the continuous adjoint derivation, SUPG-stabilised

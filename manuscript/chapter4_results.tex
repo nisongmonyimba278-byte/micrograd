@@ -206,7 +206,7 @@ approximately~$30\%$.
 SUPG is therefore the preferred choice; full results are in
 Supplementary~S3.
 
-\section{Proof-of-concept: linear gradient generator}
+\section{Benchmark results}
 \label{sec:results}
 
 \begin{figure}[h]
@@ -223,18 +223,19 @@ Supplementary~S3.
     \label{fig:domain}
 \end{figure}
 
-\subsection{Optimised design}
-The framework was applied to the inverse design of a two-inlet microfluidic
-concentration gradient generator with prescribed linear outlet profile
-$c_{\mathrm{target}}(y) = y/L_y$ on a $2000\times500\,\mu$m domain.
-After $\nIterPrimary$ iterations on the primary $80\times20$ mesh, the optimised design
-achieves an outlet RMSE of $\rmseTopOpt$
-($\rmseTopOptPP$\,pp of the $[0,1]$ range; Eq.~\eqref{eq:rmse})
-and a hydraulic resistance of $\hydResTopOpt$\,Pa$\cdot$s/m$^2$
-(per unit depth; Section~\ref{sec:dimensional}).
-These results are obtained in approximately one hour on a standard laptop
-($\nIterPrimary$ iterations; a 600-iteration run yields
-RMSE~$=\rmseShortRun$ in under thirty minutes).
+\subsection{Linear gradient target (verification benchmark)}
+The linear target $c_{\mathrm{target}}(y)=y/L_y$ serves as a
+verification benchmark: any geometry that partially mixes two
+inlet streams will produce an approximately linear outlet profile
+by diffusion, so this case confirms the implementation is
+functioning correctly rather than demonstrating the framework's
+full capability.
+After $\nIterPrimary$ iterations on the $80\times20$ mesh,
+the implementation achieves RMSE~$=\rmseTopOpt$
+($\rmseTopOptPP$\,pp; Eq.~\eqref{eq:rmse}),
+hydraulic resistance $\hydResTopOpt$\,Pa$\cdot$s/m$^2$,
+and gray fraction $\grayFrac$.
+A 600-iteration run yields RMSE~$=\rmseShortRun$ in under 30 minutes.
 
 \begin{figure}[t]
     \centering
@@ -355,37 +356,38 @@ Gaussian peak (demo) & $\rmseGaussian$   & 600             & ---          & $\si
 \end{tabular}
 \end{table}
 
-\subsection{Framework generality: multiple target profiles}
+\subsection{Non-trivial target profiles}
 \label{sec:profiles}
-The primary contribution of this paper is the linear gradient result
-(Section~\ref{sec:results}, RMSE~$=\rmseTopOpt$).
-To demonstrate that the framework generalises without modification,
-Figure~\ref{fig:profiles} shows two additional targets on the
-$80\times20$ mesh with the standard 600-iteration schedule.
-Only the target function $c^*(y)$ changes; the adjoint structure,
-continuation schedule, and all hyperparameters are identical.
+The linear gradient is a verification benchmark.
+To assess whether the framework handles targets that cannot be
+achieved by simple diffusive smearing, Figure~\ref{fig:profiles}
+shows two additional targets on the $80\times20$ mesh
+(600-iteration schedule, identical hyperparameters).
+Only $c^*(y)$ changes; the adjoint structure is unmodified.
 
 \paragraph{Linear gradient.}
 The linear target $c^*(y)=y/L_y$ achieves RMSE~$=\rmseLinear$
 with gray-zone fraction $\grayFrac$ (at $\beta=128$, 1400 iterations).
 
-\paragraph{Sigmoid profile (generality demonstration).}
+\paragraph{Sigmoid profile.}
 The sigmoid target $c^*(y)=\sigma(12(y/L_y-0.5))$ achieves
-RMSE~$=\rmseSigmoid$, which is higher than the linear result.
-This is physically expected: the sharp midpoint transition requires
-concentration gradients steeper than the Brinkman diffusion capacity
-at $\Pe\sim10^3$. The result confirms the framework handles
-non-linear targets, though achievable RMSE depends on target
-compatibility with porous diffusive mixing.
+RMSE~$=\rmseSigmoid$.
+This result is poor: the sharp midpoint transition requires
+concentration gradients steeper than the Brinkman diffusion
+capacity at $\Pe\sim10^3$, and the porous surrogate cannot
+approximate the discontinuity at this mesh resolution.
+The sigmoid target is included to document a case where the
+framework fails to produce a useful result, not as a success case.
 
-\paragraph{Gaussian peak (generality demonstration).}
+\paragraph{Gaussian peak.}
 The Gaussian target $c^*(y)=\exp(-(y/L_y-0.5)^2/0.02)$
-achieves RMSE~$=\rmseGaussian$, better than the sigmoid
-because the localised peak structure can be reproduced by
-concentrating porous mixing pathways near the centreline.
-Together, the three profiles confirm that the same adjoint pipeline
-handles smooth, sharp, and localised targets; the linear gradient
-remains the primary validated result.
+achieves RMSE~$=\rmseGaussian$, substantially better than the
+sigmoid and representing the more demanding test case.
+The localised peak requires the optimiser to concentrate
+porous mixing pathways near the centreline --- a non-trivial
+routing task that goes beyond simple diffusive smearing.
+This result is therefore the more meaningful demonstration
+of the framework's capability.
 
 \begin{figure}[h]
     \centering
