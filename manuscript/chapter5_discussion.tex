@@ -115,6 +115,46 @@ channel width $L_y = 500\,\mu$m, a scale that is well resolved;
 the channel-scale branching topology is therefore correctly captured
 even though the wall-normal diffusion sublayer is not.
 
+\subsection{Positioning relative to existing frameworks}
+\label{sec:positioning}
+Table~\ref{tab:comparison} (Section~\ref{sec:introduction}) compares
+the architectural features of \texttt{micrograd} against existing
+open-source frameworks.
+We highlight three specific advantages.
+
+\paragraph{SUPG-stabilised adjoint.}
+Na et al.~\cite{na2022} and Feppon et al.~\cite{feppon2024} both
+target coupled flow-transport topology optimisation but do not
+report SUPG stabilisation of the adjoint equation.
+At $\Pe\sim10^3$, omitting adjoint stabilisation produces
+spurious oscillations in the sensitivity field that corrupt the
+gradient direction and degrade optimisation performance
+(Section~\ref{sec:supg_val}, Supplementary~S3).
+\texttt{micrograd} applies the same element-wise stabilisation
+parameter to both the forward and adjoint transport equations.
+
+\paragraph{FEniCSx continuous adjoint vs.\ finite differences.}
+Sensitivity computation via finite differences requires $2N$
+additional forward solves per iteration, where $N$ is the number
+of design variables.
+For the primary $80\times20$ mesh ($N=1600$), this would require
+$3200$ forward solves per iteration --- computationally prohibitive.
+The continuous adjoint requires only two additional adjoint solves
+regardless of $N$, enabling the $\nIterPrimary$-iteration
+primary run to complete in approximately one hour.
+dolfin-adjoint~\cite{farrell2013} provides discrete adjoints
+via automatic differentiation, which gives exact gradient magnitude
+but requires the entire forward solve to be differentiable through
+the FEniCSx assembly; \texttt{micrograd} trades exact magnitude
+for simplicity and explicitness of the adjoint derivation.
+
+\paragraph{Reproducibility.}
+To our knowledge, \texttt{micrograd} is the first fully reproducible
+open-source implementation of coupled Brinkman--convection-diffusion
+topology optimisation: all results in this paper are recoverable
+from a single Docker command, verified by continuous integration
+on every commit.
+
 \subsection{Limitations}
 \label{sec:limitations}
 \label{sec:known_limitations}

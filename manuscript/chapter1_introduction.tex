@@ -46,9 +46,41 @@ operates at $\Pe\ll1$ and does not require transport stabilisation.
 Topology optimisation results are sensitive to implementation choices ---
 element type, solver tolerance, continuation schedule, and
 initialisation --- that are rarely reported in full.
+Published microfluidic topology optimisation results~\cite{na2022,feppon2024}
+are not accompanied by open-source code, making independent
+verification and extension difficult.
 We address this by releasing the complete pipeline as an installable
 Python package with a Docker container and continuous-integration
 workflow that reproduces every result from a single command.
+
+Table~\ref{tab:comparison} positions \texttt{micrograd} relative to existing frameworks.
+
+\begin{table}[h]
+\centering\small
+\caption{Architectural comparison of open-source topology optimisation
+         frameworks for microfluidic and flow-transport problems.
+         \checkmark = implemented; --- = not reported.
+         Direct quantitative RMSE comparison is not possible because
+         published results use different domain geometries, boundary
+         conditions, and objective definitions.}
+\label{tab:comparison}
+\begin{tabular}{@{}p{2.8cm}p{1.6cm}p{1.6cm}p{1.6cm}p{1.6cm}p{1.6cm}@{}}
+\toprule
+\textbf{Feature} & \textbf{Borrvall} & \textbf{Na} & \textbf{Feppon} & \textbf{dolfin-} & \textbf{micrograd} \\
+ & \textbf{\& Peters.} & \textbf{et~al.} & \textbf{et~al.} & \textbf{adjoint} & \textbf{(this work)} \\
+ & \cite{borrvall2003} & \cite{na2022} & \cite{feppon2024} & \cite{farrell2013} & \\
+\midrule
+Coupled flow-transport & --- & \checkmark & \checkmark & --- & \checkmark \\
+Concentration-mismatch obj. & --- & \checkmark & --- & --- & \checkmark \\
+SUPG adjoint stabilisation & --- & --- & --- & --- & \checkmark \\
+Continuous adjoint & \checkmark & --- & \checkmark & --- & \checkmark \\
+Discrete adjoint & --- & --- & --- & \checkmark & future work \\
+FEniCSx implementation & --- & --- & --- & \checkmark & \checkmark \\
+Docker + CI reproducibility & --- & --- & --- & --- & \checkmark \\
+Open source & partial & --- & --- & \checkmark & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection*{Contributions}
 
