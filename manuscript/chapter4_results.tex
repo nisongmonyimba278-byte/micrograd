@@ -28,13 +28,16 @@ On the $20\times5$ coarse mesh the slope is $2.12$;
 on the $80\times20$ primary mesh the slope is $2.07$,
 confirming second-order remainder and Fr\'{e}chet differentiability.
 
-\paragraph{Direction test: consistent adjoint providing reliable descent direction.}
-The adjoint sensitivity vector $g$ is a continuous adjoint assembled
-in the finite-element dual space:
-$g_i = \int_\Omega (\partial J/\partial\bar\rho)\,\psi_i\,\mathrm{d}x$,
-which differs from the Euclidean gradient
-$\hat{g}_i = \partial J/\partial\bar\rho_i$
-by the mass matrix $M$: $\hat{g} = M^{-1}g$.
+\paragraph{Direction test: Riesz representative and descent direction.}
+The adjoint sensitivity vector $g$ is the $L^2$ Riesz representative
+of the gradient:
+$g_i = \int_\Omega (\partial J/\partial\bar\rho)\,\psi_i\,\mathrm{d}x$.
+This is \emph{not} the Euclidean gradient $\hat{g}_i =
+\partial J/\partial\bar\rho_i$; the two are related by the
+mass matrix $M$: $\hat{g} = M^{-1}g$.
+The lumped approximation $g/m_i$ does not recover $\hat{g}$
+accurately, which explains the large relative error
+($99\%$--$3303\%$) in Table~\ref{tab:adjoint_verif}.
 
 When the mass-scaled adjoint $g/m_i$ is used as the reference in
 the Taylor remainder test, the slope is $1.0$ on both meshes,
@@ -59,11 +62,14 @@ is identified as future work.
 
 \begin{table}[h]
 \centering
-\caption{Adjoint gradient verification summary.
-         FD slope $\approx 2$: confirms Fr\'{e}chet differentiability.
-         Pearson correlation $\geq 0.80$: correct descent direction.
-         Rel.~err: magnitude mismatch (expected for continuous adjoint;
-         harmless for OC/MMA --- see Table~\ref{tab:scaling}).}
+\caption{Adjoint gradient verification.
+         FD slope $\approx 2$: confirms Fr\'{e}chet differentiability
+         of $J$ (Taylor remainder test).
+         Pearson correlation $\geq 0.80$: the $L^2$ Riesz
+         representative captures the correct descent direction.
+         Rel.~err: magnitude mismatch between the Riesz
+         representative and the Euclidean gradient
+         (expected; see Limitation~L1 in Section~\ref{sec:limitations}).}
 \label{tab:adjoint_verif}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
@@ -88,14 +94,22 @@ Second, MMA normalises the move limit by the design-variable bounds
 $[\rho_{\min},\rho_{\max}]=[0,1]$, making the effective step size
 independent of gradient magnitude~\cite{svanberg1987}.
 
-\paragraph{Numerical evidence: OC insensitivity to gradient scaling.}
-To verify this claim empirically, we repeated the OC optimisation
-on the $20\times5$ mesh with the sensitivity vector scaled by
-factors of $10^{-2}$, $10^{-1}$, $1$, $10$, $10^2$, and $10^4$.
-Table~\ref{tab:scaling} shows that best-$J$ reduction (0.1--0.4\%
-over 60 iterations) is essentially identical across six orders of
-magnitude of gradient scaling, confirming that OC convergence
-depends on gradient \emph{sign}, not magnitude.
+\paragraph{OC sign-dependence: numerical confirmation.}
+The OC update classifies each design variable by comparing
+$s_i$ to a bisection-determined Lagrange multiplier;
+this depends on gradient \emph{sign and relative ranking},
+not absolute magnitude~\cite{bendsoe2003}.
+To confirm this, we scaled the sensitivity vector by
+$10^{-2}$ to $10^4$ on the $20\times5$ mesh (60 iterations).
+Table~\ref{tab:scaling} shows that best-$J$ reduction
+is 0.1--0.4\% in all cases --- consistent with a very coarse
+mesh at 60 iterations, and \emph{independent of scale}.
+This confirms that OC is insensitive to gradient magnitude
+for this problem.
+Note: the identical reduction across scales does \emph{not}
+imply the optimiser ignores the gradient entirely ---
+it implies that OC depends on sign and relative order,
+both of which are preserved under positive scaling.
 
 \begin{table}[h]
 \centering\small
@@ -118,9 +132,12 @@ $10^{4}$ & $7.21\times10^{-3}$ & 0.1\% \\
 \end{tabular}
 \end{table}
 
-Both optimisers therefore achieve reliable convergence despite
-the continuous-adjoint magnitude error, as confirmed by the
-monotone best-$J$ trajectory in Figure~\ref{fig:convergence}.
+Both OC and MMA therefore achieve reliable convergence
+using the $L^2$ Riesz representative directly,
+as confirmed by the monotone best-$J$ trajectory
+in Figure~\ref{fig:convergence}.
+Methods requiring accurate gradient magnitudes (e.g., L-BFGS)
+would require the discrete adjoint; this is future work.
 
 \subsection{Mesh sensitivity}
 \label{sec:mesh_conv}
