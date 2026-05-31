@@ -1,6 +1,19 @@
 \section{Discussion}
 \label{sec:discussion}
 
+\subsection{Scope of the paper}
+This paper presents a surrogate-based optimisation framework;
+the contribution is the continuous adjoint derivation, SUPG-stabilised
+implementation, continuation strategies, and reproducibility infrastructure,
+not a directly manufacturable device design.
+The Brinkman--SIMP model produces continuously graded density fields
+that exploit diffusive mixing through intermediate-density regions;
+this is a well-established modelling choice in topology optimisation
+literature~\cite{borrvall2003,lazarov2016} and is explicitly acknowledged
+as a surrogate.
+Binary realisation, experimental validation, and discrete adjoint
+derivation are the principal open directions (Section~\ref{sec:known_limitations}).
+
 \subsection{Computational efficiency}
 A full 600-iteration optimisation on the primary $80\times20$ mesh
 completes in under thirty minutes on a standard laptop (Intel Core i7,

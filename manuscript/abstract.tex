@@ -1,38 +1,31 @@
 We present \texttt{micrograd}, an open-source FEniCSx framework for
-density-based topology optimisation of microfluidic devices governed by
-coupled Brinkman--convection-diffusion transport.
-The principal computational challenges are (i)~efficient sensitivity
-computation for a multi-objective cost functional that simultaneously
-penalises viscous dissipation and outlet concentration mismatch, and
-(ii)~robust stabilisation of the convection-dominated transport equation
-and its adjoint at high cell P\'eclet numbers.
+density-based topology optimisation of systems governed by coupled
+Brinkman--convection-diffusion equations.
+The principal contribution is a complete continuous adjoint formulation
+for a multi-objective cost functional coupling viscous dissipation
+and outlet concentration mismatch, with consistent SUPG stabilisation
+applied to both the forward and adjoint transport equations at
+high cell P\'{e}clet numbers ($\Pe\sim10^2$--$10^5$).
 
-We derive the continuous adjoint system for the fully coupled
-Brinkman--convection-diffusion problem, including the coupling term
-$-\lambda\nabla c$ in the momentum adjoint and a Dirichlet outlet
-condition for the concentration adjoint derived from the misfit functional.
-The implementation in FEniCSx~(DOLFINx~v0.7.3) uses Taylor--Hood
-P2/P1 elements for flow and P1+SUPG elements for transport;
-the SUPG parameter is evaluated element-wise from the local P\'eclet
-number and applied consistently to both the forward and adjoint transport
-equations.
-Helmholtz PDE filtering, Heaviside projection with
-$\beta$-continuation to $\beta=\betaMax$, and logarithmic
-$\alpha_{\max}$ ramping to $\alphaMaxFinal$ together drive the
-design toward low gray-zone fractions.
+The framework is implemented in FEniCSx~(DOLFINx~v0.7.3) using
+Taylor--Hood P2/P1 elements for flow and P1+SUPG elements for transport.
+Robust convergence is achieved through five nested continuation strategies:
+Helmholtz PDE filtering, Heaviside $\beta$-continuation
+to $\beta=128$, logarithmic $\alpha_{\max}$ ramping,
+and a hybrid OC/MMA optimisation schedule.
+Functional smoothness is confirmed by a finite-difference Taylor remainder
+test (slope $\approx 2.0$ on both coarse and primary meshes);
+the continuously assembled adjoint captures the correct descent direction
+(Pearson correlation $\geq 0.80$ with finite-difference gradients).
 
-Functional smoothness is confirmed by a finite-difference Taylor remainder test
-(slope $\approx 2.0$ on both coarse and primary meshes).
-The continuously assembled adjoint captures the correct descent direction
-(Pearson correlation $\geq 0.80$ with finite-difference gradients);
-a discrete adjoint with exact gradient magnitude is identified as future work.
-Manufactured-solution tests confirm the expected spatial convergence
-rates for the forward and adjoint PDE solvers.
-
-As a proof-of-concept on an $80\times20$ finite-element mesh, the framework is applied to the inverse design of
-a two-inlet microfluidic concentration gradient generator.
-The optimised design achieves an outlet RMSE of $\rmseTopOpt$ for a
-linear target profile and reduces hydraulic resistance by $\reduction\%$
+As a benchmark application, the framework is applied to the inverse design
+of a microfluidic concentration gradient generator on an $80\times20$
+finite-element mesh.
+The Brinkman surrogate optimum achieves an outlet RMSE of $\rmseTopOpt$
+for a linear target profile and reduces hydraulic resistance by $\reduction\%$
 relative to the classic Christmas-tree network~\cite{jeon2000}.
+The gray-zone fraction is reduced to $\grayFrac$ via extended
+$\beta$-continuation; binary realisability and experimental validation
+are identified as directions for future work.
 The complete pipeline runs on a standard laptop in under thirty minutes
 and is fully reproducible via Docker and continuous integration.
