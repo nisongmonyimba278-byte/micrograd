@@ -155,10 +155,15 @@ RMSE~$=\rmseShortRun$ in under thirty minutes).
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.85\textwidth]{../figures/convergence_history.pdf}
-    \caption{Objective function history $J$ vs.\ iteration.
+    \caption{Objective function history $J$ vs.\ iteration
+             ($\nIterPrimary$-iteration primary run, $80\times20$ mesh).
              Vertical dashed lines mark $\beta$ continuation steps.
-             Three-phase behaviour: plateau (OC, low $\beta$), rapid drop
-             ($\beta$ sharpening), final consolidation ($\beta=\betaMax=128$).}
+             Three phases: plateau (OC, low $\beta$,
+             $J\approx2.78\times10^{-3}$), rapid drop ($\beta$ sharpening),
+             final consolidation ($\beta=\betaMax=128$,
+             best-$J=\finalJ$, $36\%$ reduction).
+             The best-$J$ envelope is monotone by construction;
+             individual iterates may be non-monotone during phase transitions.}
     \label{fig:convergence}
 \end{figure}
 
