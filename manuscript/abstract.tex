@@ -1,29 +1,43 @@
 We present \texttt{micrograd}, an open-source FEniCSx framework for
 density-based topology optimisation of coupled Brinkman--convection-diffusion systems.
-Three contributions are made:
-(i)~a complete continuous adjoint for a multi-objective cost functional
-coupling viscous dissipation and outlet concentration mismatch;
-(ii)~consistent SUPG stabilisation of both the forward and adjoint
-transport equations at high P\'{e}clet numbers ($\Pe\sim10^2$--$10^5$);
-and (iii)~a modular continuation schedule --- Helmholtz filtering,
-Heaviside $\beta$-sharpening to $\beta=\betaMax$, $\alpha_{\max}$ ramping,
-and hybrid OC/MMA --- where each component addresses a specific
-diagnosed failure mode (Table~\ref{tab:continuation}).
-Gradient direction is verified by finite-difference Taylor test
-(slope $\approx 2.0$) and Pearson correlation $\geq 0.80$ with
-finite-difference gradients; OC/MMA optimisers are insensitive
-to gradient magnitude, ensuring reliable convergence.
+Four contributions advance the state of the art.
+
+\textbf{(i) Continuous adjoint derivation.}
+We derive the complete continuous adjoint for a multi-objective cost functional
+coupling viscous dissipation and outlet concentration mismatch,
+including the momentum--concentration coupling term $-\lambda\nabla c$
+and the Dirichlet adjoint outlet condition.
+This derivation has not previously been published for the
+coupled Brinkman--convection-diffusion system.
+
+\textbf{(ii) SUPG-stabilised adjoint at high P\'{e}clet numbers.}
+At $\Pe\sim10^2$--$10^5$, both the forward and adjoint transport equations
+require stabilisation.
+We apply the same element-wise SUPG parameter to both equations,
+ensuring numerical consistency; without stabilisation,
+node-to-node oscillations of amplitude $\sim0.4$ corrupt the
+sensitivity field and degrade optimisation.
+
+\textbf{(iii) Modular continuation schedule.}
+A five-component schedule (Helmholtz filtering, Heaviside $\beta$-sharpening
+to $\beta=\betaMax$, $\alpha_{\max}$ ramping, hybrid OC/MMA,
+sinusoidal initialisation) reduces the gray-zone fraction from
+$\grayShortRun$ to $\grayFrac$ and RMSE from $\rmseShortRun$ to $\rmseTopOpt$
+relative to a 600-iteration baseline.
+Each component addresses a specific diagnosed failure mode
+(Table~\ref{tab:continuation}).
+
+\textbf{(iv) End-to-end reproducibility.}
+All results are reproducible in approximately one hour on a standard laptop
+from a single Docker command:
+{\small\texttt{docker run \ldots dolfinx/dolfinx:v0.7.3 bash run\_all.sh}}.
+The pipeline is verified by continuous integration on every commit
+and archived with a Zenodo DOI~\cite{micrograd2025zenodo}.
 
 As a benchmark, the framework achieves outlet RMSE~$=\rmseTopOpt$
-for a linear concentration gradient on an $80\times20$ mesh.
-Framework generality is demonstrated on sigmoid and Gaussian peak
-targets (RMSE~$=\rmseSigmoid$ and $\rmseGaussian$ respectively),
-obtained without modifying the adjoint structure.
-The gray-zone fraction is reduced to $\grayFrac$ via $\nIterPrimary$-iteration
-$\beta$-continuation.
+for a linear concentration gradient,
+with framework generality demonstrated on sigmoid (RMSE~$=\rmseSigmoid$)
+and Gaussian peak (RMSE~$=\rmseGaussian$) targets.
 \texttt{micrograd} is deliberately a surrogate tool for rapid inverse design
 in porous media: it identifies high-performance continuous-permeability concepts
 that inform subsequent binary design or experimental iteration.
-The primary $\nIterPrimary$-iteration run takes approximately one hour
-on a standard laptop; all results are reproducible via Docker and
-continuous integration.

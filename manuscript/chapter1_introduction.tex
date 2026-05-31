@@ -85,12 +85,18 @@ Open source & partial & --- & --- & \checkmark & \checkmark \\
 \subsection*{Contributions}
 
 \begin{enumerate}
-    \item \textbf{Coupled adjoint formulation.}
-          We derive the continuous adjoint for the fully coupled
-          Brinkman--convection-diffusion system, including the coupling
-          term $-\lambda\nabla c$ in the momentum adjoint and a
-          Dirichlet outlet condition for the concentration adjoint
-          derived from the misfit functional
+    \item \textbf{Continuous adjoint for coupled Brinkman--convection-diffusion.}
+          We derive the complete continuous adjoint system for the
+          coupled Brinkman--convection-diffusion equations with a
+          multi-objective cost functional.
+          The derivation identifies two non-trivial terms:
+          (a) the momentum--concentration coupling $-\lambda\nabla c$
+          in the flow adjoint, which arises from the concentration
+          dependence of the objective; and
+          (b) a Dirichlet outlet condition for the concentration adjoint
+          derived directly from the misfit functional.
+          Neither term appears in pure-flow or global-mixing adjoint
+          formulations~\cite{borrvall2003,na2022}
           (Section~\ref{sec:adjoint}).
 
     \item \textbf{SUPG-stabilized adjoint implementation in FEniCSx.}
@@ -112,9 +118,17 @@ Open source & partial & --- & --- & \checkmark & \checkmark \\
           three target profiles demonstrate generality
           (Section~\ref{sec:results}).
 
-    \item \textbf{Open-source reproducible package.}
-          \texttt{micrograd} is released under the MIT licence with
-          Docker, CI (GitHub Actions), and Zenodo archival
+    \item \textbf{End-to-end reproducibility at laptop scale.}
+          \texttt{micrograd} is released under the MIT licence.
+          The complete pipeline --- including all figures in this paper ---
+          runs in approximately one hour on a standard laptop
+          from a single Docker command.
+          GitHub Actions CI verifies every commit inside the
+          official \texttt{dolfinx:v0.7.3} container;
+          results are archived with a Zenodo DOI~\cite{micrograd2025zenodo}.
+          To our knowledge this is the first fully reproducible
+          open-source implementation of coupled
+          Brinkman--convection-diffusion topology optimisation
           (Section~\ref{sec:reproducibility}).
 \end{enumerate}
 

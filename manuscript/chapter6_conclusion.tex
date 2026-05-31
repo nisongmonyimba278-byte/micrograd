@@ -4,38 +4,38 @@
 We have presented \texttt{micrograd}, an open-source FEniCSx framework
 for density-based topology optimisation of coupled
 Brinkman--convection-diffusion systems.
-The paper makes the following methodological contributions:
+Four contributions advance the state of the art:
 
-\begin{itemize}
-    \item A complete continuous adjoint derivation for the coupled
-          Brinkman--convection-diffusion system, with the coupling
-          term $-\lambda\nabla c$ in the momentum adjoint and a
-          Dirichlet outlet condition for the concentration adjoint
-          derived from the misfit functional.
+\begin{enumerate}
+    \item \textbf{Continuous adjoint for coupled
+          Brinkman--convection-diffusion.}
+          The complete adjoint system includes the
+          momentum--concentration coupling term $-\lambda\nabla c$
+          and a Dirichlet outlet condition derived from the misfit
+          functional --- terms absent from pure-flow and
+          global-mixing adjoints in the existing literature.
 
-    \item SUPG stabilisation applied consistently to both the forward
-          and adjoint transport equations using the same element-wise
-          parameter; this ensures numerical consistency at high
-          P\'{e}clet numbers ($\Pe\sim10^2$--$10^5$).
+    \item \textbf{SUPG-stabilised adjoint at high P\'{e}clet numbers.}
+          The same element-wise SUPG parameter is applied to both
+          forward and adjoint transport equations, reducing
+          sensitivity-field oscillations from amplitude $\sim0.4$
+          to below $10^{-3}$ and enabling reliable gradient descent
+          at $\Pe\sim10^2$--$10^5$.
 
-    \item A hybrid OC/MMA optimisation strategy with five nested
-          continuation strategies ($\alpha_{\max}$ ramping,
-          $\beta$-sharpening to $\beta=128$, Helmholtz filtering,
-          volume targeting, sinusoidal initialisation) that reduces
-          the gray-zone fraction from $0.443$ at $\beta=16$ to
-          $\grayFrac=0.074$ at $\beta=128$.
+    \item \textbf{Modular continuation schedule.}
+          Five components (Helmholtz filtering, Heaviside
+          $\beta$-sharpening, $\alpha_{\max}$ ramping, hybrid OC/MMA,
+          sinusoidal initialisation) --- each addressing a diagnosed
+          failure mode --- reduce gray fraction from $\grayShortRun$
+          to $\grayFrac$ and RMSE from $\rmseShortRun$ to
+          $\rmseTopOpt$ relative to the 600-iteration baseline.
 
-    \item Consistent adjoint implementation verified by FD Taylor
-          test (slope $\approx 2.0$, confirming Fr\'{e}chet
-          differentiability) and direction test (Pearson
-          correlation $\geq 0.80$); the OC/MMA optimisers are
-          insensitive to gradient magnitude, ensuring reliable
-          convergence in practice.
-
-    \item Full reproducibility via Docker, continuous integration,
-          and Zenodo archival; all results are recoverable from
-          a single command.
-\end{itemize}
+    \item \textbf{End-to-end reproducibility at laptop scale.}
+          All results reproduce in approximately one hour on a
+          standard laptop from a single Docker command;
+          CI verifies every commit and Zenodo archives
+          a versioned snapshot~\cite{micrograd2025zenodo}.
+\end{enumerate}
 
 As a benchmark application, the framework is demonstrated on microfluidic
 concentration gradient generation.

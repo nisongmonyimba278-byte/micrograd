@@ -33,9 +33,15 @@ Binary realisation, experimental validation, and a discrete adjoint
 are the principal open directions (Section~\ref{sec:limitations}).
 
 The primary $\nIterPrimary$-iteration optimisation on the $80\times20$ mesh
-completes in approximately one hour on a standard laptop (Intel Core i7,
-16\,GB RAM, single thread); a 600-iteration run completes in under
-thirty minutes with RMSE~$=\rmseShortRun$.
+completes in approximately one hour on a standard laptop
+(Intel Core~i7, 16\,GB RAM, single thread, no GPU required).
+A 600-iteration run completes in under thirty minutes with
+RMSE~$=\rmseShortRun$.
+This is competitive with the state of the art: finite-difference
+sensitivity methods require $\mathcal{O}(N)$ forward solves per
+iteration (prohibitive at $N=1600$), while the continuous adjoint
+requires only two adjoint solves regardless of $N$,
+enabling the full $\nIterPrimary$-iteration run within one hour.
 
 \paragraph{Computational cost breakdown.}
 Each iteration requires five sparse linear system solves handled by
