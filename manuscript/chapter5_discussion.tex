@@ -254,7 +254,17 @@ on every commit.
           \texttt{ns\_validation.py} but requires \texttt{pyvista} and
           \texttt{gmsh} dependencies not present in the standard Docker
           image; these results are deferred to a companion study.
-    \item \textbf{L2: The optimisation is not mesh-convergent.}
+    \item \textbf{L2: The OC/MMA schedule is a heuristic.}
+          The switch from OC (iterations 0--299) to MMA
+          (iterations 300+) is based on empirical observation,
+          not a proven optimality criterion.
+          The claim that pure OC produces period-2 oscillations
+          at $\beta>8$ is asserted but not demonstrated with
+          a figure in this paper.
+          Pure MMA throughout is a valid alternative;
+          a systematic comparison of OC-only, MMA-only,
+          and hybrid schedules is future work.
+    \item \textbf{L3: The optimisation is not mesh-convergent.}
           The concentration RMSE objective does not converge
           with mesh refinement: the $160\times40$ mesh finds
           different local minima with higher RMSE at both

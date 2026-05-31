@@ -20,12 +20,12 @@ The implementation makes four documented contributions:
           sensitivity-field oscillations from $\sim0.4$ to
           below $10^{-3}$ at $\Pe\sim10^2$--$10^5$.
 
-    \item \textbf{Documented continuation schedule.}
-          Five components (Helmholtz filtering, Heaviside
-          $\beta$-sharpening, $\alpha_{\max}$ ramping, hybrid OC/MMA,
-          sinusoidal initialisation) with each component's
-          failure mode documented (Table~\ref{tab:continuation});
+    \item \textbf{Documented heuristic continuation schedule.}
+          Five components documented with empirical motivation
+          (Table~\ref{tab:continuation});
           reduces gray fraction from $\grayShortRun$ to $\grayFrac$.
+          The OC/MMA split is a heuristic; pure MMA is a
+          valid simpler alternative (not systematically compared).
 
     \item \textbf{Open-source reproducible release.}
           MIT licence, Docker, CI, and Zenodo archival;

@@ -105,15 +105,13 @@ Open source & partial & --- & --- & \checkmark & \checkmark \\
           Heaviside projection
           (Section~\ref{sec:verification}).
 
-    \item \textbf{Modular continuation schedule and parametric study.}
-          A five-component continuation schedule (Helmholtz filtering,
+    \item \textbf{Documented heuristic continuation schedule.}
+          A five-component schedule (Helmholtz filtering,
           Heaviside $\beta$-sharpening, $\alpha_{\max}$ ramping,
           hybrid OC/MMA, sinusoidal initialisation) is documented
-          with the failure mode each component addresses
-          (Table~\ref{tab:continuation}).
-          A volume-fraction sweep ($V^*\in\{0.3,0.5,0.7\}$) and
-          three target profiles quantify framework behaviour
-          (Section~\ref{sec:results}).
+          with its empirical motivation (Table~\ref{tab:continuation}).
+          The hybrid OC/MMA split is a heuristic engineering choice;
+          pure MMA is a valid simpler alternative.
 
     \item \textbf{Open-source reproducible implementation.}
           \texttt{micrograd} is released under the MIT licence

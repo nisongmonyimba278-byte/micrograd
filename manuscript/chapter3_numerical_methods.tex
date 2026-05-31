@@ -55,13 +55,13 @@ via Lagrange multiplier bisection (OC) and dual bisection (MMA).
 
 \subsection{Continuation strategies}
 \label{sec:continuation}
-Each continuation strategy addresses a specific diagnosed
-failure mode; Table~\ref{tab:continuation} summarises
-the motivation and effect of each component.
-A reviewer may reasonably ask: are all five necessary?
-The answer is yes for the microfluidic mixing problem
-at the operating P\'{e}clet numbers considered,
-but the framework is modular --- any strategy can be
+Each component of the continuation schedule is documented
+in Table~\ref{tab:continuation} with its motivation.
+The hybrid OC/MMA schedule is a heuristic engineering choice:
+OC is faster in the early uniform-density phase;
+MMA is more stable during late-phase $\beta$-sharpening.
+Pure MMA throughout is a valid and simpler alternative.
+The framework is fully modular: any component can be
 disabled by setting its parameter to the trivial value
 (e.g.\ $r_{\rm filter}\to0$, $\beta\equiv1$,
 pure OC or pure MMA).
@@ -79,7 +79,7 @@ pure OC or pure MMA).
 Helmholtz PDE filter & Mesh-dependent checkerboard & Smooth, mesh-independent $\rho_f$ \\
 Heaviside projection ($\beta$-continuation) & Premature gray-zone lock-in & Drives $\bar\rho\to\{0,1\}$ gradually \\
 $\alpha_{\max}$ ramping & All-solid early stagnation & Avoids non-fluid local minima \\
-Hybrid OC/MMA & OC period-2 oscillations at high $\beta$ & MMA stabilises late-phase refinement \\
+Hybrid OC/MMA & Empirical: OC faster early, MMA more stable at high $\beta$ & Practical engineering choice; pure MMA is a valid alternative \\
 Sinusoidal initialisation & Bias toward uniform $\rho=V^*$ & Breaks symmetry, aids branching topology \\
 \bottomrule
 \end{tabular}
